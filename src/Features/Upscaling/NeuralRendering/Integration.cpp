@@ -4,7 +4,6 @@
 #include "Features/Upscaling.h"
 #include "Features/Upscaling/FoveatedRender/Bridge.h"
 #include "Features/Upscaling/FoveatedRender/Core.h"
-#include "Features/Upscaling/PerfMode.h"
 #include "Globals.h"
 #include "GpuPass.h"
 #include "Renderer.h"
@@ -372,9 +371,9 @@ namespace NeuralRendering
 				const std::uint32_t eyeHeight = colorDesc.Height;
 				std::uint32_t outputEyeWidth = eyeWidth;
 				std::uint32_t outputEyeHeight = eyeHeight;
-				if (upscaling.perfMode.IsHookActive() && upscaling.perfMode.GetTestTexture()) {
-					outputEyeWidth = upscaling.perfMode.GetDisplayEyeWidth();
-					outputEyeHeight = upscaling.perfMode.GetDisplayEyeHeight();
+				if (upscaling.vrSubmit.IsHookActive()) {
+					outputEyeWidth = upscaling.vrSubmit.GetDisplayEyeWidth();
+					outputEyeHeight = upscaling.vrSubmit.GetDisplayEyeHeight();
 				} else {
 					auto& total = renderer->GetRuntimeData().renderTargets[RE::RENDER_TARGETS::kTOTAL];
 					if (total.texture) {
