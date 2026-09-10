@@ -259,7 +259,8 @@ bool FoveatedRender::IsRuntimeSupported() const
 
 FoveatedRender::DlssMode FoveatedRender::GetDlssMode() const
 {
-	if (globals::features::upscaling.GetUpscaleMethod() == Upscaling::UpscaleMethod::kFSR)
+	if (globals::features::upscaling.vrSubmit.IsHookActive() ||
+		globals::features::upscaling.GetUpscaleMethod() == Upscaling::UpscaleMethod::kFSR)
 		return DlssMode::kDefault;
 	return (DlssMode)std::min(settings.dlssMode, 1u);
 }
@@ -443,7 +444,6 @@ void FoveatedRender::DrawSettings(bool showSharedPanelNote, bool vrControlsFirst
 		// ── VR-only knobs ──
 		if (globals::game::isVR) {
 			ImGui::Separator();
-			ImGui::Text("%s", T(TKEY("foveated_dlss_mode_header"), "VR DLSS Mode"));
 			if (auto _tt = Util::HoverTooltipWrapper()) {
 				ImGui::Text("%s", T(TKEY("foveated_dlss_mode_tooltip"),
 									  "Default — highest quality. Each eye gets its own isolated copy of color/depth/motion\n"
@@ -604,14 +604,14 @@ void FoveatedRender::DrawSettings(bool showSharedPanelNote, bool vrControlsFirst
 	if (ImGui::CollapsingHeader(T(TKEY("neural_rendering_header"), "DLSS Neural Rendering"), ImGuiTreeNodeFlags_DefaultOpen)) {
 		const bool supportedRoute = globals::features::upscaling.GetUpscaleMethod() == Upscaling::UpscaleMethod::kDLSS &&
 		                            !globals::features::upscaling.IsFrameGenerationConfiguredForSession() &&
-		                            (!globals::game::isVR || (GetDlssMode() == DlssMode::kDefault &&
-																 globals::features::upscaling.perfMode.IsHookActive()));
+			                            (!globals::game::isVR || (GetDlssMode() == DlssMode::kDefault &&
+																 globals::features::upscaling.vrSubmit.IsHookActive()));
 		if (!supportedRoute) {
 			if (globals::features::upscaling.IsFrameGenerationConfiguredForSession())
 				Util::Text::Warning("Disable Frame Generation and restart the game before enabling DLSS Neural Rendering.");
 			else
 				Util::Text::Warning(T(TKEY("neural_rendering_unavailable"),
-					"Requires DLSS. VR additionally requires Foveated Default mode and active PerfMode."));
+					"Requires DLSS. VR additionally requires Foveated Default mode and active VR submit upscaling."));
 			ImGui::BeginDisabled();
 		}
 		ImGui::Checkbox(T(TKEY("neural_rendering_enable"), "Enable DLSS Neural Rendering"), &settings.neuralRenderingEnabled);

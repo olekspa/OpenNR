@@ -1,4 +1,5 @@
 #include "Core.h"
+#include "GpuPass.h"
 #include "Ops.h"
 
 #include "../../../GpuPass.h"
@@ -490,6 +491,7 @@ namespace FoveatedRenderImpl::Ops
 		uint32_t srcEyeWidth,
 		uint32_t srcEyeHeight)
 	{
+		CS_GPU_PASS("FoveatedRender::Stretch");
 		auto context = globals::d3d::context;
 
 		if (!Core::vrSubrectStretchCS) {
@@ -867,6 +869,7 @@ namespace FoveatedRenderImpl::Ops
 	bool BlendSubrectToOutput(ID3D11Resource* dlssSrc, ID3D11Resource* dst, ID3D11UnorderedAccessView* dstUAV,
 		uint32_t dstOffsetX, uint32_t dstOffsetY, uint32_t subWidth, uint32_t subHeight, uint32_t srcOffsetX)
 	{
+		CS_GPU_PASS("FoveatedRender::Blend");
 		auto context = globals::d3d::context;
 		auto& foveated = globals::features::upscaling.foveatedRender;
 		auto blendMode = foveated.GetSubrectBlendMode();
