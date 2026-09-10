@@ -45,7 +45,6 @@ public:
 		bool EnableOcclusionCulling = true;
 		float SimpleShadingPixelSize = 0.0f;
 		float OcclusionBias = 0.001f;
-		float CollisionDistance = 2048.0f;
 		bool EnableMeshLOD = false;
 		bool EnableMidLOD = true;
 		float MidLODPixelSize = 8.0f;
@@ -102,7 +101,7 @@ public:
 
 		float invisibleFadeCull;
 		float simpleShadingPixelSize;
-		float collisionDistSq;
+		float padding;
 		float midLODPixelSize;
 
 		float meshLODBandPx;
