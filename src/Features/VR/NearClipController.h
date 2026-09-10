@@ -6,7 +6,9 @@
 /** @brief Settings in Skyrim world units; RestoreSpeed is an exponential rate per second. */
 struct VRNearClipSettings
 {
-	bool DynamicNearClip = true;
+	// Experimental upstream near-clip controller: beta packages require an
+	// explicit opt-in from the VR settings page.
+	bool DynamicNearClip = false;
 	float NormalNearClip = 5.0f;
 	float MinimumNearClip = 0.1f;
 	float NearDistanceScale = 0.25f;
