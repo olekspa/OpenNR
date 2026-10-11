@@ -12,6 +12,7 @@
 #include <cassert>
 #include <cctype>
 #include <chrono>
+#include <atomic>
 #include <d3dcompiler.h>
 #include <fstream>
 #include <mutex>
@@ -31,6 +32,49 @@
 
 namespace SIE
 {
+	namespace
+	{
+		std::atomic<int64_t> g_interiorLightingDiagnosticUntilNs{ 0 };
+		std::mutex g_interiorLightingDiagnosticMutex;
+		std::unordered_set<std::string> g_interiorLightingDiagnosticEvents;
+
+		bool ShouldLogInteriorLightingDiagnostic(const RE::BSShader& a_shader)
+		{
+			if (a_shader.shaderType.get() != RE::BSShader::Type::Lighting)
+				return false;
+			const auto nowNs = std::chrono::duration_cast<std::chrono::nanoseconds>(
+				std::chrono::steady_clock::now().time_since_epoch()).count();
+			return nowNs < g_interiorLightingDiagnosticUntilNs.load(std::memory_order_relaxed);
+		}
+
+		void LogInteriorLightingPermutationEvent(std::string_view a_event, const std::string& a_permutation)
+		{
+			const auto eventKey = std::format("{}|{}", a_event, a_permutation);
+			{
+				std::lock_guard lock(g_interiorLightingDiagnosticMutex);
+				if (!g_interiorLightingDiagnosticEvents.insert(eventKey).second)
+					return;
+			}
+			logger::info("[Lighting-CompileDiag] result={} permutation={}", a_event, a_permutation);
+		}
+	}
+
+	void ShaderCache::ArmInteriorLightingCompileDiagnostics(bool a_active)
+	{
+		if (a_active) {
+			const auto nowNs = std::chrono::duration_cast<std::chrono::nanoseconds>(
+				std::chrono::steady_clock::now().time_since_epoch()).count();
+			g_interiorLightingDiagnosticUntilNs.store(nowNs + std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::seconds(10)).count(), std::memory_order_relaxed);
+			{
+				std::lock_guard lock(g_interiorLightingDiagnosticMutex);
+				g_interiorLightingDiagnosticEvents.clear();
+			}
+			logger::info("[Lighting-CompileDiag] enabled for 10 seconds after interior cell transition");
+		} else {
+			g_interiorLightingDiagnosticUntilNs.store(0, std::memory_order_relaxed);
+		}
+	}
+
 	// Chrono-free snapshot of compile counters for consumers that can't include
 	// ShaderCache.h (see ShaderCompileStatus.h). Thread-safe: atomics + the
 	// shader-map lock inside GetCurrentFailedCount.
@@ -1781,6 +1825,8 @@ namespace SIE
 			//  - claim the slot with Pending if nobody started yet.
 			auto [claimResult, cachedBlob] = cache.ClaimCompilation(key, a_taskGeneration);
 			if (claimResult == ShaderCache::ClaimResult::CacheHit) {
+				if (ShouldLogInteriorLightingDiagnostic(shader))
+					LogInteriorLightingPermutationEvent("memory-cache-hit", SShaderCache::GetShaderString(shaderClass, shader, descriptor, false));
 				cache.IncCacheHitTasks();
 				return cachedBlob;
 			}
@@ -1851,6 +1897,8 @@ namespace SIE
 					}
 				} else {
 					logger::debug("Loaded shader from {}", Util::WStringToString(diskPath));
+					if (ShouldLogInteriorLightingDiagnostic(shader))
+						LogInteriorLightingPermutationEvent("disk-cache-hit", SShaderCache::GetShaderString(shaderClass, shader, descriptor, false));
 					if (!cache.AddCompletedShader(shaderClass, shader, descriptor, shaderBlob, /*fromDisk=*/true, a_taskGeneration)) {
 						// Stale generation or a concurrent Clear(path) eviction: see AddCompletedShader.
 						shaderBlob->Release();
@@ -1895,6 +1943,8 @@ namespace SIE
 				cache.AddCompletedShader(shaderClass, shader, descriptor, nullptr, false, a_taskGeneration);
 				return nullptr;
 			}
+			if (ShouldLogInteriorLightingDiagnostic(shader))
+				LogInteriorLightingPermutationEvent("compile", SShaderCache::GetShaderString(shaderClass, shader, descriptor, false));
 			logger::debug("Compiling {} {}:{}:{:X} to {}", pathString, magic_enum::enum_name(type), magic_enum::enum_name(shaderClass), descriptor, MergeDefinesString(defines));
 
 			// compile shaders — match Utils/D3D.cpp CompileShader flag policy (strictness, optional toggles, validation).
@@ -2395,13 +2445,18 @@ namespace SIE
 			}
 		}
 
+		RE::BSGraphics::VertexShader* cachedShader = nullptr;
 		{
 			std::lock_guard lockGuard(vertexShadersMutex);
 			auto& typeCache = vertexShaders[static_cast<size_t>(shader.shaderType.underlying())];
 			auto it = typeCache.find(descriptor);
-			if (it != typeCache.end()) {
-				return it->second.get();
-			}
+			if (it != typeCache.end())
+				cachedShader = it->second.get();
+		}
+		if (cachedShader) {
+			if (ShouldLogInteriorLightingDiagnostic(shader))
+				LogInteriorLightingPermutationEvent("runtime-cache-hit", SIE::SShaderCache::GetShaderString(ShaderClass::Vertex, shader, descriptor, false));
+			return cachedShader;
 		}
 
 		if (IsAsync()) {
@@ -2444,13 +2499,18 @@ namespace SIE
 			}
 		}
 
+		RE::BSGraphics::PixelShader* cachedShader = nullptr;
 		{
 			std::lock_guard lockGuard(pixelShadersMutex);
 			auto& typeCache = pixelShaders[static_cast<size_t>(shader.shaderType.underlying())];
 			auto it = typeCache.find(descriptor);
-			if (it != typeCache.end()) {
-				return it->second.get();
-			}
+			if (it != typeCache.end())
+				cachedShader = it->second.get();
+		}
+		if (cachedShader) {
+			if (ShouldLogInteriorLightingDiagnostic(shader))
+				LogInteriorLightingPermutationEvent("runtime-cache-hit", SIE::SShaderCache::GetShaderString(ShaderClass::Pixel, shader, descriptor, false));
+			return cachedShader;
 		}
 
 		if (IsAsync()) {

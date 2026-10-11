@@ -25,7 +25,7 @@ The live profile is now armed for the bounded one-button version of that pilot:
 80 Hz eligibility, 240 accepted samples, both eyes, native Feature 18 guides,
 renderer conditionings, and one periodic full-frame master at sample 240. The
 burst key is `\` (`220`), the new root is
-`C:/OpenNR_Captures_FullEyeTemporalPilot_20260908`, and the applied profile is
+`<DATA_ROOT>/OpenNR_Captures_FullEyeTemporalPilot_20260908`, and the applied profile is
 hash-verified with a rollback copy. The exact settings, storage rationale and
 post-capture gate are in the [pilot setup report](FULL_EYE_TEMPORAL_PILOT_SETUP_20260908.md).
 The disabled-by-default config copy passed the validator with no warnings.
@@ -79,7 +79,7 @@ The seed812 replication is complete at update1200. Independent replay reproduced
 
 Both arms completed the restored optimizer/RNG continuation to absolute update4000, retaining every evaluated checkpoint and original sequential execution. This confirmed that duration alone does not solve the broad validation tradeoff. See [full replication and continuation record](SEMANTIC_PARENT_REPLICATION_20260908.md). The [batching benchmark](SEMANTIC_WINDOW_BATCHING_20260908.md) passed its approximate numerical screen and measured1.385x faster joint updates on one training window; it was not used in the duration comparison and is not inference/VR evidence.
 
-Direct inspection of new19 sequence13 left-eye frame64 still shows the student cart wood darker and less warm than the teacher, with ground/stone tone differences. Static sheets do not establish temporal/headset acceptance. The verified endpoint SHA256 is `fa8a2497e0f89c25dada3d1007fbbf7981fe1c9a2fe2f8fb6c5200ec3ab75bb9`; replay evidence and48 sheets are under `C:/OpenNR/Training/semantic_parent_seed812_joint1200_20260908/independent_replay`. C: had120.11GiB free before continuation. No data was removed and no Runpod credit spent. The goal remains active and unmet.
+Direct inspection of new19 sequence13 left-eye frame64 still shows the student cart wood darker and less warm than the teacher, with ground/stone tone differences. Static sheets do not establish temporal/headset acceptance. The verified endpoint SHA256 is `fa8a2497e0f89c25dada3d1007fbbf7981fe1c9a2fe2f8fb6c5200ec3ab75bb9`; replay evidence and48 sheets are under `<OPENNR_DATA>/Training/semantic_parent_seed812_joint1200_20260908/independent_replay`. C: had120.11GiB free before continuation. No data was removed and no Runpod credit spent. The goal remains active and unmet.
 
 The following paragraphs preserve the earlier pilot and preparation snapshot; running/prepared statements there are superseded by this update.
 
@@ -165,18 +165,18 @@ If conditioning consistently improves fitting and validation while preserving 1Ã
 ## Evidence pointers
 
 - `out/joint_teacher_data_20260907/conditioning_comparison.json`: paired update-zero and update-400 audit, source hashes and temporal deltas.
-- `E:/OpenNR_Training/stable_unet_joint_teacher_duration6000_20260907/final_checkpoint_verification.json`: exact final replay.
-- `E:/OpenNR_Training/joint_teacher_duration_final_training_fit_20260908/result.json`: complete endpoint training-fit metrics.
-- `E:/OpenNR_Training/joint_teacher_duration_final_response_20260908`: fixed-subset response and precision diagnostic.
-- `E:/OpenNR_Training/joint_teacher_duration_final_gallery_20260908/index.html`: previous endpoint visual comparisons, not new-arm output.
-- `E:/OpenNR_Training/stable_unet_joint_teacher_multilayer6000_20260908`: active run configuration, status and history.
+- `<DATA_ROOT>/OpenNR_Training/stable_unet_joint_teacher_duration6000_20260907/final_checkpoint_verification.json`: exact final replay.
+- `<DATA_ROOT>/OpenNR_Training/joint_teacher_duration_final_training_fit_20260908/result.json`: complete endpoint training-fit metrics.
+- `<DATA_ROOT>/OpenNR_Training/joint_teacher_duration_final_response_20260908`: fixed-subset response and precision diagnostic.
+- `<DATA_ROOT>/OpenNR_Training/joint_teacher_duration_final_gallery_20260908/index.html`: previous endpoint visual comparisons, not new-arm output.
+- `<DATA_ROOT>/OpenNR_Training/stable_unet_joint_teacher_multilayer6000_20260908`: active run configuration, status and history.
 - `docs/TWOPASS_DATA_INTEGRATION_20260907.md`: preserved chronological integration history.
 
 No new cloud spending, test evaluation, data deletion or runtime/public-build changes are part of this update.
 
 ## Superseding result: chroma-preserving luminance-output ablation completed
 
-The follow-up luma-only arm completed at `E:/OpenNR_Training/stable_unet_chroma_luma1200_20260908_retry7`. It retained the verified stable U-Net and frozen parent, copied the warm RGB-affine head, and added a zero-initialized bounded luminance-gain branch that applies a ratio to the warm head's RGB output. It intentionally ignored renderer channels so output formulation was isolated from the preceding stem-conditioning arm.
+The follow-up luma-only arm completed at `<DATA_ROOT>/OpenNR_Training/stable_unet_chroma_luma1200_20260908_retry7`. It retained the verified stable U-Net and frozen parent, copied the warm RGB-affine head, and added a zero-initialized bounded luminance-gain branch that applies a ratio to the warm head's RGB output. It intentionally ignored renderer channels so output formulation was isolated from the preceding stem-conditioning arm.
 
 The final step-1,200 checkpoint replayed all five validation cohorts and all 229 training sequences without frozen-test access. Its MAE was `0.0195026512 / 0.0180219793 / 0.0148330077 / 0.0161295034 / 0.0438475786` for prior, high-effect, renderer-pilot, fresh one-pass and two-pass cohorts. The ordinary four-cohort mean was `0.0171217854`, versus `0.0171024651` for the matched control, so it regressed by `0.0000193202`. No ordinary cohort reached `0.011`; the best was `0.0148330077`.
 
@@ -188,9 +188,9 @@ This closes the current local conditioning/output-formulation line. Do not promo
 
 ## Superseding final update: renderer-input conditioning completed
 
-The stronger multi-layer arm completed at `E:/OpenNR_Training/stable_unet_joint_teacher_multilayer6000_20260908`. Its final validation MAE was `0.0205285050 / 0.0173715550 / 0.0150178303 / 0.0161182648 / 0.0458451717` for prior, high-effect, renderer-pilot, fresh one-pass and two-pass cohorts. Independent replay passed all five; full training-fit, response/precision diagnostics and fixed galleries were completed. It was not promoted.
+The stronger multi-layer arm completed at `<DATA_ROOT>/OpenNR_Training/stable_unet_joint_teacher_multilayer6000_20260908`. Its final validation MAE was `0.0205285050 / 0.0173715550 / 0.0150178303 / 0.0161182648 / 0.0458451717` for prior, high-effect, renderer-pilot, fresh one-pass and two-pass cohorts. Independent replay passed all five; full training-fit, response/precision diagnostics and fixed galleries were completed. It was not promoted.
 
-The next controlled arm completed at `E:/OpenNR_Training/stable_unet_renderer_conditioned1200_20260908_retry2`. It exposed the 17 verified renderer channels at the first stable-U-Net convolution, copied the original 19 input weights, zero-initialized the 17 added slices and used the fresh 1,200-step control `E:/OpenNR_Training/stable_unet_joint_teacher_20260907`. The final MAE was `0.0195801011 / 0.0177046111 / 0.0148462412 / 0.0162566698 / 0.0440758521`. Only high-effect improved against control; temporal delta improved on four cohorts and worsened on two-pass. Step-zero replay, final checkpoint replay, full training-fit replay, branch utilization and visual gallery all completed. No frozen test was used.
+The next controlled arm completed at `<DATA_ROOT>/OpenNR_Training/stable_unet_renderer_conditioned1200_20260908_retry2`. It exposed the 17 verified renderer channels at the first stable-U-Net convolution, copied the original 19 input weights, zero-initialized the 17 added slices and used the fresh 1,200-step control `<DATA_ROOT>/OpenNR_Training/stable_unet_joint_teacher_20260907`. The final MAE was `0.0195801011 / 0.0177046111 / 0.0148462412 / 0.0162566698 / 0.0440758521`. Only high-effect improved against control; temporal delta improved on four cohorts and worsened on two-pass. Step-zero replay, final checkpoint replay, full training-fit replay, branch utilization and visual gallery all completed. No frozen test was used.
 
 The branch was not inert: renderer-stem weight L2 was `0.3855278790`, actual-versus-zero-conditioning output MAE was `0.0010084041` on fresh one-pass and `0.0007561681` on two-pass samples. That response did not move the student toward a convincing teacher color/skin/face match. See the dedicated [renderer-context conditioning report](RENDERER_CONTEXT_CONDITIONING_20260908.md).
 
@@ -220,22 +220,22 @@ training, Runpod spend, runtime change or production modification was started
 in this preparation step.
 
 The live capture profile was armed for the new tranche at
-`C:\OpenNR_Captures_RendererStateDistillation_0.5.7_20260908`. The prior
+`<DATA_ROOT>\OpenNR_Captures_RendererStateDistillation_0.5.7_20260908`. The prior
 2x output root was not reused. The settings backup and rollback source are
 preserved under
-`E:\MGO-RC3-fresh\_OpenNR_Pilot_Backups\pre-renderer-state-output-root-20260908`;
+`<MO2_INSTANCE>\_OpenNR_Pilot_Backups\pre-renderer-state-output-root-20260908`;
 the capture settings remain 64-frame, both-eye, native-guide and
 renderer-conditioning enabled. The first tranche now contains 38 sequences;
 37 pass the strict crop temporal gate and one is preserved/excluded for a
-mid-clip reset plus a 45-frame host gap. See the [final capture audit](<E:/OpenNR_Training/renderer_state_capture_validate_final_20260908.json>).
+mid-clip reset plus a 45-frame host gap. See the [final capture audit](<<DATA_ROOT>/OpenNR_Training/renderer_state_capture_validate_final_20260908.json>).
 At the time of this preparation note the game and capture process were stopped;
 the subsequent audit and pilot results are recorded below.
 
 The profile is now prepared for the next paired replay at the new empty root
-`C:\OpenNR_Captures_RendererStatePairs_0.5.7_20260908`; the first tranche root
+`<DATA_ROOT>\OpenNR_Captures_RendererStatePairs_0.5.7_20260908`; the first tranche root
 is preserved separately. Only `OpenNR Capture.output_directory` changed, with
 the pre-edit settings backup at
-`E:\MGO-RC3-fresh\_OpenNR_Pilot_Backups\pre-renderer-state-pairs-output-root-20260908`.
+`<MO2_INSTANCE>\_OpenNR_Pilot_Backups\pre-renderer-state-pairs-output-root-20260908`.
 The game and runtime remain stopped.
 
 ## Superseding completed result: capture audit, pair discovery, and null pilot
@@ -261,7 +261,7 @@ therefore reports `ready=false`, `ready_pair_count=0`, `minimum_pairs=8` and
 tranche.
 
 A safe no-pair branch was evaluated locally for 400 steps at
-`E:/OpenNR_Training/renderer_state_conditioning_pilot_400_20260908`. The
+`<DATA_ROOT>/OpenNR_Training/renderer_state_conditioning_pilot_400_20260908`. The
 62,016-parameter conditioned refiner and its no-renderer control both selected
 step zero. Parent, control and conditioned validation MAE are all
 `0.0201330753`; all three test MAE values are `0.0250988306`. The selected
@@ -303,7 +303,7 @@ capture with native engine guides and measured state response.
 
 The strict crop cache for the 37 accepted renderer-conditioned sequences was
 completed at
-`D:\OpenNR_TrainingInputs\RendererStateDistillationStrict_20260908`.
+`<DATA_ROOT>\OpenNR_TrainingInputs\RendererStateDistillationStrict_20260908`.
 It contains 4,736 eye rows with strict initial reset and a 23/6/8
 train/validation/frozen-test split. The cache completion SHA-256 is
 `34ff59c2852d9ceb3af5bc6a330ee85c23eaa8a293155ce0922ec865d9094ca1`.
@@ -335,7 +335,7 @@ teacher substitute or label source for OpenNR. It remains an isolated parity
 oracle/research lineage only.
 
 The isolated dependency path used for these offline checks is
-`C:\OpenNR\python312_ml_deps_20260908`; `torch 2.10.0+cu128`, `torchvision
+`<OPENNR_DATA>\python312_ml_deps_20260908`; `torch 2.10.0+cu128`, `torchvision
 0.25.0`, `lpips 0.1.4`, `scipy 1.18.1` and `tqdm 4.70.0` were installed there.
 No production Python environment, Skyrim profile, native DLL, capture labels,
 or public package was changed. No Runpod spend is justified by these results.

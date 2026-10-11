@@ -15,7 +15,7 @@ temporal or runtime claim.
 
 The control checkpoint is:
 
-`C:\OpenNR\Training\semantic_pixel_l1_pair_20260909\joint\best_all_cohorts.pt`
+`<OPENNR_DATA>\Training\semantic_pixel_l1_pair_20260909\joint\best_all_cohorts.pt`
 
 Protected checkpoint SHA-256:
 
@@ -75,12 +75,12 @@ Adam moments while preserving an apples-to-apples comparison.
 Use exactly the six cohorts recorded by the protected checkpoint, in their
 recorded order:
 
-1. `E:\OpenNR_TrainingInputs\AlignedGuides_AllCohorts_20260907`
-2. `E:\OpenNR_TrainingInputs\AlignedGuides_HighEffect_20260907`
-3. `E:\OpenNR_TrainingInputs\AlignedGuides_RendererPilot_20260907`
-4. `E:\OpenNR_TrainingInputs\RendererConditioningFreshSession_20260907_2114`
-5. `D:\OpenNR_TrainingInputs\RendererStateDistillationStrict_20260908`
-6. `C:\OpenNR\TrainingCache\RendererPairsStrict_20260908`
+1. `<DATA_ROOT>\OpenNR_TrainingInputs\AlignedGuides_AllCohorts_20260907`
+2. `<DATA_ROOT>\OpenNR_TrainingInputs\AlignedGuides_HighEffect_20260907`
+3. `<DATA_ROOT>\OpenNR_TrainingInputs\AlignedGuides_RendererPilot_20260907`
+4. `<DATA_ROOT>\OpenNR_TrainingInputs\RendererConditioningFreshSession_20260907_2114`
+5. `<DATA_ROOT>\OpenNR_TrainingInputs\RendererStateDistillationStrict_20260908`
+6. `<OPENNR_DATA>\TrainingCache\RendererPairsStrict_20260908`
 
 Only sequence-disjoint train rows are sampled. Existing validation rows are
 used for checkpoint selection and no test rows are loaded. The runner checks
@@ -171,7 +171,7 @@ F2 is a comparison arm, not an automatic promotion candidate. A lower narrow
 
 Primary output root:
 
-`C:\OpenNR\Training\semantic_scratch_v2_vs_finetune_20260910`
+`<OPENNR_DATA>\Training\semantic_scratch_v2_vs_finetune_20260910`
 
 The root will contain immutable run metadata, the paired schedule and digest,
 calibration diagnostics, arm histories, validation checkpoints, replay

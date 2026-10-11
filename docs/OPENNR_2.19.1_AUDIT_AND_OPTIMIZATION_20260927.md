@@ -6,14 +6,14 @@ Date: 2026-09-27. Auditor: Claude (read-only source, settings, and report audit)
 
 | Item | Location / value |
 |---|---|
-| Source | **Uncommitted** worktree `C:\Users\oleks\.codex\worktrees\opennr-2190-result-shaping\OpenNR-VR` (16 modified files, 5 new). `main` is still 2.18.0 (`8a30b22`). |
-| Build | `E:\OpenNR_Builds\2.19.1` (CMake source dir confirms the worktree above); archive `dist\OpenNR 2.19.1.7z` (228.75 MB) |
-| Install | MO2 mod `OpenNR 2.19.1`, profile `MGO NSFW - OpenNR 2.19.1` |
-| Currently selected MO2 profile | `MGO NSFW - OpenNR V5 Turbo4-R16 HMD Test 20260927` (the V5 track, not 2.19.1) |
+| Source | **Uncommitted** worktree `<REPO>` (16 modified files, 5 new). `main` is still 2.18.0 (`8a30b22`). |
+| Build | `<BUILD_DIR>\2.19.1` (CMake source dir confirms the worktree above); archive `dist\OpenNR 2.19.1.7z` (228.75 MB) |
+| Install | MO2 mod `OpenNR 2.19.1`, profile `<MO2_PROFILE>` |
+| Currently selected MO2 profile | `<MO2_PROFILE>` (the V5 track, not 2.19.1) |
 | 2.19.0 changes | Optional post-NR result shaping, per-eye stabilizer (Off/Static/Motion), NR status control, a DevBench query |
 | 2.19.1 changes | NR menu reorganized, Strong preset removed (saved Strong maps to Custom), tooltip width cap |
 
-The NR path in 2.19.1 is NVIDIA's Feature 18 (DLSS-NR 310.8) behind a D3D11→D3D12 shared-texture/fence bridge. It runs per eye after DLSS on the full-eye output (2496×2688). The V5 replacement graph is a separate, also uncommitted track. It is already covered by `E:\OpenNR_Research\CLAUDE_ONBOARDING_AUDIT_20260927.md`; this report only adds a few V5 notes in §7.
+The NR path in 2.19.1 is NVIDIA's Feature 18 (DLSS-NR 310.8) behind a D3D11→D3D12 shared-texture/fence bridge. It runs per eye after DLSS on the full-eye output (2496×2688). The V5 replacement graph is a separate, also uncommitted track. It is already covered by `<RESEARCH_DIR>\CLAUDE_ONBOARDING_AUDIT_20260927.md`; this report only adds a few V5 notes in §7.
 
 ## 1. Where the frame time goes (measured, from your reports)
 
@@ -95,7 +95,7 @@ Savings are stereo ms per frame from the cost model, against about 24 ms of nati
 
 ## 4. Base-game cost: your current settings
 
-From `E:\MGO-RC3-fresh\overwrite\SKSE\Plugins\CommunityShaders\SettingsUser.json`:
+From `<MO2_INSTANCE>\overwrite\SKSE\Plugins\CommunityShaders\SettingsUser.json`:
 
 | Setting | Current | Recommendation |
 |---|---|---|
@@ -141,8 +141,8 @@ From `E:\MGO-RC3-fresh\overwrite\SKSE\Plugins\CommunityShaders\SettingsUser.json
 ## Evidence index
 
 - Source: worktree above; `Integration.cpp`, `Renderer.cpp`, `Runtime.cpp`, `D3D12Interop.cpp`, `FoveatedRender/Core.cpp`, `Bridge.cpp`; shaders `ResultShapingCS`, `TemporalReuseCS`, `AdaptiveHandoffCS`, `EncodeTexturesCS`.
-- Build: `E:\OpenNR_Builds\2.19.1\CMakeCache.txt`, `build-opennr.cmd`.
-- Reports: `docs/OPENNR_VR_PERFORMANCE_PLAN_20260924.md`, `docs/OPENNR_2.18.0_RELEASE_20260924.md`, `reports/OPENNR_FULL_RESOLUTION_PERFORMANCE_DECISION_20260923.md`, `docs/PUBLIC_B580_FAST_PATH_CUDA_PROBE_20260912.md` (external NGX timings), `C:\OpenNR\Reports\V5_*_2026092[67]`, `E:\OpenNR_Research\CLAUDE_ONBOARDING_AUDIT_20260927.md`.
+- Build: `<BUILD_DIR>\2.19.1\CMakeCache.txt`, `build-opennr.cmd`.
+- Reports: `docs/OPENNR_VR_PERFORMANCE_PLAN_20260924.md`, `docs/OPENNR_2.18.0_RELEASE_20260924.md`, `reports/OPENNR_FULL_RESOLUTION_PERFORMANCE_DECISION_20260923.md`, `docs/PUBLIC_B580_FAST_PATH_CUDA_PROBE_20260912.md` (external NGX timings), `<OPENNR_DATA>\Reports\V5_*_2026092[67]`, `<RESEARCH_DIR>\CLAUDE_ONBOARDING_AUDIT_20260927.md`.
 
 ## Addendum — what 2.20.0 implemented (2026-09-27)
 

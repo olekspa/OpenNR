@@ -481,6 +481,8 @@ public:
 		/// or visualisation was active — making it hard to access the overlay's
 		/// debug controls (cycle button, solo, hover-pulse) in the default state.
 		bool ShowShadowOverlay = false;
+		/// Runtime diagnostics/fixes for interior light and history transitions.
+		bool ResetTemporalHistoryOnWorldChange = true;
 
 		// Shadow caster scheduling (ShadowCasterManager)
 		ShadowCasterManager::Settings ShadowSettings;

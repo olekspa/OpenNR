@@ -19,8 +19,8 @@ namespace GpuPassCapabilities
 
 /// RAII scope that fans a single pass name to all three instrumentation sinks:
 ///   1. Internal profiler (GPU timestamp + CPU QPC → Profiling table)
-///   2. Tracy CPU zone (always-on when TRACY_ENABLE; not gated on frameAnnotations)
-///   3. Tracy GPU zone (always-on when TRACY_ENABLE and a D3D11 context exists)
+///   2. Tracy CPU zone (during active internal profiling capture)
+///   3. Tracy GPU zone (during active capture with a D3D11 context)
 ///   4. RenderDoc/PIX ID3DUserDefinedAnnotation (when frameAnnotations is true)
 ///
 /// Use via the convenience macros at render-pass entry points:
@@ -106,4 +106,9 @@ private:
 	const auto& CS_DETAIL_CONCAT(cs_gpu_pass_name_, __LINE__) = (name);               \
 	[[maybe_unused]] const bool CS_DETAIL_CONCAT(cs_gpu_pass_capability_, __LINE__) = \
 		GpuPassCapabilities::Register(CS_DETAIL_CONCAT(cs_gpu_pass_name_, __LINE__)); \
+	ScopedGpuPass CS_DETAIL_CONCAT(cs_gpu_pass_, __LINE__) { CS_DETAIL_CONCAT(cs_gpu_pass_name_, __LINE__) }
+
+// For runtime names whose feature prefix is registered by an enclosing static pass.
+#define CS_GPU_PASS_DYNAMIC_REGISTERED(name) \
+	const auto& CS_DETAIL_CONCAT(cs_gpu_pass_name_, __LINE__) = (name);               \
 	ScopedGpuPass CS_DETAIL_CONCAT(cs_gpu_pass_, __LINE__) { CS_DETAIL_CONCAT(cs_gpu_pass_name_, __LINE__) }

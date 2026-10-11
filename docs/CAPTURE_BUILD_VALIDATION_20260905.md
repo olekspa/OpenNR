@@ -6,7 +6,7 @@ No production MGO files were replaced.
 Validated source checkout:
 
 ```text
-D:\.CODEX_Projects\DLSS_5_SKYRIM\vendor\open-shaders-dlssnr-vr-091bfb4d
+<LEGACY_REPO>\vendor\open-shaders-dlssnr-vr-091bfb4d
 ```
 
 Validated build directory:
@@ -31,7 +31,7 @@ Result: `ninja: no work to do` with exit code 0.
 The capture-ready DLL is:
 
 ```text
-D:\.CODEX_Projects\DLSS_5_SKYRIM\vendor\open-shaders-dlssnr-vr-091bfb4d\build\Dev-Fast\aio\SKSE\Plugins\CommunityShaders.dll
+<LEGACY_REPO>\vendor\open-shaders-dlssnr-vr-091bfb4d\build\Dev-Fast\aio\SKSE\Plugins\CommunityShaders.dll
 ```
 
 Its SHA-256 is:

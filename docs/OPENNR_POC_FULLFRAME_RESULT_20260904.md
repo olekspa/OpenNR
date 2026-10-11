@@ -50,7 +50,7 @@ Generated under `out/opennr_poc/fullframe_4x`:
 
 The render command is reproducible with:
 
-    E:\OpenNR-VR-Poc-Venv\Scripts\python.exe tools\render_poc_fullframe.py --capture-root E:\MGO-RC3-fresh\overwrite\Root\OpenNR_Captures --checkpoint-dir D:\.CODEX_Projects\OpenNR-VR\out\opennr_poc --output-dir D:\.CODEX_Projects\OpenNR-VR\out\opennr_poc\fullframe_4x --sequence-id seq-1788507516449-6 --frame-id 100 --passes 4 --models rgb,guided
+    <POC_VENV>\Scripts\python.exe tools\render_poc_fullframe.py --capture-root <MO2_INSTANCE>\overwrite\Root\OpenNR_Captures --checkpoint-dir <REPO>\out\opennr_poc --output-dir <REPO>\out\opennr_poc\fullframe_4x --sequence-id seq-1788507516449-6 --frame-id 100 --passes 4 --models rgb,guided
 
 This remains an exploratory full-resolution stress/visual test. The model was
 trained on `128x128` crops and has no temporal history, recurrent state, live

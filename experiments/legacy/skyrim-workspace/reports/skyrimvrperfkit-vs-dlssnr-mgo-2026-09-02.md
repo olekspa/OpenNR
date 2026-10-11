@@ -2,7 +2,7 @@
 
 Investigation date: 2026-09-02  
 Nexus item: [SkyrimVRPerfKIT Custom-Region DLSS5 Neural Rendering](https://www.nexusmods.com/skyrimspecialedition/mods/182089)  
-Compared package: `D:\.CODEX_Projects\DLSS_5_SKYRIM\dist\DLSSNR-MGO-VR-0.3.2-mgo-vr.4-private-dev-PRIVATE-DLSSNR-ONLY-MO2.zip`
+Compared package: `<LEGACY_REPO>\dist\DLSSNR-MGO-VR-0.3.2-mgo-vr.4-private-dev-PRIVATE-DLSSNR-ONLY-MO2.zip`
 
 ## Executive conclusion
 
@@ -24,9 +24,9 @@ The attached package documents (`README-PRIVATE-FULL.txt`, `CHANGELOG.md`, and `
 
 - Nexus description and file metadata: [main page](https://www.nexusmods.com/skyrimspecialedition/mods/182089), [files tab](https://www.nexusmods.com/skyrimspecialedition/mods/182089?tab=files), and [posts](https://www.nexusmods.com/skyrimspecialedition/mods/182089?tab=posts).
 - Author source fork and the public feature branches: [DLSSNR-VR](https://github.com/YtzyFvra/skyrim-community-shaders/tree/feature/dlssnr-vr), [DLSS Enhancer](https://github.com/YtzyFvra/skyrim-community-shaders/tree/feature/DLSSenhancer), [VRS](https://github.com/YtzyFvra/skyrim-community-shaders/tree/feature/VRS), [DeepDVC](https://github.com/YtzyFvra/skyrim-community-shaders/tree/feature/dvc), and [Screenshot](https://github.com/YtzyFvra/skyrim-community-shaders/tree/feature/Screenshot).
-- Local source repository: `D:\.CODEX_Projects\DLSS_5_SKYRIM\vendor\open-shaders-dlssnr-vr-091bfb4d`.
+- Local source repository: `<LEGACY_REPO>\vendor\open-shaders-dlssnr-vr-091bfb4d`.
 - Current package documentation, manifest, archive inventory, hashes, and FOMOD structure.
-- Active MO2 state under `E:\MGO-RC3-fresh`, profile `Mad God Overhaul - NSFW`, plus a read-only process/module/log check.
+- Active MO2 state under `<MO2_INSTANCE>`, profile `Mad God Overhaul - NSFW`, plus a read-only process/module/log check.
 
 ## What the Nexus build actually is
 
@@ -67,7 +67,7 @@ The relevant implementation is visible in:
 - `src\Features\ScreenshotFeature.*`: asynchronous lossless screenshot capture with VR crop/eye handling.
 - `src\Features\VRStereoOptimizations.*`: optional stencil/depth/G-buffer stereo reprojection. This is not NVAPI VRS and should not be counted as the Nexus VRS feature.
 
-The active profile audit found `+DLSSNR` enabled in `E:\MGO-RC3-fresh\profiles\Mad God Overhaul - NSFW\modlist.txt`, with CSX and the Community Shaders VR cache disabled for the isolated path. A final read-only process check found SkyrimVR running via USVFS with `CommunityShaders.dll`, `openvr_api.dll`, `sksevr_steam_loader.dll`, and `usvfs_x64.dll` loaded. That proves the modded process boundary, not Feature 18 output or headset acceptance.
+The active profile audit found `+DLSSNR` enabled in `<MO2_INSTANCE>\profiles\Mad God Overhaul - NSFW\modlist.txt`, with CSX and the Community Shaders VR cache disabled for the isolated path. A final read-only process check found SkyrimVR running via USVFS with `CommunityShaders.dll`, `openvr_api.dll`, `sksevr_steam_loader.dll`, and `usvfs_x64.dll` loaded. That proves the modded process boundary, not Feature 18 output or headset acceptance.
 
 ## Capability comparison
 

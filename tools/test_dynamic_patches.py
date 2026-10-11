@@ -7,7 +7,7 @@ from dynamic_patches import DynamicPatches
 from master_dataset import sample_guide
 
 torch.set_num_threads(2)
-d=DynamicPatches('C:/OpenNR/TrainingCache/student_v1','C:/OpenNR/TrainingCache/dynamic_guides_v1')
+d=DynamicPatches('<OPENNR_DATA>/TrainingCache/student_v1','<OPENNR_DATA>/TrainingCache/dynamic_guides_v1')
 assert len(d)==7712 and all(d.rows[i]['split']=='train' for i in d.row_ids)
 checks=[]
 for index in (0,17,len(d)-1):

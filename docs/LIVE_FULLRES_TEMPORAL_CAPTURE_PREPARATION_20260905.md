@@ -8,7 +8,7 @@ Runtime authority for this preparation is the enabled profile entry
 `Open Shaders DLSSNR VR 0.5.5 OpenNR`:
 
 ```text
-DLL: E:\MGO-RC3-fresh\mods\Open Shaders DLSSNR VR 0.5.5 OpenNR\SKSE\Plugins\CommunityShaders.dll
+DLL: <MO2_INSTANCE>\mods\Open Shaders DLSSNR VR 0.5.5 OpenNR\SKSE\Plugins\CommunityShaders.dll
 Version: 0.5.5.0
 Bytes: 43,744,768
 SHA-256: ECC2B784F19037CD3AD97D265883440D21C92BACD8674D6F13E258ADD9149CAE
@@ -17,7 +17,7 @@ SHA-256: ECC2B784F19037CD3AD97D265883440D21C92BACD8674D6F13E258ADD9149CAE
 The DLL was not copied, rebuilt, or modified. The exact settings backup is:
 
 ```text
-E:\MGO-RC3-fresh\_OpenNR_Pilot_Backups\pre-fullres-temporal-0.5.5-20260905-230251\SettingsUser.json
+<MO2_INSTANCE>\_OpenNR_Pilot_Backups\pre-fullres-temporal-0.5.5-20260905-230251\SettingsUser.json
 ```
 
 The preparation manifest and the standalone capture block are in
@@ -26,7 +26,7 @@ The preparation manifest and the standalone capture block are in
 The new output root is:
 
 ```text
-E:\OpenNR_Captures_Temporal_MasterRaw_0.5.5_20260905
+<DATA_ROOT>\OpenNR_Captures_Temporal_MasterRaw_0.5.5_20260905
 ```
 
 The capture contract is:
@@ -50,7 +50,7 @@ space for this run; the old `C:` captures remain untouched.
 
 ## Starting one reset-qualified clip
 
-1. Launch only the selected `MGO NSFW - 4.0 BETA` profile through the normal MGO
+1. Launch only the selected `<MO2_PROFILE>` profile through the normal MGO
    bridge. Wait for a stable world and verify that Feature 18 is active on its
    intended route.
 2. Leave the camera still. Open the Open Shaders menu with `END` while the
@@ -81,7 +81,7 @@ speed after the reset-qualified first frame.
 Monitor the root from the project checkout while the game is running:
 
 ```powershell
-python tools\monitor_temporal_capture.py E:\OpenNR_Captures_Temporal_MasterRaw_0.5.5_20260905 --watch --expected-frames 64
+python tools\monitor_temporal_capture.py <DATA_ROOT>\OpenNR_Captures_Temporal_MasterRaw_0.5.5_20260905 --watch --expected-frames 64
 ```
 
 Stop the current clip and preserve it for inspection if any of these appears:
@@ -100,8 +100,8 @@ separate and validate only complete committed records.
 Run both gates, in this order:
 
 ```powershell
-python tools\validate_capture.py E:\OpenNR_Captures_Temporal_MasterRaw_0.5.5_20260905
-python tools\validate_temporal_capture.py E:\OpenNR_Captures_Temporal_MasterRaw_0.5.5_20260905 `
+python tools\validate_capture.py <DATA_ROOT>\OpenNR_Captures_Temporal_MasterRaw_0.5.5_20260905
+python tools\validate_temporal_capture.py <DATA_ROOT>\OpenNR_Captures_Temporal_MasterRaw_0.5.5_20260905 `
   --output out\temporal_audit_fullres_temporal_0.5.5_20260905.json
 ```
 

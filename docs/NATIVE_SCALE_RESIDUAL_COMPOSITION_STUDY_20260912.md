@@ -24,7 +24,7 @@ the Skyrim/MGO installation.
 
 ## Inputs and provenance
 
-- Source sequence: `C:\OpenNR_Captures_FullEyeTemporalStateTranche_20260910\seq-1789063628889-1`
+- Source sequence: `<DATA_ROOT>\OpenNR_Captures_FullEyeTemporalStateTranche_20260910\seq-1789063628889-1`
 - Frame: `1`, both eyes
 - Full color shape: `2496 x 2688`
 - Native guide shape used by the source study: `1664 x 1792`

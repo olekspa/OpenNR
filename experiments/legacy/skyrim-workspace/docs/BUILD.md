@@ -4,7 +4,7 @@ The supplied NIGos v1.0.18 source builds with the installed Visual Studio 2022
 MSVC toolchain and Windows SDK. The reproducible wrapper is:
 
 ```powershell
-& 'D:\.CODEX_Projects\DLSS_5_SKYRIM\scripts\Build-DLSS5Bridge.ps1'
+& '<LEGACY_REPO>\scripts\Build-DLSS5Bridge.ps1'
 ```
 
 Output is written to:
@@ -22,7 +22,7 @@ array-aware binary is preserved under
 The runtime-created array conversion shaders are checked independently with:
 
 ```powershell
-& 'D:\.CODEX_Projects\DLSS_5_SKYRIM\scripts\Compile-BridgeShaders.ps1'
+& '<LEGACY_REPO>\scripts\Compile-BridgeShaders.ps1'
 ```
 
 That test currently compiles the depth and motion-vector `Texture2DArray`

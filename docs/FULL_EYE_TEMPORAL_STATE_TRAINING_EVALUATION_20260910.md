@@ -59,27 +59,27 @@ not counted as dynamic-motion coverage.
 
 The original training environment was unable to execute CUDA kernels on the
 RTX 5070 Ti because it used `torch 2.3.1+cu121` without `sm_120` support. The
-isolated `C:\OpenNR\Tools\OpenNRTrainVenv` was upgraded to
+isolated `<OPENNR_DATA>\Tools\OpenNRTrainVenv` was upgraded to
 `torch 2.7.1+cu128`; an `sm_120` CUDA matrix smoke test and the full model
 evaluation then passed. The global Python installation was not changed.
 
 Protected and derived artifacts:
 
-- protected best model: `C:\OpenNR\Training\semantic_pixel_l1_pair_20260909\joint\best_all_cohorts.pt`
+- protected best model: `<OPENNR_DATA>\Training\semantic_pixel_l1_pair_20260909\joint\best_all_cohorts.pt`
 - protected best model SHA-256:
   `40C214A9C0BC214C6E1366872E6D9270BFE7C00D63797AEFB6B3896865C15756`
 - labeled recovered working checkpoint:
-  `C:\OpenNR\Training\recovery\semantic_full_eye_state_short_20260910\recovered_best_all_cohorts.pt`
+  `<OPENNR_DATA>\Training\recovery\semantic_full_eye_state_short_20260910\recovered_best_all_cohorts.pt`
 - recovered checkpoint SHA-256:
   `5D929D2976250D370AF4AD45C248E44F7F75C4ADA8CF3B3EE130D9C1AB583D8B`
 - immutable derived cache:
-  `C:\OpenNR\TrainingCache\full_eye_temporal_state_tranche_20260910_v1`
+  `<OPENNR_DATA>\TrainingCache\full_eye_temporal_state_tranche_20260910_v1`
 - cache `complete.json` SHA-256:
   `4EAFC4509780FF5BC351078341B688CD4E7079D8EA1D1D71FB77C1C2F9E8645E`
 - new-data-only probe:
-  `C:\OpenNR\Training\semantic_full_eye_state_new_only_20260910`
+  `<OPENNR_DATA>\Training\semantic_full_eye_state_new_only_20260910`
 - CUDA baseline evaluation:
-  `C:\OpenNR\Training\semantic_full_eye_state_short_eval_20260910_cuda`
+  `<OPENNR_DATA>\Training\semantic_full_eye_state_short_eval_20260910_cuda`
 
 The protected best model was not overwritten. The new-data-only output is a
 diagnostic artifact and is not a promoted model.

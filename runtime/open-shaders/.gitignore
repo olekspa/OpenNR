@@ -31,3 +31,16 @@ shadertoolsconfig.json
 
 # Proprietary DLSS Neural Rendering runtime; install locally, never distribute.
 **/nvngx_dlssnr.dll
+
+# Third-party binaries (never commit)
+# NVIDIA (DLSS / Streamline / DLSS-G / DLSS NR), AMD FidelityFX, RenderDoc and
+# imgui-vr-helper binaries are supplied by the builder from the official sources
+# listed in docs/THIRD_PARTY_BINARIES.md (or restored by tools/stage_local_thirdparty.ps1).
+*.dll
+*.pdb
+*.exe
+*.lib
+*.exp
+*.obj
+**/nvngx_*.dll
+**/sl.*.dll

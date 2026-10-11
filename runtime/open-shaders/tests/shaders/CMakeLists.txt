@@ -11,6 +11,8 @@ endif()
 
 message(STATUS "Configuring shader unit tests...")
 
+find_package(spdlog CONFIG REQUIRED)
+
 # Fetch ShaderTestFramework (which will fetch Catch2)
 include(FetchContent)
 
@@ -62,6 +64,9 @@ set(FEATURES_DIR ${CMAKE_SOURCE_DIR}/features)
 add_executable(shader_tests
     minimal_test.cpp                   # Provides main()
     runtime_discovered_tests.cpp       # Single test that discovers & runs all HLSL tests
+    periphery_hybrid_runtime_include_test.cpp # Production shader compile and GPU fixture via runtime CustomInclude
+    temporal_reuse_periphery_runtime_include_test.cpp # Periphery-only coarse fallback fixture using runtime CustomInclude
+    "${CMAKE_SOURCE_DIR}/src/Utils/ShaderInclude.cpp"
 
     # Headers (listed for IDE integration and dependency tracking)
     test_common.h                      # Common test utilities
@@ -122,6 +127,13 @@ endforeach()
 
 # Link ShaderTestFramework BEFORE copying assets (so dependencies are resolved)
 target_link_libraries(shader_tests PRIVATE ShaderTestFramework)
+target_link_libraries(shader_tests PRIVATE spdlog::spdlog d3dcompiler d3d11)
+target_include_directories(shader_tests PRIVATE "${CMAKE_SOURCE_DIR}/src")
+target_compile_definitions(shader_tests PRIVATE
+    OPENNR_SHADER_SOURCE_DIR=L"${CMAKE_SOURCE_DIR}"
+    NOMINMAX
+    WIN32_LEAN_AND_MEAN
+)
 
 # Copy all dependent assets (DLLs, shaders, etc.) - must be AFTER target_link_libraries
 copy_all_dependent_assets(shader_tests)
@@ -156,15 +168,28 @@ target_compile_definitions(shader_tests PRIVATE USE_PIX)
 # ============================================================================
 # Register with CTest so CI can discover and run tests
 enable_testing()
+set(_registered_shader_test_command shader_tests --reporter compact)
+set(_shader_test_timeout 300)
+if(OPENNR_GPU_BROKER_PYTHON OR OPENNR_GPU_BROKER_SCRIPT)
+    if(NOT EXISTS "${OPENNR_GPU_BROKER_PYTHON}" OR NOT EXISTS "${OPENNR_GPU_BROKER_SCRIPT}")
+        message(FATAL_ERROR "Both local GPU broker Python and script must exist")
+    endif()
+    set(_registered_shader_test_command
+        "${OPENNR_GPU_BROKER_PYTHON}" "${OPENNR_GPU_BROKER_SCRIPT}"
+        gpu run --label "${OPENNR_GPU_JOB_LABEL}"
+        --purpose "OpenNR shader unit tests" --minutes 5 --wait --timeout 3600
+        -- $<TARGET_FILE:shader_tests> --reporter compact)
+    set(_shader_test_timeout 3900)
+endif()
 add_test(
     NAME ShaderTests
-    COMMAND shader_tests --reporter compact
+    COMMAND ${_registered_shader_test_command}
     WORKING_DIRECTORY $<TARGET_FILE_DIR:shader_tests>
 )
 
 # Set test properties for better CI output
 set_tests_properties(ShaderTests PROPERTIES
-    TIMEOUT 300  # 5 minute timeout for all shader tests
+    TIMEOUT ${_shader_test_timeout}
     LABELS "Shaders;UnitTests"
 )
 

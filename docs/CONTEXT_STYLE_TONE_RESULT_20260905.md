@@ -28,10 +28,10 @@ reproducible.
 
 ## Data contract
 
-- Cache: `E:\OpenNR_MergedSpatialCache_20260905`
+- Cache: `<DATA_ROOT>\OpenNR_MergedSpatialCache_20260905`
 - Row identity: `d1a699d0b6b1efad97f3b04d58775ddfe22fc9ffbe306f0caa5dc8816b9d8cca`
-- Dynamic guides: `E:\OpenNR_DynamicGuides_Merged_20260905`
-- Input-only training face audit: `E:\OpenNR_FaceAudit_Merged_20260905\result.json`
+- Dynamic guides: `<DATA_ROOT>\OpenNR_DynamicGuides_Merged_20260905`
+- Input-only training face audit: `<DATA_ROOT>\OpenNR_FaceAudit_Merged_20260905\result.json`
 - Training/validation/test eye rows: 5,360 / 1,196 / 1,852
 - Sources: 964 older full-resolution eyes and 4,396 new 0.5.3 raw-crop eyes
 
@@ -42,7 +42,7 @@ source-balanced best-feature checkpoint at step 4,000.
 
 Run directory:
 
-`E:\OpenNR_Training\context_merged_style_v5_20260905`
+`<DATA_ROOT>\OpenNR_Training\context_merged_style_v5_20260905`
 
 The model has 2,005,139 parameters. The full checkpoints and portable
 inference-only exports are preserved. No test row was used during training or
@@ -62,7 +62,7 @@ Lower is better for every error metric.
 The v4 best-feature checkpoint is the balanced appearance candidate. It is
 slightly worse than v4 best-MAE on changed-region error, while its LPIPS and
 frozen-test result are stronger. The visually inspected sheets are under
-`E:\OpenNR_Training\context_merged_style_v5_20260905\validation_evaluation\comparison`.
+`<DATA_ROOT>\OpenNR_Training\context_merged_style_v5_20260905\validation_evaluation\comparison`.
 They show a closer teacher-like face and lighting response, but the student
 still misses some hair/skin microdetail and remains visibly different from the
 teacher.
@@ -78,7 +78,7 @@ The frozen test was evaluated only after validation selection:
 The v4 best-feature full checkpoint SHA-256 is
 `0D0E968B6AD257F4FED7D5E0490FE5ABEBA42982D0B6ACF8AAEFE79E5803FB9F`.
 The portable export is
-`E:\OpenNR_Training\context_merged_style_v5_20260905\OpenNR_ContextStyle_v5_best_feature.pt`
+`<DATA_ROOT>\OpenNR_Training\context_merged_style_v5_20260905\OpenNR_ContextStyle_v5_best_feature.pt`
 with SHA-256
 `BEAE3022A838051E216A22ACCB97CF4058FFC921B0800EB0176568CE153BB1E0`.
 The v4 best-MAE portable export is retained alongside it with SHA-256
@@ -87,7 +87,7 @@ The v4 best-MAE portable export is retained alongside it with SHA-256
 ## Tone ablation
 
 The tone run is preserved at
-`E:\OpenNR_Training\context_merged_style_tone_v6_20260905`. It initialized from
+`<DATA_ROOT>\OpenNR_Training\context_merged_style_tone_v6_20260905`. It initialized from
 v4 best-feature and used `--tone-weight 0.25`, learning rate 5e-6, and the same
 data/objective otherwise. It was stopped after validation plateau, with its
 best-feature checkpoint at step 1,000:
@@ -105,7 +105,7 @@ test result (0.0234975), so it is not promoted.
 The v4 best-feature export was converted through the existing fixed-shape
 TensorRT path:
 
-`E:\OpenNR_Training\context_merged_style_v5_20260905\trt_fp16_best_feature\student_fp16.engine`
+`<DATA_ROOT>\OpenNR_Training\context_merged_style_v5_20260905\trt_fp16_best_feature\student_fp16.engine`
 
 - TensorRT 10.13.3.9, FP16 tactics with FP32 reduction preference, FP32 I/O;
   this is not an FP8/NVFP4 delivery.
@@ -121,7 +121,7 @@ TensorRT path:
   Skyrim rendering, compositor, headset, and temporal costs.
 
 Visual replay evidence is in
-`E:\OpenNR_Training\context_merged_style_v5_20260905\native_replay_best_feature\visual`.
+`<DATA_ROOT>\OpenNR_Training\context_merged_style_v5_20260905\native_replay_best_feature\visual`.
 The D3D12 path is an offline contract/timing check, not live-game acceptance.
 
 ## Decision and next gate

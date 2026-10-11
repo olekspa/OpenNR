@@ -16,7 +16,7 @@ from pathlib import Path
 
 import torch
 
-TOOLS = Path(r"D:\.CODEX_Projects\OpenNR-VR\tools")
+TOOLS = Path(r"<REPO>\tools")
 sys.path.insert(0, str(TOOLS))
 
 import train_fast_student_reduced_native_streaming_20260912 as trainer  # noqa: E402

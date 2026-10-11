@@ -549,7 +549,8 @@ bool ThemeManager::ReloadFont(const Menu& menu, float& cachedFontSize)
 
 			auto fontPaths = GetCJKFontPathCandidates(availableLocale);
 			if (fontPaths.empty()) {
-				logger::warn("[I18n] No supplemental CJK font path candidates for locale display '{}': {}", availableLocale, displayName);
+				if (GetPrimaryCJKGlyphRanges(io.Fonts, availableLocale))
+					logger::warn("[I18n] No supplemental CJK font path candidates for locale display '{}': {}", availableLocale, displayName);
 				continue;
 			}
 

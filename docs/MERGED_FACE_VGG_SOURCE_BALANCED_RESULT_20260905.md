@@ -4,23 +4,23 @@ This phase tested whether native crop diversity, input-only face guidance, and a
 
 ## Integrity and preparation
 
-- Base cache: `E:\OpenNR_MergedSpatialCache_20260905`
+- Base cache: `<DATA_ROOT>\OpenNR_MergedSpatialCache_20260905`
 - Base cache schema: 3, row identity `d1a699d0b6b1efad97f3b04d58775ddfe22fc9ffbe306f0caa5dc8816b9d8cca`
 - Training eyes: 5,360; validation eyes: 1,196; test eyes: 1,852
 - Training sources: 964 older full-resolution eyes and 4,396 new 0.5.3 raw-crop eyes
 - YuNet audit: 1,207/5,360 training eyes with a detected face (22.5%); mean confidence 0.9117, median 0.9177; 602 left-eye and 605 right-eye detections
-- Audit result: `E:\OpenNR_FaceAudit_Merged_20260905\result.json`
+- Audit result: `<DATA_ROOT>\OpenNR_FaceAudit_Merged_20260905\result.json`
 - Audit is input-only and training-only. Validation and test rows were not used for face selection.
 
 The merged corpus mixes 2496×2688 and 512×512 native color rows. `tools/prepare_dynamic_guides.py` now writes one memory-mapped guide tensor per native resolution, and `tools/dynamic_patches.py` selects the correct group per row. The guide cache is:
 
-`E:\OpenNR_DynamicGuides_Merged_20260905`
+`<DATA_ROOT>\OpenNR_DynamicGuides_Merged_20260905`
 
 It contains 4,396 `(5,128,128)` 512² guide entries and 964 `(5,672,624)` 2496×2688 guide entries, all finite float16, with the same base row identity. Raw color paths that already end in `.raw.bin` are now accepted without appending a second `.raw` suffix.
 
 ## Face/VGG continuation (uniform row sampling)
 
-Run directory: `E:\OpenNR_Training\context_merged_face_vgg_v3_20260905`
+Run directory: `<DATA_ROOT>\OpenNR_Training\context_merged_face_vgg_v3_20260905`
 
 The run initialized from `context_merged_v2_20260905\best_feature.pt` and used dynamic native crops, two face-directed slots per eye, VGG appearance weight 0.05, face-loss weight 0.50, learning rate 1e-5, batch 4, and 12,000 steps. It improved validation (best MAE 0.02130506; best feature distance 0.07683083), but the untouched test regressed:
 
@@ -34,7 +34,7 @@ This phase is retained as an experiment and is not promoted.
 
 ## Source-balanced continuation
 
-Run directory: `E:\OpenNR_Training\context_merged_face_vgg_source_balanced_v4_20260905`
+Run directory: `<DATA_ROOT>\OpenNR_Training\context_merged_face_vgg_source_balanced_v4_20260905`
 
 The fixed merged cache contains 7,712 old-source training patches and 4,396 new-source patches (63.6934% old-source). `tools/train_long_student.py` now has `--source-balance`, which deterministically interleaves the two native dynamic pools at that proportion while preserving the existing epoch and face-crop contracts. It was initialized from the parent best-feature checkpoint with VGG weight 0.05 and face-loss weight 0.25. The run was intentionally stopped after step 4,150 once the curve stopped improving; checkpoints already written remain valid.
 
@@ -59,7 +59,7 @@ The candidate improves both source subsets in this frozen test, but the visual p
 
 TensorRT output:
 
-`E:\OpenNR_Training\context_merged_face_vgg_source_balanced_v4_20260905\trt_fp16_best_feature\student_fp16.engine`
+`<DATA_ROOT>\OpenNR_Training\context_merged_face_vgg_source_balanced_v4_20260905\trt_fp16_best_feature\student_fp16.engine`
 
 - TensorRT 10.13.3.9, FP16 tactics with FP32 reduction preference and FP32 I/O
 - engine SHA-256: `D08B28D70810A6BC6EEB50BBF3F5D37788A9ADEEE362A6ECF38A3257AE6B9A5B`

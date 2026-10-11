@@ -6,7 +6,7 @@ The leading hypothesis is loss of reconstructed detail in the reduced-resolution
 
 ## Verified context
 
-- The selected local MO2 profile is `MGO NSFW - 4.0 BETA`, with `Open Shaders DLSSNR VR 0.5.3 OpenNR` enabled.
+- The selected local MO2 profile is `<MO2_PROFILE>`, with `Open Shaders DLSSNR VR 0.5.3 OpenNR` enabled.
 - The overwrite settings have `renderAtUpscaleRes=true`, `qualityMode=1`, `vrRenderScale=0.0`, and DLSS sharpening disabled. These are local saved settings, not evidence of tester settings or active runtime state.
 - No SkyrimVR process was found during this investigation.
 - The inspected vendor checkout has HEAD `3bd930002a96135cff5b092a7e55e11cf28bc912` and extensive existing changes. The PerfMode files and State.h have no working diff against that HEAD. This suggests the inspected menu mechanisms predate the current local 0.5.3 changes; it does not prove which code shipped in each tester DLL.

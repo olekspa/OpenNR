@@ -102,6 +102,10 @@ public:
 	uint32_t lastDLSSFailureFrame = UINT32_MAX;
 	uint32_t lastVRAMPressureFrame = UINT32_MAX;
 	uint32_t lastDLSSErrorLogFrame = UINT32_MAX;
+	bool lastDLSSReset = false;
+	uint32_t lastDLSSResetFrame = UINT32_MAX;
+	bool lastDLSSConstantsAccepted = false;
+	uint32_t lastDLSSConstantsFrame = UINT32_MAX;
 	/** @brief Reports recent successful DLSS evaluations that exceeded the VRAM budget. */
 	bool IsVRAMPressure() const;
 

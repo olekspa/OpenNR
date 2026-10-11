@@ -3,7 +3,7 @@
 Root:
 
 ```text
-E:\OpenNR_Captures_Temporal_Crops_0.5.5_20260906
+<DATA_ROOT>\OpenNR_Captures_Temporal_Crops_0.5.5_20260906
 ```
 
 The completed capture set contains **27 sequences and 1,728 complete records**. Every sequence contains 64 records. The structural validator reports:
@@ -31,8 +31,8 @@ The strict temporal audit rejects all 27 sequences for one shared reason: every 
 Audit files:
 
 ```text
-D:\.CODEX_Projects\OpenNR-VR\out\temporal_audit_crop_0.5.5_20260906.json
-D:\.CODEX_Projects\OpenNR-VR\out\temporal_audit_crop_0.5.5_20260906_relaxed.json
+<REPO>\out\temporal_audit_crop_0.5.5_20260906.json
+<REPO>\out\temporal_audit_crop_0.5.5_20260906_relaxed.json
 ```
 
 Do not delete or rewrite these sequences. Keep the reset-qualified requirement separate from the otherwise excellent continuity and native-guide evidence.

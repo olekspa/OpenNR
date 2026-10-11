@@ -41,16 +41,16 @@ Sizes below are the measured source trees before any new Linux-disk transfer.
 
 | Tree | Size | Decision |
 | --- | ---: | --- |
-| `C:\OpenNR_Captures_FullRes_Pilot_20260904` | 117.41 GiB | Previously copied to H: and source removed only after verification; the H: destination is now unavailable. Do not alter the C: junction until H: is recovered. |
-| `C:\OpenNR_Captures_FullEyeTemporalPilot_20260908` | 88.38 GiB | Source remains intact. Copy to the Linux target only after it is repaired, mounted `rw`, and passes a probe. |
-| `C:\OpenNR\_Captures\_FullRes` | 100.70 GiB | Historical raw capture; cold-copy later, one tree at a time, with manifest and hash verification. |
-| `C:\OpenNR_Captures_Temporal_Crops_20260905` | 29.25 GiB | Historical raw capture; cold-copy later. |
-| `C:\OpenNR_Captures_Temporal_Crops_0.5.3_NoPreview_20260905` | 27.16 GiB | Historical raw capture; cold-copy later. |
-| `C:\OpenNR_Captures_Temporal_20260905` | 24.75 GiB | Historical raw capture; cold-copy later. |
-| `C:\OpenNR_Captures_RendererStatePairs_0.5.7_20260908` | 22.58 GiB | Preserve the already-built NVMe cache; cold-copy the raw source later. |
-| `C:\OpenNR\TrainingCache` | 20.68 GiB | Keep hot; derived caches are used by evaluation/training. |
-| `C:\OpenNR\Training` | 20.80 GiB | Keep hot; current and comparison checkpoints remain immediately usable. |
-| `D:\.CODEX_Projects\OpenNR-VR\out` | 4.34 GiB | Keep warm until the current audit and TensorRT checks are closed. |
+| `<DATA_ROOT>\OpenNR_Captures_FullRes_Pilot_20260904` | 117.41 GiB | Previously copied to H: and source removed only after verification; the H: destination is now unavailable. Do not alter the C: junction until H: is recovered. |
+| `<DATA_ROOT>\OpenNR_Captures_FullEyeTemporalPilot_20260908` | 88.38 GiB | Source remains intact. Copy to the Linux target only after it is repaired, mounted `rw`, and passes a probe. |
+| `<OPENNR_DATA>\_Captures\_FullRes` | 100.70 GiB | Historical raw capture; cold-copy later, one tree at a time, with manifest and hash verification. |
+| `<DATA_ROOT>\OpenNR_Captures_Temporal_Crops_20260905` | 29.25 GiB | Historical raw capture; cold-copy later. |
+| `<DATA_ROOT>\OpenNR_Captures_Temporal_Crops_0.5.3_NoPreview_20260905` | 27.16 GiB | Historical raw capture; cold-copy later. |
+| `<DATA_ROOT>\OpenNR_Captures_Temporal_20260905` | 24.75 GiB | Historical raw capture; cold-copy later. |
+| `<DATA_ROOT>\OpenNR_Captures_RendererStatePairs_0.5.7_20260908` | 22.58 GiB | Preserve the already-built NVMe cache; cold-copy the raw source later. |
+| `<OPENNR_DATA>\TrainingCache` | 20.68 GiB | Keep hot; derived caches are used by evaluation/training. |
+| `<OPENNR_DATA>\Training` | 20.80 GiB | Keep hot; current and comparison checkpoints remain immediately usable. |
+| `<REPO>\out` | 4.34 GiB | Keep warm until the current audit and TensorRT checks are closed. |
 
 The raw capture sources total roughly 410 GiB. The new Linux disk has ample
 space, but capacity alone is not a reason to write while its filesystem check
@@ -90,15 +90,15 @@ sequences and 1,408 eye rows:
 
 | New derived tree | Measured size | State |
 | --- | ---: | --- |
-| `C:\OpenNR\TrainingCache\full_eye_renderer_conditioning_strict_20260909_retry2` | 0.73 GiB (`conditioning.npy` plus manifests) | Complete; hash-verified; renderer conditioning only; source cache and raw capture unchanged |
-| `C:\OpenNR\Training\semantic_renderer_conditioned_pair_20260909` | 1.10 GiB | Complete matched control/arm; both endpoints retained; no promoted checkpoint |
+| `<OPENNR_DATA>\TrainingCache\full_eye_renderer_conditioning_strict_20260909_retry2` | 0.73 GiB (`conditioning.npy` plus manifests) | Complete; hash-verified; renderer conditioning only; source cache and raw capture unchanged |
+| `<OPENNR_DATA>\Training\semantic_renderer_conditioned_pair_20260909` | 1.10 GiB | Complete matched control/arm; both endpoints retained; no promoted checkpoint |
 
 The successful overlay payload is SHA-256
 `0303f738267aeab1683de7f34f981ed5ed2821c7e0016cba6040f7de7e038df0` and its
 source strict-cache row identity is
 `efbd159ad069fbd128fb28a890ff53a07fa968ae67f1182ad259fc6ef47e13a1`. The
 first builder preflight left an incomplete scratch directory at
-`C:\OpenNR\TrainingCache\full_eye_renderer_conditioning_strict_20260909`;
+`<OPENNR_DATA>\TrainingCache\full_eye_renderer_conditioning_strict_20260909`;
 it was not used or deleted because storage is not constrained and the exact
 cleanup was not necessary.
 
@@ -132,8 +132,8 @@ profile was changed:
 
 | Sequence | Measured size | State |
 | --- | ---: | --- |
-| `C:\OpenNR_Captures_FullEyeTemporalEveryFrame_20260909\seq-1788993098503-1` | 13.59 GiB | 64/64 complete; preserved; strict temporal gate rejected host gaps/backpressure |
-| `C:\OpenNR_Captures_FullEyeTemporalEveryFrame_20260909\seq-1788993615492-2` | 13.41 GiB | 64/64 complete; preserved; strict temporal gate rejected host gaps/backpressure |
+| `<DATA_ROOT>\OpenNR_Captures_FullEyeTemporalEveryFrame_20260909\seq-1788993098503-1` | 13.59 GiB | 64/64 complete; preserved; strict temporal gate rejected host gaps/backpressure |
+| `<DATA_ROOT>\OpenNR_Captures_FullEyeTemporalEveryFrame_20260909\seq-1788993615492-2` | 13.41 GiB | 64/64 complete; preserved; strict temporal gate rejected host gaps/backpressure |
 
 The two sequences occupy approximately 27.00 GiB in total. After the
 validator's crop-only renderer-conditioning rule was corrected, exhaustive
@@ -143,13 +143,13 @@ All-zero motion-vector tensors remain explicit warnings (3 in sequence 1 and
 
 After the game and SteamVR were closed, the live profile was changed to the
 lower-I/O crop-temporal contract. The new root is
-`C:\OpenNR_Captures_TemporalCrops_EveryFrame_20260909`; it does not exist yet,
+`<DATA_ROOT>\OpenNR_Captures_TemporalCrops_EveryFrame_20260909`; it does not exist yet,
 so no crop capture bytes have been added. The live profile is
-`E:\MGO-RC3-fresh\overwrite\SKSE\Plugins\CommunityShaders\SettingsUser.json`
+`<MO2_INSTANCE>\overwrite\SKSE\Plugins\CommunityShaders\SettingsUser.json`
 with SHA-256
 `6e770b9b9a193bd959b7bc404e4583ddd1472ede7c9dd00c1034ce3f97193c6d`.
 Its pre-edit backup is
-`E:\MGO-RC3-fresh\_OpenNR_Pilot_Backups\pre-crop-temporal-20260909\SettingsUser.before.json`
+`<MO2_INSTANCE>\_OpenNR_Pilot_Backups\pre-crop-temporal-20260909\SettingsUser.before.json`
 with SHA-256
 `ccde5515081396076715fba06ff66430456adf50a4995ef273ba77de76762dd0`.
 The crop profile retains `write_color_previews=false`, so the next burst is
@@ -163,7 +163,7 @@ available for the separate spatial/color and temporal experiments.
 ## Crop-temporal capture accepted — 2026-09-09
 
 The rearmed lower-I/O contract created two complete sequences at
-C:\OpenNR_Captures_TemporalCrops_EveryFrame_20260909. Each contains 64/64
+<DATA_ROOT>\OpenNR_Captures_TemporalCrops_EveryFrame_20260909. Each contains 64/64
 records and is approximately 1.19 GiB; the pair adds approximately 2.38 GiB.
 The monitor found 128 complete records, contiguous frame/sample/host IDs,
 initial [true, true] resets, zero backpressure, and zero dropped frames.
@@ -183,14 +183,14 @@ work, while the crop pair is the first structurally accepted temporal tranche.
 The two-sequence section immediately above is historical. The user completed
 the capture session, and the final authoritative crop-temporal root is:
 
-C:\OpenNR_Captures_TemporalCrops_EveryFrame_20260909
+<DATA_ROOT>\OpenNR_Captures_TemporalCrops_EveryFrame_20260909
 
 It contains 18 complete 64-frame sequences, 1,152 committed frames, 2,304
 eye rows, and 23,040 exhaustively validated artifacts. The raw root measures
 22,968,598,213 bytes, approximately 21.39 GiB. The all-18 cache is materialized
 at:
 
-C:\OpenNR\TrainingCache\crop_temporal_every_frame_20260909_all18
+<OPENNR_DATA>\TrainingCache\crop_temporal_every_frame_20260909_all18
 
 The cache is schema 2, complete, finite, hash-bound, and split by sequence into
 11 train / 3 validation / 4 test sequences. Its raw arrays are RGB

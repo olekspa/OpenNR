@@ -520,6 +520,29 @@ namespace FoveatedRenderImpl::NativeOpenVRGaze
 		return state.cacheValid ? state.cachedResult.diagnostics : Diagnostics{};
 	}
 
+	bool GetProjectionRawTangents(std::array<ProjectionTangents, 2>& out)
+	{
+#if defined(ENABLE_SKYRIM_VR)
+		auto* openvr = RE::BSOpenVR::GetSingleton();
+		if (!openvr || !openvr->vrSystem)
+			return false;
+
+		for (std::uint32_t eye = 0; eye < out.size(); ++eye) {
+			auto& tangent = out[eye];
+			openvr->vrSystem->GetProjectionRaw(static_cast<vr::EVREye>(eye),
+				&tangent.left, &tangent.right, &tangent.top, &tangent.bottom);
+			if (!std::isfinite(tangent.left) || !std::isfinite(tangent.right) ||
+				!std::isfinite(tangent.top) || !std::isfinite(tangent.bottom) ||
+				tangent.right <= tangent.left || tangent.bottom <= tangent.top)
+				return false;
+		}
+		return true;
+#else
+		(void)out;
+		return false;
+#endif
+	}
+
 	void Reset()
 	{
 		std::lock_guard lock(stateMutex);

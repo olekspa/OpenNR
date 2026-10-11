@@ -5,7 +5,7 @@
 The audited root is:
 
 ```text
-C:\OpenNR_Captures_Temporal_Crops_0.5.3_NoPreview_20260905
+<DATA_ROOT>\OpenNR_Captures_Temporal_Crops_0.5.3_NoPreview_20260905
 ```
 
 Each complete record is one Feature 18 stereo render sample with one centered 512×512 crop per eye and four stages: pre-NR input, post-NR teacher, native depth, and native motion vectors. The capture is raw-only for color (`write_color_previews=false`); the empty PNG paths are expected by the capture contract.
@@ -14,8 +14,8 @@ The root contains 120 sequence directories, 3,475 complete frame records, and 27
 
 ## Checks performed
 
-- `python tools/validate_capture.py C:\OpenNR_Captures_Temporal_Crops_0.5.3_NoPreview_20260905 --json`
-- `python tools/validate_temporal_capture.py C:\OpenNR_Captures_Temporal_Crops_0.5.3_NoPreview_20260905 --mode crop --allow-missing-initial-reset`
+- `python tools/validate_capture.py <DATA_ROOT>\OpenNR_Captures_Temporal_Crops_0.5.3_NoPreview_20260905 --json`
+- `python tools/validate_temporal_capture.py <DATA_ROOT>\OpenNR_Captures_Temporal_Crops_0.5.3_NoPreview_20260905 --mode crop --allow-missing-initial-reset`
 - Per-sequence metadata, frame ordering, artifact identity, dimensions, formats, raw file sizes, reset flags, guide scales, and capture settings profile.
 - Runtime package recheck; the installed DLL remained version `0.5.3.0`, 20,779,008 bytes, SHA-256 `398E8B3F516659D5D8C7E59D4A3F6BF37F027D7A3A3CB05CD5496EE2B68ECD40`.
 
@@ -66,7 +66,7 @@ A diagnostic sample of the first frame from each sequence and both eyes found a 
 
 The capture itself is healthy enough to preserve and use. The historical cache path expects color `png_path` values when it builds full-resolution rows, while this root intentionally has `png_required=false`, `png_written=false`, and empty PNG paths. A separate raw `R8G8B8A8_UNORM` crop loader/cache path is now implemented in `tools/build_raw_crop_cache.py`. It uses the already-verified raw tensors, avoids reintroducing PNG write pressure, and emits the same cache schema consumed by the current trainers. No runtime DLL change was required.
 
-The built cache is `E:\OpenNR_RawCropCache_0.5.3_20260905`; its provenance and exact conversion contract are documented in `docs/RAW_CROP_CACHE_20260905.md`.
+The built cache is `<DATA_ROOT>\OpenNR_RawCropCache_0.5.3_20260905`; its provenance and exact conversion contract are documented in `docs/RAW_CROP_CACHE_20260905.md`.
 
 The first 12,000-step continuation over that cache completed successfully.
 Validation and frozen-test results, checkpoint hashes, and the follow-up visual,

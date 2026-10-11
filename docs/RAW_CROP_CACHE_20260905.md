@@ -13,19 +13,19 @@ same cache files consumed by `tools/train_student.py` and
 Source candidate manifest:
 
 ```text
-D:\.CODEX_Projects\OpenNR-VR\out\latest_capture_training_candidate_manifest_20260905.json
+<REPO>\out\latest_capture_training_candidate_manifest_20260905.json
 ```
 
 Source capture root:
 
 ```text
-C:\OpenNR_Captures_Temporal_Crops_0.5.3_NoPreview_20260905
+<DATA_ROOT>\OpenNR_Captures_Temporal_Crops_0.5.3_NoPreview_20260905
 ```
 
 Built cache:
 
 ```text
-E:\OpenNR_RawCropCache_0.5.3_20260905
+<DATA_ROOT>\OpenNR_RawCropCache_0.5.3_20260905
 ```
 
 The cache contains 6,870 stereo eye rows from 3,435 frames and 111 selected
@@ -65,10 +65,10 @@ The test split is recorded for final evaluation and must not be used for tuning.
 Use the project training environment:
 
 ```powershell
-E:\OpenNR-VR-Poc-Venv\Scripts\python.exe `
+<POC_VENV>\Scripts\python.exe `
   tools\build_raw_crop_cache.py `
   --candidate-manifest out\latest_capture_training_candidate_manifest_20260905.json `
-  --output E:\OpenNR_RawCropCache_0.5.3_20260905 `
+  --output <DATA_ROOT>\OpenNR_RawCropCache_0.5.3_20260905 `
   --workers 3
 ```
 
@@ -79,10 +79,10 @@ The builder refuses to reuse a nonempty output directory. It writes
 The metadata-only validation path is useful before allocating the cache:
 
 ```powershell
-E:\OpenNR-VR-Poc-Venv\Scripts\python.exe `
+<POC_VENV>\Scripts\python.exe `
   tools\build_raw_crop_cache.py `
   --candidate-manifest out\latest_capture_training_candidate_manifest_20260905.json `
-  --output E:\OpenNR_RawCropCache_0.5.3_20260905 `
+  --output <DATA_ROOT>\OpenNR_RawCropCache_0.5.3_20260905 `
   --metadata-only
 ```
 
@@ -91,7 +91,7 @@ E:\OpenNR-VR-Poc-Venv\Scripts\python.exe `
 The helper tests pass with:
 
 ```powershell
-E:\OpenNR-VR-Poc-Venv\Scripts\python.exe tools\test_raw_crop_cache.py
+<POC_VENV>\Scripts\python.exe tools\test_raw_crop_cache.py
 ```
 
 The built arrays have these shapes and dtypes:
@@ -122,7 +122,7 @@ the frozen raw-backed input for the current spatial/feed-forward experiments;
 the next temporal capture should supply a reset-qualified anchor.
 
 The first full continuation completed from the selected context checkpoint in
-`E:\OpenNR_Training\context_raw_crop_v1_20260905`. It ran 12,000 steps with
+`<DATA_ROOT>\OpenNR_Training\context_raw_crop_v1_20260905`. It ran 12,000 steps with
 batch 4, BF16 autocast on the RTX 5070 Ti, VGG appearance weight `0.05`, and
 SqueezeNet feature weight `0.05`. Validation-only selection reached MAE
 `0.0198681` at step 10,000 and feature distance `0.0755031` at step 11,000.
@@ -141,11 +141,11 @@ cache on resume. For an intentional new-data initialization, the new explicit
 override is limited to `--initialize` and resets the optimizer:
 
 ```powershell
-E:\OpenNR-VR-Poc-Venv\Scripts\python.exe `
+<POC_VENV>\Scripts\python.exe `
   tools\train_long_student.py `
-  --cache E:\OpenNR_RawCropCache_0.5.3_20260905 `
-  --output E:\OpenNR_Training\context_raw_crop_20260905 `
-  --initialize D:\.CODEX_Projects\OpenNR-VR\out\quality_phase_20260905\OpenNR_ContextFaceVGGFaceLoss_v4_best_mae.pt `
+  --cache <DATA_ROOT>\OpenNR_RawCropCache_0.5.3_20260905 `
+  --output <DATA_ROOT>\OpenNR_Training\context_raw_crop_20260905 `
+  --initialize <REPO>\out\quality_phase_20260905\OpenNR_ContextFaceVGGFaceLoss_v4_best_mae.pt `
   --allow-new-cache
 ```
 

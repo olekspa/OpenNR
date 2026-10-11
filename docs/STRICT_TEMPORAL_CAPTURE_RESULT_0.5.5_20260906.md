@@ -1,7 +1,7 @@
 # Strict temporal capture result — OpenNR 0.5.5
 
 Date: 2026-09-06
-Source root: E:\OpenNR_Captures_StrictTemporal_0.5.5_20260906
+Source root: <DATA_ROOT>\OpenNR_Captures_StrictTemporal_0.5.5_20260906
 
 The Skyrim session ended cleanly after the capture root stopped growing. The final root contains 78 sequence directories and about 41.7 GB of raw artifacts. The capture-reset build was active for this session; each sequence records the requested history reset at its first frame.
 
@@ -20,7 +20,7 @@ The exhaustive byte audit found 39,744 artifacts with no missing files, duplicat
 
 ## Training disposition
 
-The manifest at D:\.CODEX_Projects\OpenNR-VR\out\strict_training_manifest_0.5.5_20260906.json is the authority for the next cache build.
+The manifest at <REPO>\out\strict_training_manifest_0.5.5_20260906.json is the authority for the next cache build.
 
 | Disposition | Sequences | Frames | Use |
 | --- | ---: | ---: | --- |
@@ -41,7 +41,7 @@ The four anomalous sequences still have valid-looking color, teacher, and depth 
 
 ## Next step
 
-The accepted 73-sequence cache was built at E:\OpenNR_RawCropCache_StrictTemporal_0.5.5_20260906 and used for a completed 16,000-step context_v4 continuation. The best validation checkpoint reached MAE 0.0228810 and feature distance 0.0757478 at step 15,000. On the held-out 15-sequence test split it reached MAE 0.0267324, PSNR 27.9083 dB, and 33.31 percent improvement over identity. The portable best-feature export is E:\OpenNR_Training\context_strict_temporal_v8_0.5.5_20260906\OpenNR_ContextStyle_v8_strict_temporal_best_feature.pt.
+The accepted 73-sequence cache was built at <DATA_ROOT>\OpenNR_RawCropCache_StrictTemporal_0.5.5_20260906 and used for a completed 16,000-step context_v4 continuation. The best validation checkpoint reached MAE 0.0228810 and feature distance 0.0757478 at step 15,000. On the held-out 15-sequence test split it reached MAE 0.0267324, PSNR 27.9083 dB, and 33.31 percent improvement over identity. The portable best-feature export is <DATA_ROOT>\OpenNR_Training\context_strict_temporal_v8_0.5.5_20260906\OpenNR_ContextStyle_v8_strict_temporal_best_feature.pt.
 
 The current trainer uses sequence-clean crop rows as spatial/context samples; it is not itself proof of recurrent temporal behavior. The next model-specific step is a sequence-aware temporal objective evaluated on held-out complete clips. Do not merge the anomalous or incomplete sequences into that temporal cache.
 

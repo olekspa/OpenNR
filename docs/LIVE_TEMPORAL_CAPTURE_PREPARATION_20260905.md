@@ -6,13 +6,13 @@ temporal capture pass.
 Active MO2 root:
 
 ```text
-E:\MGO-RC3-fresh
+<MO2_INSTANCE>
 ```
 
 Active profile:
 
 ```text
-MGO NSFW - 4.0 BETA
+<MO2_PROFILE>
 ```
 
 Enabled mod:
@@ -30,21 +30,21 @@ The deployed `CommunityShaders.dll` SHA-256 is:
 The live `SettingsUser.json` was backed up before editing at:
 
 ```text
-E:\MGO-RC3-fresh\_OpenNR_Pilot_Backups\pre-temporal-capture-20260905-142238
+<MO2_INSTANCE>\_OpenNR_Pilot_Backups\pre-temporal-capture-20260905-142238
 ```
 
 That initial preparation requested a full-resolution master on every sample.
 The first live stress run proved that mode is structurally complete but cannot
 maintain contiguous host-frame cadence: it reached 87 backpressure events and
 produced 24.8 GiB for 120 records. It is preserved as a diagnostic/master
-source at `C:\OpenNR_Captures_Temporal_20260905\seq-1788638984693-1` and is
+source at `<DATA_ROOT>\OpenNR_Captures_Temporal_20260905\seq-1788638984693-1` and is
 not a temporal-training clip.
 
 The live profile was subsequently backed up and changed to a separate
 crop-temporal preparation at:
 
 ```text
-E:\MGO-RC3-fresh\_OpenNR_Pilot_Backups\pre-temporal-crop-20260905-162353
+<MO2_INSTANCE>\_OpenNR_Pilot_Backups\pre-temporal-crop-20260905-162353
 ```
 
 Only the `OpenNR Capture` block was changed for the current crop-temporal
@@ -60,7 +60,7 @@ smoke. The current values are:
 - 64-frame burst and 64 maximum samples;
 - queue capacity 32;
 - full-frame artifacts disabled for this temporal clip so the writer is not forced to read back approximately 195 MiB per sample;
-- output directory `C:\OpenNR_Captures_Temporal_Crops_20260905`.
+- output directory `<DATA_ROOT>\OpenNR_Captures_Temporal_Crops_20260905`.
 
 The current live preparation manifest is [out/live_capture_crop_preparation_20260905/manifest.json](../out/live_capture_crop_preparation_20260905/manifest.json). The superseded full-resolution preparation remains recorded in [out/live_capture_preparation_20260905/manifest.json](../out/live_capture_preparation_20260905/manifest.json).
 
@@ -85,7 +85,7 @@ The crop-temporal gate is explicitly separate from the master gate:
 
 ```powershell
 python tools\validate_temporal_capture.py `
-  C:\OpenNR_Captures_Temporal_Crops_20260905 `
+  <DATA_ROOT>\OpenNR_Captures_Temporal_Crops_20260905 `
   --mode crop `
   --output out\temporal_audit_crop_20260905.json
 ```
@@ -99,10 +99,10 @@ validation role.
 After the game exits, validate the output in this order:
 
 ```powershell
-python tools\validate_capture.py C:\OpenNR_Captures_Temporal_20260905
+python tools\validate_capture.py <DATA_ROOT>\OpenNR_Captures_Temporal_20260905
 
 python tools\validate_temporal_capture.py `
-  C:\OpenNR_Captures_Temporal_20260905 `
+  <DATA_ROOT>\OpenNR_Captures_Temporal_20260905 `
   --output out\temporal_audit_20260905.json
 ```
 

@@ -58,6 +58,11 @@ add_executable(cpp_tests
     test_stringutils.cpp
     test_isl_radiusmath.cpp
     test_shadowcaster_math.cpp
+    test_shadow_work_gate.cpp
+    test_shadow_teardown_coordinator.cpp
+    test_shadow_tile_policy.cpp
+    test_shadow_radius_anchor_policy.cpp
+    test_dungeon_reset_policy.cpp
     test_atlas_allocator.cpp
     test_mathutils.cpp
     test_llf_sanitize.cpp
@@ -73,13 +78,25 @@ add_executable(cpp_tests
     test_weatheridparser.cpp
     test_effectsourcecompatibility.cpp
     test_versiongate.cpp
+    test_settingsdefaultpolicy.cpp
     test_presetinclude.cpp
     test_windfield.cpp
     test_adaptive_crop_controller.cpp
+    test_foveated_route_history.cpp
+    test_screen_space_gi_shader_compile.cpp
+    test_nr_fence_policy.cpp
+    test_nr_integration_policy.cpp
     test_adaptive_nr_controller.cpp
     test_nr_runtime_policy.cpp
     test_nr_benchmark_policy.cpp
     test_gaze_crop_policy.cpp
+    test_grass_input_layout_cache.cpp
+    test_upscaling_shader_compile.cpp
+    test_map_menu_display_resolution.cpp
+    test_map_supersample.cpp
+    test_map_quality_policy.cpp
+    test_map_probe_index_policy.cpp
+    test_neural_rendering_shader_compile.cpp
     # Stub I18n::Get so units-under-test that call T() (Subrect's DrawEditor)
     # link without pulling the translation loader into the test binary.
     i18n_stub.cpp
@@ -134,6 +151,8 @@ target_link_libraries(cpp_tests PRIVATE
 target_compile_definitions(cpp_tests PRIVATE
     NOMINMAX
     WIN32_LEAN_AND_MEAN
+    OPENNR_SHADER_SOURCE_DIR=L\"${CMAKE_SOURCE_DIR}\"
+    "$<$<BOOL:${ENABLE_EFFECTS11}>:ENABLE_EFFECTS11>"
 )
 
 enable_testing()

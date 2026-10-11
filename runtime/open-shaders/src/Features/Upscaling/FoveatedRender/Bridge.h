@@ -30,4 +30,5 @@ namespace FoveatedRenderImpl::Bridge
 	// (e.g. menus, frames where foveated is skipped).
 	inline bool foveatedEvaluating = false;
 	inline bool gazeHistoryReset = false;
+	inline bool routeHandledThisFrame = false;
 }

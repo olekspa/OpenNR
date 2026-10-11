@@ -7,7 +7,7 @@ from opennr_student import load_student
 from evaluate_student import load_eye
 
 p=argparse.ArgumentParser();p.add_argument('--checkpoint',required=True);p.add_argument('--output',type=Path,required=True);a=p.parse_args();a.output.mkdir(parents=True,exist_ok=True);torch.set_num_threads(4)
-cache=Path('C:/OpenNR/TrainingCache/student_v1');rows=json.loads((cache/'rows.json').read_text());contexts=np.load(cache/'context.npy',mmap_mode='r');i=next(i for i,r in enumerate(rows) if r['split']=='validation');x,_,g,c=load_eye(rows[i],contexts[i]);m,_=load_student(a.checkpoint,'cuda')
+cache=Path('<OPENNR_DATA>/TrainingCache/student_v1');rows=json.loads((cache/'rows.json').read_text());contexts=np.load(cache/'context.npy',mmap_mode='r');i=next(i for i,r in enumerate(rows) if r['split']=='validation');x,_,g,c=load_eye(rows[i],contexts[i]);m,_=load_student(a.checkpoint,'cuda')
 with torch.inference_mode(),torch.autocast('cuda',dtype=torch.bfloat16):
     for _ in range(3):m(x,g,c)
     torch.cuda.synchronize()

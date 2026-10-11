@@ -24,6 +24,7 @@
 #include "RE/C/Console.h"
 #include <Windows.h>
 #include <algorithm>
+#include <chrono>
 #include <cfloat>
 #include <cmath>
 #include <directx/d3dx12.h>
@@ -59,7 +60,13 @@ NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_WITH_DEFAULT(
 	renderAtUpscaleRes,
 	vrRenderScale,
 	fsr4RuntimeEnable,
-	fsr4RuntimeSelectionSchemaVersion);
+	fsr4RuntimeSelectionSchemaVersion,
+	vrMapMenuDisplayResolution,
+	vrMapSymbolSupersample,
+	vrMapDlssPreset,
+	vrMapSharpness,
+	vrMapMipBiasOffset,
+	mapProbeDiagnostics);
 
 decltype(&D3D11CreateDeviceAndSwapChain) ptrD3D11CreateDeviceAndSwapChainUpscaling;
 
@@ -290,6 +297,35 @@ void Upscaling::DrawPerfModeToggle()
 	ImGui::Checkbox(T(TKEY("render_at_upscale_res"), "Render engine at upscaled resolution"), &settings.renderAtUpscaleRes);
 	if (!methodSupportsPerf)
 		ImGui::EndDisabled();
+	if (globals::game::isVR) {
+		ImGui::Checkbox(T(TKEY("vr_map_menu_display_resolution"), "Map: render at display resolution"), &settings.vrMapMenuDisplayResolution);
+		if (auto _tt = Util::HoverTooltipWrapper())
+			ImGui::TextUnformatted(T(TKEY("vr_map_menu_display_resolution_tooltip"),
+				"Renders map imagespace passes at display resolution while MapMenu is open. Runtime toggle; applies immediately."));
+		ImGui::SliderFloat(T(TKEY("vr_map_symbol_supersample"), "Map: symbol supersampling"), &settings.vrMapSymbolSupersample, 1.0f, 2.0f, "%.1fx");
+		settings.vrMapSymbolSupersample = PerfModePolicy::ClampMapSupersampleScale(settings.vrMapSymbolSupersample);
+		if (auto _tt = Util::HoverTooltipWrapper())
+			ImGui::TextUnformatted(T(TKEY("vr_map_symbol_supersample_tooltip"),
+				"Raises only the world map symbol source resolution while the world map is open. At 2.0x, the color and depth pair uses about 128 MiB for 2048x2048 RGBA8/D24S8 sources (64 MiB per plane). Map-only CPU allocation on open and GPU fill while open. Applies only while the world map is open. Set to 1.0x to turn off."));
+		int mapPreset = static_cast<int>(PerfModePolicy::ClampMapDlssPreset(settings.vrMapDlssPreset));
+		const char* mapPresetLabels[] = { "Unchanged", "J", "K", "L", "M" };
+		if (ImGui::Combo(T(TKEY("vr_map_dlss_preset"), "Map: DLSS preset"), &mapPreset, mapPresetLabels, ARRAYSIZE(mapPresetLabels)))
+			settings.vrMapDlssPreset = static_cast<uint32_t>(mapPreset);
+		if (auto _tt = Util::HoverTooltipWrapper())
+			ImGui::TextUnformatted(T(TKEY("vr_map_dlss_preset_tooltip"),
+				"Overrides only the DLSS transformer preset while the world map is open. J/K/L/M select the available mode preset; Unchanged uses your normal DLSS setting. May change map reconstruction quality and GPU cost. Applies only while the world map is open."));
+		ImGui::SliderFloat(T(TKEY("vr_map_sharpness"), "Map: sharpness"), &settings.vrMapSharpness, 0.0f, 1.0f, "%.2f");
+		settings.vrMapSharpness = PerfModePolicy::ClampMapSharpness(settings.vrMapSharpness);
+		if (auto _tt = Util::HoverTooltipWrapper())
+			ImGui::TextUnformatted(T(TKEY("vr_map_sharpness_tooltip"),
+				"Applies map-only RCAS after DLSS. Higher values add edge contrast and can create halos; GPU cost is limited to the map upscale. Applies only while the world map is open. Set to 0 to disable."));
+		ImGui::SliderFloat(T(TKEY("vr_map_mip_bias_offset"), "Map: extra mip bias"), &settings.vrMapMipBiasOffset, -3.0f, 0.0f, "%.2f");
+		settings.vrMapMipBiasOffset = PerfModePolicy::ClampMapMipBiasOffset(settings.vrMapMipBiasOffset);
+		if (auto _tt = Util::HoverTooltipWrapper())
+			ImGui::TextUnformatted(T(TKEY("vr_map_mip_bias_offset_tooltip"),
+				"Adds negative LOD bias to OpenNR shaders that use SharedData mip bias while the world map is open. Can sharpen sampled textures but may increase aliasing and texture shimmer; no extra allocation. Applies only while the world map is open. Set to 0 to disable."));
+		ImGui::Checkbox(T(TKEY("map_probe_diagnostics"), "Map probe diagnostics"), &settings.mapProbeDiagnostics);
+	}
 	// Hover tooltip always renders (so users learn what the option does even when greyed out).
 	// The pending-restart banner fires only when DLSS or FSR is the active upscaler; the
 	// feature can't take effect otherwise, so a "pending restart" hint there would mislead.
@@ -337,153 +373,17 @@ void Upscaling::DrawPerfModeToggle()
 		Util::UI::DrawSettingDiff(bootSnapshot, settings, &Settings::vrRenderScale);
 }
 
-void Upscaling::DrawDLSSNRSharedControls()
-{
-	// These are the same settings used by the main Upscaling page. They are
-	// intentionally rendered here as a second entry point so a user can tune
-	// the complete Neural Rendering route without navigating between pages.
-	ImGui::PushID("DLSS5NRSharedUpscaling");
-	ApplyOpenCompositeUpscalingBlocker();
-	const auto& openCompositeBlocker = GetOpenCompositeUpscalingBlocker();
-	const bool openCompositeBlocksUpscaling = openCompositeBlocker.active;
-
-	std::vector<std::string> upscaleModes = {
-		T(TKEY("method_none"), "None"),
-		T(TKEY("method_taa"), "TAA"),
-		"AMD FSR 3.1",
-		"NVIDIA DLSS"
-	};
-	const bool featureDLSS = streamline.featureDLSS;
-	const uint32_t availableModes = featureDLSS ? 3u : 2u;
-	uint32_t* currentUpscaleMode = featureDLSS ? &settings.upscaleMethod : &settings.upscaleMethodNoDLSS;
-	std::vector<const char*> modeLabels;
-	for (uint32_t i = 0; i <= availableModes; ++i)
-		modeLabels.push_back(upscaleModes[i].c_str());
-
-	if (openCompositeBlocksUpscaling)
-		ImGui::BeginDisabled();
-	ImGui::Combo(T(TKEY("method"), "Method"), reinterpret_cast<int*>(currentUpscaleMode), modeLabels.data(), static_cast<int>(modeLabels.size()));
-	if (openCompositeBlocksUpscaling)
-		ImGui::EndDisabled();
-	if (auto _tt = Util::HoverTooltipWrapper()) {
-		if (openCompositeBlocksUpscaling)
-			ImGui::Text(T(TKEY("method_locked_opencomposite"), "Locked to None while OpenComposite has %s=true."), openCompositeBlocker.settingName.c_str());
-		else
-		ImGui::TextUnformatted(T(TKEY("method_tooltip"), "Selects the upscaling backend. Neural Rendering requires NVIDIA DLSS as the active method."));
-	}
-	*currentUpscaleMode = std::min(availableModes, *currentUpscaleMode);
-
-	if (openCompositeBlocksUpscaling) {
-		Util::Text::WrappedWarning(
-			"Upscaling is locked to None because OpenComposite has %s=true.",
-			openCompositeBlocker.settingName.c_str());
-	}
-
-	const auto upscaleMethod = GetUpscaleMethod();
-	if (upscaleMethod == UpscaleMethod::kDLSS) {
-		const char* baseLabel = GetQualityModeName(settings.qualityMode);
-		if (baseLabel) {
-			const float displayScale = 1.0f / GetQualityModeRatio(settings.qualityMode);
-			std::string labelWithScale = std::format("{} ( {:.2f}x )", baseLabel, displayScale);
-			ImGui::SliderInt(T(TKEY("upscale_preset"), "Upscale Preset"), reinterpret_cast<int*>(&settings.qualityMode), 0, 4, labelWithScale.c_str());
-			if (perfMode.IsExplicitScaleLatched()) {
-				Util::Text::Disabled(T(TKEY("upscale_preset_ignored_render_scale"),
-					"The Upscale Preset is ignored while VR Render Scale is set. Move it back to Auto to use the preset again (restart required)."));
-			} else if (perfMode.IsHookActive() && bootSnapshot.HasPendingChange(settings, &Settings::qualityMode)) {
-				const uint boot = std::clamp<uint>(bootSnapshot.Boot(&Settings::qualityMode), 0u, 4u);
-				Util::Text::RestartNeeded(
-					"Pending restart: currently active = %s ( %.2fx ). Change applies after game restart.",
-					GetQualityModeName(boot), 1.0f / GetQualityModeRatio(boot));
-			}
-		}
-
-		ImGui::Checkbox(T(TKEY("enable_sharpening"), "Enable Sharpening"), &settings.sharpnessEnabledDLSS);
-		if (auto _tt = Util::HoverTooltipWrapper())
-			ImGui::TextUnformatted(T(TKEY("enable_sharpening_tooltip"), "Applies RCAS sharpening to the DLSS output. Off by default; DLSS already resolves a sharp image."));
-		if (settings.sharpnessEnabledDLSS)
-			ImGui::SliderFloat(T(TKEY("sharpness"), "Sharpness"), &settings.sharpnessDLSS, 0.0f, 1.0f, "%.1f");
-
-		const char* presets[] = {
-			T(TKEY("dlss_model_preset_default"), "Default"),
-			T(TKEY("dlss_model_preset_j"), "Preset J"),
-			T(TKEY("dlss_model_preset_k"), "Preset K"),
-			T(TKEY("dlss_model_preset_l"), "Preset L"),
-			T(TKEY("dlss_model_preset_m"), "Preset M"),
-			T(TKEY("dlss_model_preset_e"), "Preset E (CNN, fastest, deprecated)"),
-			T(TKEY("dlss_model_preset_f"), "Preset F (CNN, deprecated)")
-		};
-		ImGui::Combo(T(TKEY("dlss_model_preset"), "DLSS Model Preset"), reinterpret_cast<int*>(&settings.presetDLSS), presets, IM_ARRAYSIZE(presets));
-		if (auto _tt = Util::HoverTooltipWrapper())
-			ImGui::TextUnformatted(T(TKEY("dlss_model_preset_tooltip"),
-				"Choose the DLSS AI model preset. Default lets the NVIDIA runtime choose; an explicit preset overrides every upscale mode."));
-
-		const char* logLevels[] = {
-			T(TKEY("streamline_log_level_off"), "Off"),
-			T(TKEY("streamline_log_level_default"), "Default"),
-			T(TKEY("streamline_log_level_verbose"), "Verbose")
-		};
-		int logLevel = static_cast<int>(std::min(settings.streamlineLogLevel, 2u));
-		if (ImGui::Combo(T(TKEY("streamline_logging"), "Streamline Logging"), &logLevel, logLevels, IM_ARRAYSIZE(logLevels)))
-			settings.streamlineLogLevel = static_cast<uint>(logLevel);
-		Util::UI::RestartGatedAnnotate(bootSnapshot, settings, &Settings::streamlineLogLevel,
-			T(TKEY("streamline_logging_tooltip"), "Controls NVIDIA Streamline logging for DLSS and DLSS-G. Verbose output is useful when diagnosing a failed NR route."));
-
-		if (globals::game::isVR)
-			DrawPerfModeToggle();
-	} else {
-		Util::Text::WrappedWarning(T(TKEY("dlssnr_requires_dlss"),
-			"Neural Rendering is inactive because NVIDIA DLSS is not the selected upscaler. Select NVIDIA DLSS above, then enable the NR route below."));
-	}
-	ImGui::PopID();
-}
-
-// FoveatedRender: foveated subrect DLSS, VR-only, opt-in. Enable lives at the top level
-// for discoverability; the dedicated Neural Rendering page can keep the full tuning body open
-// so first-time VR users see the primary coverage controls immediately.
-void Upscaling::DrawFoveationControls(bool showTuning, bool showSharedPanelNote,
-	bool tuningDefaultOpen, bool showNeuralRenderingStatusButton)
-{
-	ImGui::Separator();
-	foveatedRender.DrawEnable();
-	// Hub view shows just the enable; the deep tuning tree lives in the Upscaling panel.
-	if (!showTuning)
-		return;
-	const bool enabled = foveatedRender.settings.enabled != 0;
-	if (!enabled)
-		ImGui::BeginDisabled();
-	const ImGuiTreeNodeFlags tuningFlags = tuningDefaultOpen ? ImGuiTreeNodeFlags_DefaultOpen : 0;
-	if (ImGui::TreeNodeEx(T(TKEY("foveated_tuning"), "Foveated Rendering Controls"), tuningFlags)) {
-		// Keep the Neural Rendering section at the top of the shared panel. The
-		// dedicated page controls whether the foveated container starts expanded.
-		foveatedRender.DrawSettings(showSharedPanelNote, false, showNeuralRenderingStatusButton);
-		ImGui::TreePop();
-	}
-	if (!enabled)
-		ImGui::EndDisabled();
-}
-
 void Upscaling::DrawDLSSNRPage()
 {
 	ImGui::PushID("DLSS5NRPage");
 	ImGui::TextUnformatted(T("menu.dlssnr.title", "Neural Rendering"));
 	ImGui::TextWrapped("%s", T("menu.dlssnr.description",
-		"Neural Rendering and optional VR foveation. Shared upscaling settings stay in sync."));
+		"Neural Rendering and optional VR foveation settings."));
+	ImGui::Spacing();
 	foveatedRender.DrawNeuralRenderingStatusButton();
 	if (globals::game::isVR) {
-		ImGui::TextUnformatted(T("menu.dlssnr.foveation_header", "Foveated Rendering"));
-		ImGui::TextWrapped("%s", T("menu.dlssnr.foveation_description",
-			"Enable foveation, choose a coverage preset, then adjust the edge blend."));
-		DrawFoveationControls(true, false, true, false);
-		ImGui::Separator();
-		ImGui::TextUnformatted(T("menu.dlssnr.shared_header", "DLSS and Upscaling"));
-		ImGui::TextWrapped("%s", T("menu.dlssnr.shared_description",
-			"These settings are shared with Upscaling."));
-		DrawDLSSNRSharedControls();
-		ImGui::Separator();
-		if (ImGui::CollapsingHeader(T("menu.dlssnr.benchmark_header", "Settings Benchmark (measure in headset)")))
-			NeuralRendering::SettingsBenchmark::DrawPanel();
+		foveatedRender.DrawSettings(true, false, false);
 	} else {
-		DrawDLSSNRSharedControls();
 		ImGui::Separator();
 		ImGui::TextUnformatted(T("menu.dlssnr.neural_header", "Neural Rendering"));
 		ImGui::TextWrapped("%s", T("menu.dlssnr.flat_description",
@@ -520,10 +420,6 @@ void Upscaling::DrawPerformancePresets()
 void Upscaling::DrawPerformanceSettings()
 {
 	DrawPerfModeToggle();
-	// Foveated DLSS is VR-only; hide rather than disable so flat users never see a
-	// control they can never activate (mirrors the gate at DrawSettings' own call site).
-	if (globals::game::isVR)
-		DrawFoveationControls(false);
 }
 
 namespace
@@ -597,19 +493,17 @@ void Upscaling::ApplyPerformanceProfile(PerfProfile profile)
 				settings.upscaleMethodNoDLSS = (uint)UpscaleMethod::kFSR;
 		}
 	}
-	// Foveation is VR-only (DrawFoveationControls/IsRuntimeSupported); leave it alone on Flat.
+	// Foveation is VR-only; leave its route controls alone on Flat.
 	if (globals::game::isVR) {
-		foveatedRender.settings.enabled = preset.foveation ? 1 : 0;
-		if (preset.foveation) {
-			foveatedRender.settings.dlssMode = (uint)preset.dlssMode;
-			foveatedRender.settings.stretchMode = (uint)preset.stretchMode;
-			foveatedRender.settings.peripheryAAMode = (uint)preset.peripheryAAMode;
-			foveatedRender.settings.subrectBlendMode = (uint)preset.subrectBlendMode;
-			// A user-dragged custom crop is sticky across profile switches -- never
-			// silently overwrite it with a preset region.
-			if (!foveatedRender.subrectController.HasCustomCrop())
-				foveatedRender.subrectController.ApplyPresetByName(preset.cropPresetName);
-		}
+		foveatedRender.settings.enabled = foveatedRender.settings.neuralRenderingEnabled ? 1u : 0u;
+		foveatedRender.settings.dlssMode = (uint)preset.dlssMode;
+		foveatedRender.settings.stretchMode = (uint)preset.stretchMode;
+		foveatedRender.settings.peripheryAAMode = (uint)preset.peripheryAAMode;
+		foveatedRender.settings.subrectBlendMode = (uint)preset.subrectBlendMode;
+		// A user-dragged custom crop is sticky across profile switches -- never
+		// silently overwrite it with a preset region.
+		if (!foveatedRender.subrectController.HasCustomCrop())
+			foveatedRender.subrectController.ApplyPresetByName(preset.cropPresetName);
 	}
 }
 
@@ -630,12 +524,6 @@ bool Upscaling::MatchesPerformanceProfile(PerfProfile profile) const
 		}
 	}
 	if (!globals::game::isVR) {
-		return true;
-	}
-	if ((foveatedRender.settings.enabled != 0) != preset.foveation) {
-		return false;
-	}
-	if (!preset.foveation) {
 		return true;
 	}
 	if (foveatedRender.settings.dlssMode != (uint)preset.dlssMode ||
@@ -664,7 +552,7 @@ std::string Upscaling::GetProfilePreviewText(PerfProfile profile) const
 		return "";
 	const auto preset = GetUpscalePreset(profile);
 	if (!preset.foveation)
-		return T(TKEY("profile_preview_foveation_off"), "Foveation off (Full Eye)");
+		return T(TKEY("profile_preview_full_eye"), "Full Eye route (no cropped region)");
 	// ApplyPerformanceProfile leaves a custom crop alone rather than switching to the
 	// preset region -- the preview must match, or it promises a crop change that won't happen.
 	const std::string cropLabel = foveatedRender.subrectController.HasCustomCrop() ?
@@ -922,8 +810,16 @@ void Upscaling::DrawSettings()
 									  "Choose which DLSS AI model preset to use.\n"
 									  "Default lets the NVIDIA runtime choose for each upscale mode.\n"
 									  "Current defaults are K for DLAA, Quality, and Balanced; M for Performance; and L for Ultra Performance.\n"
-									  "An explicit preset overrides every upscale mode."));
+								  "An explicit preset overrides every upscale mode."));
 			}
+			if (ImGui::TreeNode(T("menu.dlssnr.benchmark_header", "Settings Benchmark (measure in headset)"))) {
+				NeuralRendering::SettingsBenchmark::DrawPanel();
+				ImGui::TreePop();
+			}
+		}
+		if (globals::game::isVR) {
+			ImGui::SeparatorText(T("menu.upscaling.vr_dlss_mode", "VR DLSS Mode"));
+			foveatedRender.DrawDLSSModeControl();
 		}
 
 		// VR PerfMode toggle, discovered here alongside the upscaler controls,
@@ -1821,7 +1717,6 @@ void Upscaling::CheckResources(UpscaleMethod a_upscalemethod)
 						vrIntermediateReactiveMask[i].reset();
 						vrIntermediateTransparencyMask[i].reset();
 					}
-					vrIntermediateDepth.reset();
 				}
 			}
 			if (a_upscalemethod == UpscaleMethod::kFSR)
@@ -1843,21 +1738,23 @@ void Upscaling::CheckResources(UpscaleMethod a_upscalemethod)
 ID3D11ComputeShader* Upscaling::GetEncodeTexturesCS()
 {
 	auto upscaleMethod = GetUpscaleMethod();
-	uint methodIndex = (uint)upscaleMethod;
+	return GetEncodeTexturesCS(upscaleMethod, NeedsTypedDepth(upscaleMethod));
+}
 
-	// Runtime FSR and VR require typed R32_FLOAT depth instead of the game's R24G8 resource.
-	if (upscaleMethod == UpscaleMethod::kFSR && (globals::game::isVR || runtimeFsrDepthTexture)) {
-		std::vector<std::pair<const char*, const char*>> defines = {
-			{ "FSR", "" },
-			{ "DEPTH_OUTPUT", "" }
-		};
-		return encodeTexturesCSDepthOutput.Get(L"Data/Shaders/Upscaling/EncodeTexturesCS.hlsl", defines, "cs_5_0");
-	}
+bool Upscaling::NeedsTypedDepth(UpscaleMethod a_method) const
+{
+	return (a_method == UpscaleMethod::kFSR && (globals::game::isVR || runtimeFsrDepthTexture)) ||
+	       (a_method == UpscaleMethod::kDLSS && globals::game::isVR);
+}
+
+ID3D11ComputeShader* Upscaling::GetEncodeTexturesCS(UpscaleMethod a_method, bool a_typedDepth)
+{
+	uint methodIndex = (uint)a_method;
 
 	std::vector<std::pair<const char*, const char*>> defines;
 
 	// Add upscale method define
-	switch (upscaleMethod) {
+	switch (a_method) {
 	case UpscaleMethod::kDLSS:
 		defines.push_back({ "DLSS", "" });
 		break;
@@ -1868,6 +1765,10 @@ ID3D11ComputeShader* Upscaling::GetEncodeTexturesCS()
 		// No define for NONE or TAA
 		break;
 	}
+	if (a_typedDepth)
+		defines.push_back({ "DEPTH_OUTPUT", "" });
+	if (a_typedDepth)
+		return encodeTexturesCSDepthOutput[methodIndex].Get(L"Data/Shaders/Upscaling/EncodeTexturesCS.hlsl", defines, "cs_5_0");
 
 	return encodeTexturesCS[methodIndex].Get(L"Data/Shaders/Upscaling/EncodeTexturesCS.hlsl", defines, "cs_5_0");
 }
@@ -1941,31 +1842,6 @@ eastl::unique_ptr<Texture2D> Upscaling::CreateTextureFromSource(ID3D11Resource* 
 void Upscaling::CreateVRIntermediateTextures(uint32_t inWidth, uint32_t inHeight, uint32_t outWidth, uint32_t outHeight,
 	ID3D11Resource* colorSrc, ID3D11Resource* mvecSrc, ID3D11Resource* reactiveSrc, ID3D11Resource* transparencySrc)
 {
-	// Right-eye-only depth intermediate for DLSS. Streamline.Upscale copies the right-eye depth
-	// slice here before evaluating DLSS eye 1; eye 0 reads the combined stereo depth directly at
-	// zero offset. R24G8_TYPELESS matches the game's D24S8_TYPELESS cast group — R32_TYPELESS is
-	// a different cast group and produces silent zero-copy failures.
-	{
-		D3D11_TEXTURE2D_DESC depthDesc = {};
-		depthDesc.Width = inWidth;
-		depthDesc.Height = inHeight;
-		depthDesc.MipLevels = 1;
-		depthDesc.ArraySize = 1;
-		depthDesc.Format = DXGI_FORMAT_R24G8_TYPELESS;
-		depthDesc.SampleDesc.Count = 1;
-		depthDesc.Usage = D3D11_USAGE_DEFAULT;
-		depthDesc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
-		vrIntermediateDepth = eastl::make_unique<Texture2D>(depthDesc);
-
-		Util::SetResourceName(vrIntermediateDepth->resource.get(), "Upscale_Depth_Right");
-
-		D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
-		srvDesc.Format = DXGI_FORMAT_R24_UNORM_X8_TYPELESS;
-		srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
-		srvDesc.Texture2D.MipLevels = 1;
-		vrIntermediateDepth->CreateSRV(srvDesc);
-	}
-
 	// All buffers are per-eye: Streamline validates all extents against the input color texture
 	// dimensions, so every tagged resource must be isolated per-eye at {0,0}.
 	for (int i = 0; i < 2; i++) {
@@ -1974,9 +1850,7 @@ void Upscaling::CreateVRIntermediateTextures(uint32_t inWidth, uint32_t inHeight
 		vrIntermediateColorIn[i] = CreateTextureFromSource(colorSrc, inWidth, inHeight, false, true, true, ("Upscale_ColorIn_" + suffix).c_str());
 		vrIntermediateColorOut[i] = CreateTextureFromSource(colorSrc, outWidth, outHeight, false, true, false, ("Upscale_ColorOut_" + suffix).c_str());
 
-		// Linear depth: R32_FLOAT so FSR's GetFfxResourceDescriptionDX11() returns a valid format.
-		// EncodeTexturesCS writes the non-linear depth as R32_FLOAT for FSR. Kept separate from
-		// vrIntermediateDepth (R24G8_TYPELESS) which Streamline copies into for DLSS right eye.
+		// R32_FLOAT is accepted by FSR and supplies VR DLSS's eye-1 depth guide.
 		{
 			D3D11_TEXTURE2D_DESC ldDesc = {};
 			ldDesc.Width = inWidth;
@@ -1989,7 +1863,7 @@ void Upscaling::CreateVRIntermediateTextures(uint32_t inWidth, uint32_t inHeight
 			ldDesc.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_UNORDERED_ACCESS;
 			vrIntermediateLinearDepth[i] = eastl::make_unique<Texture2D>(ldDesc);
 
-			Util::SetResourceName(vrIntermediateLinearDepth[i]->resource.get(), ("Upscale_LinearDepth_" + suffix).c_str());
+			Util::SetResourceName(vrIntermediateLinearDepth[i]->resource.get(), ("Upscale_TypedDepth_" + suffix).c_str());
 
 			D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc2 = {};
 			srvDesc2.Format = DXGI_FORMAT_R32_FLOAT;
@@ -2119,8 +1993,9 @@ void Upscaling::ClearHMDMask(ID3D11UnorderedAccessView* colorUAV, ID3D11ShaderRe
 
 	auto context = globals::d3d::context;
 
-	if (!vrClearHMDMaskCS) {
-		vrClearHMDMaskCS.attach((ID3D11ComputeShader*)Util::CompileShader(L"Data/Shaders/Upscaling/ClearHMDMaskCS.hlsl", {}, "cs_5_0"));
+	auto* clearMaskShader = vrClearHMDMaskCS.Get(
+		L"Data/Shaders/Upscaling/ClearHMDMaskCS.hlsl", {}, "cs_5_0", "main", "Upscaling::ClearHMDMaskCS");
+	if (clearMaskShader && !vrClearHMDMaskCB) {
 
 		D3D11_BUFFER_DESC cbDesc = {};
 		cbDesc.ByteWidth = 16;  // 4 uints
@@ -2130,11 +2005,11 @@ void Upscaling::ClearHMDMask(ID3D11UnorderedAccessView* colorUAV, ID3D11ShaderRe
 		DX::ThrowIfFailed(globals::d3d::device->CreateBuffer(&cbDesc, nullptr, vrClearHMDMaskCB.put()));
 	}
 
-	if (vrClearHMDMaskCS) {
+	if (clearMaskShader && vrClearHMDMaskCB) {
 		auto dispatchX = (eyeWidth + 7) / 8;
 		auto dispatchY = (eyeHeight + 7) / 8;
 
-		context->CSSetShader(vrClearHMDMaskCS.get(), nullptr, 0);
+		context->CSSetShader(clearMaskShader, nullptr, 0);
 
 		ID3D11ShaderResourceView* srvs[1] = { depthSRV };
 		context->CSSetShaderResources(0, 1, srvs);
@@ -2143,7 +2018,14 @@ void Upscaling::ClearHMDMask(ID3D11UnorderedAccessView* colorUAV, ID3D11ShaderRe
 		context->CSSetUnorderedAccessViews(0, 1, uavs, nullptr);
 
 		D3D11_MAPPED_SUBRESOURCE mapped{};
-		context->Map(vrClearHMDMaskCB.get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mapped);
+		if (FAILED(context->Map(vrClearHMDMaskCB.get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mapped)) || !mapped.pData) {
+			ID3D11ShaderResourceView* nullSRV[1] = { nullptr };
+			ID3D11UnorderedAccessView* nullUAV[1] = { nullptr };
+			context->CSSetShaderResources(0, 1, nullSRV);
+			context->CSSetUnorderedAccessViews(0, 1, nullUAV, nullptr);
+			context->CSSetShader(nullptr, nullptr, 0);
+			return;
+		}
 
 		uint32_t offsets[4] = { depthOffsetX, colorOffsetX, 0, 0 };
 
@@ -2407,10 +2289,12 @@ void Upscaling::SetupResources()
 void Upscaling::ClearShaderCache()
 {
 	foveatedRender.ClearShaderCache();
+	vrClearHMDMaskCS.Reset();
 	for (int i = 0; i < 5; ++i) {
 		encodeTexturesCS[i].Reset();
 	}
-	encodeTexturesCSDepthOutput.Reset();
+	for (auto& shader : encodeTexturesCSDepthOutput)
+		shader.Reset();
 	copyDepthToSharedBufferPS.Reset();
 
 	depthRefractionUpscalePS.Reset();
@@ -2535,7 +2419,9 @@ void Upscaling::FrameLimiter()
 		HANDLE waitableObject = GetFrameLatencyWaitableObject();
 
 		// Wait for the next frame presentation slot
-		WaitForSingleObject(waitableObject, INFINITE);
+		// Bound the wait so a lost swap chain cannot block the render thread forever.
+		static constexpr DWORD kFrameLatencyWaitTimeoutMs = 1000;
+		WaitForSingleObject(waitableObject, kFrameLatencyWaitTimeoutMs);
 
 		if (settings.frameLimitMode) {
 			static constexpr int64_t kNanosecondsPerSecond = 1000000000LL;
@@ -2880,6 +2766,7 @@ void Upscaling::FillMenuCameraMotionVectors()
 
 void Upscaling::Upscale()
 {
+	FoveatedRenderImpl::Bridge::routeHandledThisFrame = false;
 	NeuralRendering::UpdateFrameState();
 	ZoneScoped;
 	auto upscaleMethod = GetUpscaleMethod();
@@ -2935,11 +2822,15 @@ void Upscaling::Upscale()
 				auto upscalingBuffer = upscalingDataCB->CB();
 				context->CSSetConstantBuffers(0, 1, &upscalingBuffer);
 
-				// u2 is DLSS-only; u3 provides typed depth for VR FSR and flat runtime FSR.
+				// u2 is DLSS-only; u3 provides typed depth for VR FSR, flat runtime FSR and VR DLSS.
 				ID3D11UnorderedAccessView* depthOutput = nullptr;
-				if (upscaleMethod == UpscaleMethod::kFSR) {
-					depthOutput = globals::game::isVR ? vrIntermediateLinearDepth[i]->uav.get() :
-					                                    (runtimeFsrDepthTexture ? runtimeFsrDepthTexture->uav.get() : nullptr);
+				if (NeedsTypedDepth(upscaleMethod)) {
+					if (upscaleMethod == UpscaleMethod::kFSR) {
+						depthOutput = globals::game::isVR ? vrIntermediateLinearDepth[i]->uav.get() :
+						                                    (runtimeFsrDepthTexture ? runtimeFsrDepthTexture->uav.get() : nullptr);
+					} else if (upscaleMethod == UpscaleMethod::kDLSS) {
+						depthOutput = (i == 1) ? vrIntermediateLinearDepth[i]->uav.get() : nullptr;
+					}
 				}
 				ID3D11UnorderedAccessView* uavs[4] = {
 					globals::game::isVR ? vrIntermediateReactiveMask[i]->uav.get() : reactiveMaskTexture->uav.get(),
@@ -2977,6 +2868,27 @@ void Upscaling::Upscale()
 		auto tryFoveatedRoute = [&](ID3D11Resource* a_depth, const char* a_methodLabel) -> bool {
 			auto* ui = globals::game::ui;
 			auto* st = globals::state;
+			static auto retryAfter = std::chrono::steady_clock::time_point{};
+			static std::uint32_t lastDlssMode = UINT32_MAX;
+			static float lastRenderScale = -1.0f;
+			static float lastScreenWidth = 0.0f;
+			static float lastScreenHeight = 0.0f;
+			static bool failureLogged = false;
+			const auto dlssMode = foveatedRender.settings.dlssMode;
+			const float screenWidth = st ? st->screenSize.x : 0.0f;
+			const float screenHeight = st ? st->screenSize.y : 0.0f;
+			if (lastDlssMode != dlssMode || lastRenderScale != settings.vrRenderScale ||
+				lastScreenWidth != screenWidth || lastScreenHeight != screenHeight) {
+				lastDlssMode = dlssMode;
+				lastRenderScale = settings.vrRenderScale;
+				lastScreenWidth = screenWidth;
+				lastScreenHeight = screenHeight;
+				retryAfter = {};
+				failureLogged = false;
+			}
+			const auto now = std::chrono::steady_clock::now();
+			if (now < retryAfter)
+				return false;
 			const bool consoleOpen = ui && ui->IsMenuOpen(RE::Console::MENU_NAME);
 			const bool menuOpen = consoleOpen || (st && st->IsPausedOrMenuOpen(ui));
 			const bool temporalOverlayOpen = consoleOpen || (st && st->isLoadingMenuOpen);
@@ -2992,7 +2904,13 @@ void Upscaling::Upscale()
 				transparencyCompositionMaskTexture->resource.get(),
 				motionVectorCopyTexture->resource.get());
 			if (!routeHandled) {
-				logger::warn("[FOVEATED] route preflight failed — falling through to standard {} path", a_methodLabel);
+				if (!failureLogged) {
+					logger::warn("[FOVEATED] route preflight failed — falling through to standard {} path", a_methodLabel);
+					failureLogged = true;
+				}
+				retryAfter = now + std::chrono::seconds(2);
+			} else {
+				failureLogged = false;
 			}
 			return routeHandled;
 		};
@@ -3003,12 +2921,13 @@ void Upscaling::Upscale()
 			// Mirror that toggle by tearing down the DLSS feature on LoadingMenu close — the next
 			// SetDLSSOptions/slEvaluateFeature call below recreates it with current per-eye extents.
 			if (globals::game::isVR && pendingDLSSReset.exchange(false, std::memory_order_relaxed)) {
-				logger::debug("[Upscaling] LoadingMenu close detected — rebuilding DLSS feature");
+				logger::info("[Upscaling-History] reset consumed reason=queued-load-or-scene-transition route=standard+foveated eyes=both; rebuilding DLSS feature");
 				streamline.DestroyDLSSResources();
 			}
 
 			const bool routeHandled = tryFoveatedRoute(
 				Util::AsReal(globals::game::renderer->GetDepthStencilData().depthStencils[RE::RENDER_TARGETS_DEPTHSTENCIL::kMAIN].texture), "DLSS");
+			FoveatedRenderImpl::Bridge::routeHandledThisFrame = routeHandled;
 			if (!routeHandled) {
 				streamline.Upscale(Util::AsReal(main.texture), reactiveMaskTexture->resource.get(), transparencyCompositionMaskTexture->resource.get(), motionVectorCopyTexture->resource.get());
 			}
@@ -3024,6 +2943,7 @@ void Upscaling::Upscale()
 			                                  nullptr;
 
 			const bool routeHandled = tryFoveatedRoute(fsrDepth, "FSR");
+			FoveatedRenderImpl::Bridge::routeHandledThisFrame = routeHandled;
 			if (!routeHandled) {
 				fidelityFX.Upscale(Util::AsReal(main.texture), fsrDepth, reactiveMaskTexture->resource.get(), transparencyCompositionMaskTexture->resource.get(), Util::AsReal(motionVector.texture), settings.sharpnessFSR, fsrColorOut);
 			}
@@ -3394,6 +3314,22 @@ void Upscaling::ApplySharpening()
 	globals::game::stateUpdateFlags->set(RE::BSGraphics::ShaderFlags::DIRTY_RENDERTARGET);
 }
 
+bool Upscaling::ApplyMapMenuSharpening()
+{
+	const float sharpness = PerfModePolicy::ClampMapSharpness(settings.vrMapSharpness);
+	if (sharpness <= 0.0f || !globals::game::isVR || !globals::state || !globals::d3d::context ||
+		!globals::state->isMapMenuOpen || !globals::state->IsStaticMenuBackdropOpen(globals::game::ui) ||
+		!IsPerfModeSharpenRedirectActive() || !perfMode.GetRefraTempSRV() || !perfMode.GetTestTextureUAV())
+		return false;
+
+	CS_GPU_PASS("Upscaling::MapMenuSharpening");
+	Util::FullscreenPassScope stateScope(globals::d3d::context);
+	// Match the ordinary slider's RCAS attenuation mapping. DLSS writes to the
+	// PerfMode intermediate; RCAS resolves it into the display-size test texture.
+	const float attenuation = std::exp2(2.0f * sharpness - 2.0f);
+	return rcas.ApplySharpen(perfMode.GetRefraTempSRV(), perfMode.GetTestTextureUAV(), attenuation);
+}
+
 void Upscaling::Main_UpdateJitter::thunk(RE::BSGraphics::State* a_state)
 {
 	globals::features::upscaling.ConfigureTAA();
@@ -3451,7 +3387,7 @@ void Upscaling::Main_PostProcessing::thunk(RE::ImageSpaceManager* a_this, uint32
 		// ApplySharpening can't read sharpenerTexture. Route through
 		// Postprocess::ApplyDlssSharpening which does the kMAIN → sharpener →
 		// kMAIN round-trip. Both paths honor sharpnessDLSS=0 to disable RCAS.
-		if (FoveatedRenderImpl::Bridge::IsRouteActive()) {
+		if (FoveatedRenderImpl::Bridge::routeHandledThisFrame) {
 			FoveatedRenderImpl::Postprocess::ApplyDlssSharpening(upscaling);
 		} else {
 			upscaling.ApplySharpening();

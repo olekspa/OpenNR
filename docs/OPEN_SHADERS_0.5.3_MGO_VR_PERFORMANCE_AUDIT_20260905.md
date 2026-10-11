@@ -6,12 +6,12 @@ Audit date: September 5, 2026. Read-only inspection of source, package listings,
 
 **Evidence and version boundary**
 
-- Selected MO2 profile: `E:\MGO-RC3-fresh\profiles\MGO NSFW - 4.0 BETA`, as selected in `E:\MGO-RC3-fresh\ModOrganizer.ini`.
+- Selected MO2 profile: `<MO2_INSTANCE>\profiles\<MO2_PROFILE>`, as selected in `<MO2_INSTANCE>\ModOrganizer.ini`.
 - That profile enables `Open Shaders DLSSNR VR 0.5.2 OpenNR`, not 0.5.3. No installed 0.5.3 mod folder was found in this instance.
-- Both 0.5.3 archives exist in `D:\.CODEX_Projects\DLSS_5_SKYRIM\vendor\open-shaders-dlssnr-vr-091bfb4d\dist`. Their timestamps are September 5, 11:58–11:59, and sizes are 254,757,122 bytes (base) and 254,992,809 bytes (OpenNR).
-- Source inspected: `D:\.CODEX_Projects\DLSS_5_SKYRIM\vendor\open-shaders-dlssnr-vr-091bfb4d`. HEAD is `3bd930002a96135cff5b092a7e55e11cf28bc912`, with extensive existing modifications and untracked additions. HEAD alone does not identify these 0.5.3 changes or prove binary/source equivalence.
-- Saved user settings: `E:\MGO-RC3-fresh\overwrite\SKSE\Plugins\CommunityShaders\SettingsUser.json`.
-- Most recent available log: `C:\Users\oleks\OneDrive\Documents\My Games\Skyrim VR\SKSE\CommunityShaders.log`, last written September 4 at 22:10. It records zero discovered settings override files for that session. Configuration load order in source is Default → User → Overrides → User Overrides; saved JSON remains distinct from effective settings in a future launch.
+- Both 0.5.3 archives exist in `<LEGACY_REPO>\vendor\open-shaders-dlssnr-vr-091bfb4d\dist`. Their timestamps are September 5, 11:58–11:59, and sizes are 254,757,122 bytes (base) and 254,992,809 bytes (OpenNR).
+- Source inspected: `<LEGACY_REPO>\vendor\open-shaders-dlssnr-vr-091bfb4d`. HEAD is `3bd930002a96135cff5b092a7e55e11cf28bc912`, with extensive existing modifications and untracked additions. HEAD alone does not identify these 0.5.3 changes or prove binary/source equivalence.
+- Saved user settings: `<MO2_INSTANCE>\overwrite\SKSE\Plugins\CommunityShaders\SettingsUser.json`.
+- Most recent available log: `<USER_HOME>\Documents\My Games\Skyrim VR\SKSE\CommunityShaders.log`, last written September 4 at 22:10. It records zero discovered settings override files for that session. Configuration load order in source is Default → User → Overrides → User Overrides; saved JSON remains distinct from effective settings in a future launch.
 - Hardware queried: RTX 5070 Ti, approximately 16 GB VRAM, driver 616.56; Ryzen 7 7800X3D. SkyrimVR was not running during the audit. Current headset refresh rate, runtime render target, CPU/GPU frame times, VRAM residency, compositor and streaming performance were not measured.
 
 Coverage includes the feature inventory, serialized settings, relevant UI controls and dependencies, upscaling/NR resource flow, VRS, stereo optimizations, lighting/shadows, AO, materials, vegetation, weather, water, cache/compilation controls, package contents, and MGO INIs/mod selection. This is a broad settings and architecture audit, not a formal line-by-line correctness proof of every shader or third-party dependency.
@@ -188,7 +188,7 @@ Visual acceptance must include left/right eye agreement, thin geometry and grass
 
 **Source navigation**
 
-All paths below are under `D:\.CODEX_Projects\DLSS_5_SKYRIM\vendor\open-shaders-dlssnr-vr-091bfb4d`:
+All paths below are under `<LEGACY_REPO>\vendor\open-shaders-dlssnr-vr-091bfb4d`:
 
 | Area | Source and useful entry points |
 |---|---|

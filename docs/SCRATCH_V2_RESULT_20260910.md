@@ -19,7 +19,7 @@ initialization remains materially valuable.
 
 Protected overall-best checkpoint:
 
-`C:\OpenNR\Training\semantic_pixel_l1_pair_20260909\joint\best_all_cohorts.pt`
+`<OPENNR_DATA>\Training\semantic_pixel_l1_pair_20260909\joint\best_all_cohorts.pt`
 
 Protected SHA-256:
 
@@ -40,15 +40,15 @@ show a benefit.
 
 The primary output root is:
 
-`C:\OpenNR\Training\semantic_scratch_v2_vs_finetune_20260910`
+`<OPENNR_DATA>\Training\semantic_scratch_v2_vs_finetune_20260910`
 
 Runner:
 
-`D:\.CODEX_Projects\OpenNR-VR\tools\train_semantic_scratch_v2_vs_finetune.py`
+`<REPO>\tools\train_semantic_scratch_v2_vs_finetune.py`
 
 Plan:
 
-`D:\.CODEX_Projects\OpenNR-VR\docs\SCRATCH_V2_PLAN_20260910.md`
+`<REPO>\docs\SCRATCH_V2_PLAN_20260910.md`
 
 Both arms used:
 
@@ -138,7 +138,7 @@ were not measured in this experiment, so they remain unverified.
 
 Scratch-v2 checkpoint:
 
-`C:\OpenNR\Training\semantic_scratch_v2_vs_finetune_20260910\scratch_v2\checkpoint_3200.pt`
+`<OPENNR_DATA>\Training\semantic_scratch_v2_vs_finetune_20260910\scratch_v2\checkpoint_3200.pt`
 
 SHA-256:
 
@@ -146,7 +146,7 @@ SHA-256:
 
 Matched finetune checkpoint:
 
-`C:\OpenNR\Training\semantic_scratch_v2_vs_finetune_20260910\finetune_v2\checkpoint_3200.pt`
+`<OPENNR_DATA>\Training\semantic_scratch_v2_vs_finetune_20260910\finetune_v2\checkpoint_3200.pt`
 
 SHA-256:
 
@@ -154,7 +154,7 @@ SHA-256:
 
 The recorded narrow-best intermediate finetune checkpoint is retained at:
 
-`C:\OpenNR\Training\semantic_scratch_v2_vs_finetune_20260910\finetune_v2\checkpoint_2400.pt`
+`<OPENNR_DATA>\Training\semantic_scratch_v2_vs_finetune_20260910\finetune_v2\checkpoint_2400.pt`
 
 Its checkpoint SHA-256 is
 `c499889a889408d259db07451e19db5ee7ff41b6bc08de6e3a7ae148ef252109`.
@@ -169,8 +169,8 @@ Independent batch-1 replays both passed exactly:
 
 Replay directories:
 
-- `C:\OpenNR\Training\semantic_scratch_v2_vs_finetune_20260910\replay\finetune_v2_checkpoint_3200_replay.json`
-- `C:\OpenNR\Training\semantic_scratch_v2_vs_finetune_20260910\replay\scratch_v2_checkpoint_3200_replay.json`
+- `<OPENNR_DATA>\Training\semantic_scratch_v2_vs_finetune_20260910\replay\finetune_v2_checkpoint_3200_replay.json`
+- `<OPENNR_DATA>\Training\semantic_scratch_v2_vs_finetune_20260910\replay\scratch_v2_checkpoint_3200_replay.json`
 
 The primary experiment reports `test_used = false` throughout.
 

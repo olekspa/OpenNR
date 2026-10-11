@@ -61,12 +61,12 @@ causal claim that the student is visually superior.
 
 Use the isolated environment created for this experiment:
 
-    E:\OpenNR-VR-Poc-Venv\Scripts\python.exe tools\train_opennr_poc.py --capture-root E:\MGO-RC3-fresh\overwrite\Root\OpenNR_Captures --output-dir D:\.CODEX_Projects\OpenNR-VR\out\opennr_poc --max-steps 600 --models guided,rgb
+    <POC_VENV>\Scripts\python.exe tools\train_opennr_poc.py --capture-root <MO2_INSTANCE>\overwrite\Root\OpenNR_Captures --output-dir <REPO>\out\opennr_poc --max-steps 600 --models guided,rgb
 
 For the first scale-aware comparison, keep the same target crop size and use
 an input at half the linear resolution:
 
-    E:\OpenNR-VR-Poc-Venv\Scripts\python.exe tools\train_opennr_poc.py --capture-root E:\MGO-RC3-fresh\overwrite\Root\OpenNR_Captures --output-dir D:\.CODEX_Projects\OpenNR-VR\out\opennr_poc_scale50 --resolution 128 --input-scale 0.5 --max-steps 600 --models guided,rgb
+    <POC_VENV>\Scripts\python.exe tools\train_opennr_poc.py --capture-root <MO2_INSTANCE>\overwrite\Root\OpenNR_Captures --output-dir <REPO>\out\opennr_poc_scale50 --resolution 128 --input-scale 0.5 --max-steps 600 --models guided,rgb
 
 The runner writes its reproducible audit, split, configuration, guide
 preprocessing metadata, metrics, training history, best/last checkpoints, and

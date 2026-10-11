@@ -42,19 +42,31 @@ namespace Skylighting
 
 	float GetFadeOutFactor(float3 positionMS)
 	{
-		float3 uvw = saturate(positionMS / GetArraySize(SharedData::skylightingSettings) + .5);
+		float3 positionMSAdjusted = positionMS - SharedData::skylightingSettings.PosOffset.xyz;
+		float3 uvw = saturate(positionMSAdjusted / GetArraySize(SharedData::skylightingSettings) + .5);
 		float3 dists = min(uvw, 1 - uvw);
 		float edgeDist = min(dists.x, min(dists.y, dists.z));
 		return saturate(edgeDist * 20);
 	}
 
+	bool ShouldUseProbeData()
+	{
+		return SharedData::skylightingSettings.ProbeDataReady != 0 &&
+			SharedData::skylightingSettings.ForceNeutralOutput == 0 &&
+			(!SharedData::InInterior || SharedData::skylightingSettings.EnableInInteriors != 0);
+	}
+
 	float MixDiffuse(float visibility)
 	{
+		if (SharedData::skylightingSettings.ForceNeutralOutput != 0)
+			return 1.0;
 		return lerp(SharedData::skylightingSettings.MinDiffuseVisibility, 1.0, visibility);
 	}
 
 	float MixSpecular(float visibility)
 	{
+		if (SharedData::skylightingSettings.ForceNeutralOutput != 0)
+			return 1.0;
 		return lerp(SharedData::skylightingSettings.MinSpecularVisibility, 1.0, visibility);
 	}
 
@@ -84,6 +96,8 @@ namespace Skylighting
 #if defined(PSHADER)
 	void ApplySkylighting(inout float3 diffuseColor, inout float3 directionalAmbientColor, float3 albedo, float skylightingDiffuse)
 	{
+		if (SharedData::skylightingSettings.ForceNeutralOutput != 0)
+			return;
 		float maxScale = 1.0;
 		if (directionalAmbientColor.x > 0.0)
 			maxScale = min(maxScale, diffuseColor.x / directionalAmbientColor.x);
@@ -121,7 +135,7 @@ namespace Skylighting
 		shadowVisibility = 1.0;
 #	endif
 
-		if (SharedData::InInterior)
+		if (!ShouldUseProbeData())
 			return scaledUnitSH;
 
 		positionMS.xyz += normalWS * cellSize * 0.5;  // Receiver normal bias
@@ -167,14 +181,17 @@ namespace Skylighting
 					shWsum += shW;
 
 #	if defined(SKYLIGHTING_SHADOW_VIS)
-					shadowSum += ShadowVisibilityProbeArray[cellTexID] * triW;
-					shadowWsum += triW;
+					if (SharedData::skylightingSettings.ShadowDataAvailable != 0) {
+						shadowSum += ShadowVisibilityProbeArray[cellTexID] * triW;
+						shadowWsum += triW;
+					}
 #	endif
 				}
 
 #	if defined(SKYLIGHTING_SHADOW_VIS)
 		float fadeOut = GetFadeOutFactor(positionMS);
-		shadowVisibility = lerp(1.0, shadowSum / max(shadowWsum, EPSILON_WEIGHT_SUM), fadeOut);
+		if (SharedData::skylightingSettings.ShadowDataAvailable != 0)
+			shadowVisibility = lerp(1.0, shadowSum / max(shadowWsum, EPSILON_WEIGHT_SUM), fadeOut);
 #	endif
 
 		return SphericalHarmonics::Scale(shSum, rcp(shWsum + EPSILON_WEIGHT_SUM));
@@ -182,7 +199,7 @@ namespace Skylighting
 
 	float GetSkylightingDiffuse(sh2 skylightingSH, float3 positionMS, float3 evalNormal, float vertexAO = 1.0)
 	{
-		if (SharedData::InInterior)
+		if (!ShouldUseProbeData())
 			return 1.0;
 
 		float3 candidateNormal = float3(evalNormal.xy, max(0.0, evalNormal.z));
@@ -200,7 +217,7 @@ namespace Skylighting
 		const float3 arraySize = GetArraySize(params);
 		sh2 scaledUnitSH = UNIT_SH / 1e-10;
 
-		if (SharedData::InInterior)
+		if (!ShouldUseProbeData())
 			return scaledUnitSH;
 
 		float3 positionMSAdjusted = positionMS - params.PosOffset.xyz;

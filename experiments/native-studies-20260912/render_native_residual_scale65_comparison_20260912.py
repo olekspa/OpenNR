@@ -16,16 +16,16 @@ from PIL import Image, ImageDraw
 FULL_WIDTH = 2496
 FULL_HEIGHT = 2688
 CAPTURE = Path(
-    r"C:\OpenNR_Captures_FullEyeTemporalStateTranche_20260910"
+    r"<DATA_ROOT>\OpenNR_Captures_FullEyeTemporalStateTranche_20260910"
     r"\seq-1789063628889-1\frames\frame_00000001"
 )
 STUDY = Path(
-    r"D:\.CODEX_Projects\OpenNR-VR\out"
+    r"<REPO>\out"
     r"\native_teacher_resolution_renderer_contract_20260912"
 )
 STUDY_SUMMARY = STUDY / "summary.json"
-STUDY_65 = Path(r"C:\OpenNR\NativeResolutionStudy65_20260912")
-OUTPUT = Path(r"C:\OpenNR\native_residual_scale65_comparison_20260912")
+STUDY_65 = Path(r"<OPENNR_DATA>\NativeResolutionStudy65_20260912")
+OUTPUT = Path(r"<OPENNR_DATA>\native_residual_scale65_comparison_20260912")
 SCALES = (90, 75, 65, 50, 33)
 
 

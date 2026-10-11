@@ -1,7 +1,7 @@
 [CmdletBinding()]
 param(
     [string]$GameRoot = 'E:\Games\Steam\steamapps\common\SkyrimVR',
-    [string]$OutFile = 'D:\.CODEX_Projects\DLSS_5_SKYRIM\backups\game-root-baseline-20260829\manifest.csv'
+    [string]$OutFile = '<LEGACY_REPO>\backups\game-root-baseline-20260829\manifest.csv'
 )
 
 $ErrorActionPreference = 'Stop'

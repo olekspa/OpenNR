@@ -12,9 +12,9 @@ before the first eligible capture frame. The sequence manifest records
 
 Use this workflow after installing the rebuilt **local OpenNR** DLL. The active
 capture profile is isolated at
-`E:\OpenNR_Captures_StrictTemporal_0.5.5_20260906`; the previous settings file is
+`<DATA_ROOT>\OpenNR_Captures_StrictTemporal_0.5.5_20260906`; the previous settings file is
 backed up at
-`E:\MGO-RC3-fresh\_OpenNR_Pilot_Backups\pre-strict-output-20260906_003846`.
+`<MO2_INSTANCE>\_OpenNR_Pilot_Backups\pre-strict-output-20260906_003846`.
 The active profile remains a 64-frame crop burst with both eyes, native depth,
 native motion vectors, and queue capacity 64.
 
@@ -44,7 +44,7 @@ profile. The installed file is v0.5.5.0, 43,745,792 bytes, SHA-256
 `751401C26DF6B9FCD7F6F3DD906EE6D57ED69D6F3C6EE6305D1C445C49E3FFD4`, and the
 installed `OpenNRCapture.ini` matches the staged package. The pre-install DLL and
 INI are preserved at
-`E:\MGO-RC3-fresh\_OpenNR_Pilot_Backups\pre-capture-reset-0.5.5-20260906_002040`.
+`<MO2_INSTANCE>\_OpenNR_Pilot_Backups\pre-capture-reset-0.5.5-20260906_002040`.
 The exact source/staging/active hashes and scope are recorded in
 `out\active_install_capture_reset_0.5.5_20260906\install_manifest.json`.
 Existing captures and the trained student remain untouched.

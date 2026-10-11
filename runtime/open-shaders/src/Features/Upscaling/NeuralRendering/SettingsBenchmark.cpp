@@ -9,6 +9,7 @@
 #include "Utils/SettingsPatch.h"
 
 #include <algorithm>
+#include <atomic>
 #include <chrono>
 #include <cmath>
 #include <ctime>
@@ -23,6 +24,7 @@ namespace NeuralRendering::SettingsBenchmark
 	namespace
 	{
 		using Clock = std::chrono::steady_clock;
+		std::atomic_bool g_tickActive{ false };
 
 		constexpr const char* kDefinitionsFile = "SKSE/Plugins/CommunityShaders/OpenNR-SettingsBenchmark.json";
 
@@ -34,49 +36,507 @@ namespace NeuralRendering::SettingsBenchmark
   "measureFrames": 90,
   "repeats": 1,
   "variants": [
-    { "id": "nr-off", "label": "Neural Rendering off (reference)", "group": "Reference",
+    {
+      "id": "nr-full-eye",
+      "label": "Full eye",
+      "group": "Neural Rendering A/B",
+      "note": "Full-resolution NR over the entire eye; comparison baseline.",
+      "patches": [
+        {
+          "feature": "Upscaling",
+          "settings": {
+            "foveatedRender": {
+              "neuralRenderingEnabled": true,
+              "neuralRenderingCoverage": 100,
+              "neuralRenderingProjectionCenteredCrop": false,
+              "neuralRenderingPeripheryEnabled": false,
+              "neuralRenderingPeripheryStagger": false,
+              "neuralRenderingTemporalReuseCadence": 0,
+              "neuralRenderingTemporalReuseStaggerEyes": false,
+              "neuralRenderingParallelEyeQueue": false,
+              "neuralRenderingFlushAfterSignal": false,
+              "neuralRenderingPrewarm": true
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "nr-coverage-crop-only",
+      "label": "Crop 55 only",
+      "group": "Neural Rendering A/B",
+      "note": "Full-resolution NR on a 55% linear coverage crop; Periphery NR is disabled.",
+      "patches": [
+        {
+          "feature": "Upscaling",
+          "settings": {
+            "foveatedRender": {
+              "neuralRenderingEnabled": true,
+              "neuralRenderingCoverage": 55,
+              "neuralRenderingProjectionCenteredCrop": false,
+              "neuralRenderingPeripheryEnabled": false,
+              "neuralRenderingPeripheryStagger": false,
+              "neuralRenderingTemporalReuseCadence": 0,
+              "neuralRenderingTemporalReuseStaggerEyes": false
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "nr-hybrid-c55-p66",
+      "label": "Hybrid C55+P66",
+      "group": "Neural Rendering A/B",
+      "note": "55% linear full-resolution centre crop plus 66% whole-eye Periphery NR.",
+      "patches": [
+        {
+          "feature": "Upscaling",
+          "settings": {
+            "foveatedRender": {
+              "neuralRenderingEnabled": true,
+              "neuralRenderingCoverage": 55,
+              "neuralRenderingProjectionCenteredCrop": true,
+              "neuralRenderingPeripheryEnabled": true,
+              "neuralRenderingPeripheryResolution": 66,
+              "neuralRenderingPeripheryLightingGain": 0.89,
+              "neuralRenderingPeripheryStagger": false,
+              "neuralRenderingTemporalReuseCadence": 0,
+              "neuralRenderingTemporalReuseStaggerEyes": false
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "nr-hybrid-c55-p66-staggered",
+      "label": "Hybrid C55+P66 staggered",
+      "group": "Neural Rendering A/B",
+      "note": "55% linear full-resolution centre crop plus eye-staggered 66% whole-eye Periphery NR.",
+      "patches": [
+        {
+          "feature": "Upscaling",
+          "settings": {
+            "foveatedRender": {
+              "neuralRenderingEnabled": true,
+              "neuralRenderingCoverage": 55,
+              "neuralRenderingProjectionCenteredCrop": true,
+              "neuralRenderingPeripheryEnabled": true,
+              "neuralRenderingPeripheryResolution": 66,
+              "neuralRenderingPeripheryLightingGain": 0.89,
+              "neuralRenderingPeripheryStagger": true,
+              "neuralRenderingTemporalReuseCadence": 0,
+              "neuralRenderingTemporalReuseStaggerEyes": false
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "nr-hybrid-c55-p50-staggered",
+      "label": "Hybrid C55+P50 staggered",
+      "group": "Neural Rendering A/B",
+      "note": "55% linear full-resolution centre crop plus eye-staggered 50% whole-eye Periphery NR.",
+      "patches": [
+        {
+          "feature": "Upscaling",
+          "settings": {
+            "foveatedRender": {
+              "neuralRenderingEnabled": true,
+              "neuralRenderingCoverage": 55,
+              "neuralRenderingProjectionCenteredCrop": true,
+              "neuralRenderingPeripheryEnabled": true,
+              "neuralRenderingPeripheryResolution": 50,
+              "neuralRenderingPeripheryLightingGain": 0.83,
+              "neuralRenderingPeripheryStagger": true,
+              "neuralRenderingTemporalReuseCadence": 0,
+              "neuralRenderingTemporalReuseStaggerEyes": false
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "nr-hybrid-c45-p50-staggered",
+      "label": "Hybrid C45+P50 staggered",
+      "group": "Neural Rendering A/B",
+      "note": "45% linear full-resolution centre crop plus eye-staggered 50% whole-eye Periphery NR.",
+      "patches": [
+        {
+          "feature": "Upscaling",
+          "settings": {
+            "foveatedRender": {
+              "neuralRenderingEnabled": true,
+              "neuralRenderingCoverage": 45,
+              "neuralRenderingProjectionCenteredCrop": true,
+              "neuralRenderingPeripheryEnabled": true,
+              "neuralRenderingPeripheryResolution": 50,
+              "neuralRenderingPeripheryLightingGain": 0.83,
+              "neuralRenderingPeripheryStagger": true,
+              "neuralRenderingTemporalReuseCadence": 0,
+              "neuralRenderingTemporalReuseStaggerEyes": false
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "nr-off",
+      "label": "Neural Rendering off (reference)",
+      "group": "Reference",
       "note": "Cost of NR itself in this scene.",
-      "patches": [ { "feature": "Upscaling", "settings": { "foveatedRender": { "neuralRenderingEnabled": false } } } ] },
-    { "id": "nr-coverage-85", "label": "NR Coverage 85%", "group": "Neural Rendering",
-      "note": "Full-resolution NR on the center; DLSS periphery.",
-      "patches": [ { "feature": "Upscaling", "settings": { "foveatedRender": { "neuralRenderingCoverage": 85 } } } ] },
-    { "id": "nr-coverage-80", "label": "NR Coverage 80%", "group": "Neural Rendering",
-      "patches": [ { "feature": "Upscaling", "settings": { "foveatedRender": { "neuralRenderingCoverage": 80 } } } ] },
-    { "id": "dlss-preset-j", "label": "DLSS preset J", "group": "DLSS",
+      "patches": [
+        {
+          "feature": "Upscaling",
+          "settings": {
+            "foveatedRender": {
+              "neuralRenderingEnabled": false
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "dlss-preset-j",
+      "label": "DLSS preset J",
+      "group": "DLSS",
       "note": "Transformer J instead of the Balanced default K.",
-      "patches": [ { "feature": "Upscaling", "settings": { "presetDLSS": 1 } } ] },
-    { "id": "dlss-preset-e", "label": "DLSS preset E (CNN, deprecated)", "group": "DLSS",
+      "patches": [
+        {
+          "feature": "Upscaling",
+          "settings": {
+            "presetDLSS": 1
+          }
+        }
+      ]
+    },
+    {
+      "id": "dlss-preset-e",
+      "label": "DLSS preset E (CNN, deprecated)",
+      "group": "DLSS",
       "note": "Older CNN model; NR runs on top of its output. If the delta is ~0 the driver ignored the preset.",
-      "patches": [ { "feature": "Upscaling", "settings": { "presetDLSS": 5 } } ] },
-    { "id": "llf-shadow-formula", "label": "Point-light shadow budget: Formula (1 ms ext / 2 ms int)", "group": "Shadows",
+      "patches": [
+        {
+          "feature": "Upscaling",
+          "settings": {
+            "presetDLSS": 5
+          }
+        }
+      ]
+    },
+    {
+      "id": "llf-shadow-formula",
+      "label": "Point-light shadow budget: Formula (1 ms ext / 2 ms int)",
+      "group": "Shadows",
       "note": "Caps LLF shadow-map redraw time; lights refresh less often, shadows stay.",
-      "patches": [ { "feature": "LightLimitFix", "settings": { "ShadowSettings": { "BudgetMode": 2 } } } ] },
-    { "id": "llf-shadow-cap", "label": "Point-light shadow redraws: 8 per frame, 2 ms", "group": "Shadows",
-      "patches": [ { "feature": "LightLimitFix", "settings": { "ShadowSettings": { "RedrawBudgetMs": 2.0, "MaxRedrawPerFrame": 8 } } } ] },
-    { "id": "ssgi-ao-lite", "label": "SSGI AO: 1 slice / 3 steps", "group": "Screen space",
+      "patches": [
+        {
+          "feature": "LightLimitFix",
+          "settings": {
+            "ShadowSettings": {
+              "BudgetMode": 2
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "llf-shadow-cap",
+      "label": "Point-light shadow redraws: 8 per frame, 2 ms",
+      "group": "Shadows",
+      "patches": [
+        {
+          "feature": "LightLimitFix",
+          "settings": {
+            "ShadowSettings": {
+              "RedrawBudgetMs": 2.0,
+              "MaxRedrawPerFrame": 8
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "ssgi-ao-lite",
+      "label": "SSGI AO: 1 slice / 3 steps",
+      "group": "Screen space",
       "note": "NR adds contact shading on faces and cloth; tests whether coarser AO is enough.",
-      "patches": [ { "feature": "ScreenSpaceGI", "settings": { "NumSlices": 1, "NumSteps": 3 } } ] },
-    { "id": "ssgi-ao-off", "label": "SSGI AO off", "group": "Screen space",
-      "patches": [ { "feature": "ScreenSpaceGI", "settings": { "Enabled": false } } ] },
-    { "id": "volumetric-q1", "label": "Volumetric lighting quality 1", "group": "Atmosphere",
-      "patches": [ { "feature": "VolumetricLighting", "settings": { "ExteriorQuality": 1, "InteriorQuality": 1 } } ] },
-    { "id": "parallax-shadows-off", "label": "Parallax self-shadows off", "group": "Materials",
+      "patches": [
+        {
+          "feature": "ScreenSpaceGI",
+          "settings": {
+            "NumSlices": 1,
+            "NumSteps": 3
+          }
+        }
+      ]
+    },
+    {
+      "id": "ssgi-ao-off",
+      "label": "SSGI AO off",
+      "group": "Screen space",
+      "patches": [
+        {
+          "feature": "ScreenSpaceGI",
+          "settings": {
+            "Enabled": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "volumetric-q1",
+      "label": "Volumetric lighting quality 1",
+      "group": "Atmosphere",
+      "patches": [
+        {
+          "feature": "VolumetricLighting",
+          "settings": {
+            "ExteriorQuality": 1,
+            "InteriorQuality": 1
+          }
+        }
+      ]
+    },
+    {
+      "id": "parallax-shadows-off",
+      "label": "Parallax self-shadows off",
+      "group": "Materials",
       "note": "NR adds local structure; parallax depth itself stays.",
-      "patches": [ { "feature": "ExtendedMaterials", "settings": { "EnableShadows": 0 } } ] },
-    { "id": "parallax-off", "label": "Parallax off", "group": "Materials",
-      "patches": [ { "feature": "ExtendedMaterials", "settings": { "EnableParallax": 0 } } ] },
-    { "id": "hair-specular-off", "label": "Hair specular off", "group": "Materials",
-      "patches": [ { "feature": "HairSpecular", "settings": { "Enabled": 0 } } ] },
-    { "id": "terrain-blending-off", "label": "Terrain blending off", "group": "Geometry",
+      "patches": [
+        {
+          "feature": "ExtendedMaterials",
+          "settings": {
+            "EnableShadows": 0
+          }
+        }
+      ]
+    },
+    {
+      "id": "parallax-off",
+      "label": "Parallax off",
+      "group": "Materials",
+      "patches": [
+        {
+          "feature": "ExtendedMaterials",
+          "settings": {
+            "EnableParallax": 0
+          }
+        }
+      ]
+    },
+    {
+      "id": "hair-specular-off",
+      "label": "Hair specular off",
+      "group": "Materials",
+      "patches": [
+        {
+          "feature": "HairSpecular",
+          "settings": {
+            "Enabled": 0
+          }
+        }
+      ]
+    },
+    {
+      "id": "terrain-blending-off",
+      "label": "Terrain blending off",
+      "group": "Geometry",
       "note": "Mostly measures the extra terrain depth pass; blending seams return.",
-      "patches": [ { "feature": "TerrainBlending", "settings": { "Enabled": 0 } } ] },
-    { "id": "grass-mesh-lod", "label": "Grass mesh LOD on", "group": "Geometry",
+      "patches": [
+        {
+          "feature": "TerrainBlending",
+          "settings": {
+            "Enabled": 0
+          }
+        }
+      ]
+    },
+    {
+      "id": "grass-mesh-lod",
+      "label": "Grass mesh LOD on",
+      "group": "Geometry",
       "note": "Requires Grass Optimizations loaded at boot.",
-      "patches": [ { "feature": "GrassOptimizations", "settings": { "EnableMeshLOD": true } } ] },
-    { "id": "screen-space-shadows-off", "label": "Screen-space shadows off", "group": "Screen space", "enabled": false,
-      "patches": [ { "feature": "ScreenSpaceShadows", "settings": { "Enable": 0 } } ] },
-    { "id": "wetness-off", "label": "Wetness effects off (rain only)", "group": "Atmosphere", "enabled": false,
-      "patches": [ { "feature": "WetnessEffects", "settings": { "EnableWetnessEffects": 0 } } ] }
+      "patches": [
+        {
+          "feature": "GrassOptimizations",
+          "settings": {
+            "EnableMeshLOD": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "screen-space-shadows-off",
+      "label": "Screen-space shadows off",
+      "group": "Screen space",
+      "enabled": false,
+      "patches": [
+        {
+          "feature": "ScreenSpaceShadows",
+          "settings": {
+            "Enable": 0
+          }
+        }
+      ]
+    },
+    {
+      "id": "wetness-off",
+      "label": "Wetness effects off (rain only)",
+      "group": "Atmosphere",
+      "enabled": false,
+      "patches": [
+        {
+          "feature": "WetnessEffects",
+          "settings": {
+            "EnableWetnessEffects": 0
+          }
+        }
+      ]
+    },
+    {
+      "id": "nr-parallel-eye-queue",
+      "label": "NR parallel eye compute queue",
+      "group": "Neural Rendering A/B",
+      "note": "Scheduling-only experiment: runs eye 1 on a second compute queue; compare against nr-full-eye on this system.",
+      "patches": [{ "feature": "Upscaling", "settings": { "foveatedRender": {
+        "neuralRenderingParallelEyeQueue": true,
+        "neuralRenderingFlushAfterSignal": false
+      } } }]
+    },
+    {
+      "id": "nr-flush-after-signal",
+      "label": "NR flush after D3D11 signal",
+      "group": "Neural Rendering A/B",
+      "note": "Scheduling-only experiment: flushes D3D11 submission after its fence signal; compare against nr-full-eye on this system.",
+      "patches": [{ "feature": "Upscaling", "settings": { "foveatedRender": {
+        "neuralRenderingParallelEyeQueue": false,
+        "neuralRenderingFlushAfterSignal": true
+      } } }]
+    },
+    {
+      "id": "nr-hybrid-parallel-eye-queue",
+      "label": "Default hybrid with parallel eye queue",
+      "group": "Neural Rendering A/B",
+      "note": "Default 55% centre plus 50% staggered periphery hybrid; changes only neuralRenderingParallelEyeQueue from the safe default.",
+      "patches": [{ "feature": "Upscaling", "settings": { "foveatedRender": {
+        "neuralRenderingEnabled": true,
+        "neuralRenderingCoverage": 55,
+        "neuralRenderingPeripheryEnabled": true,
+        "neuralRenderingPeripheryResolution": 50,
+        "neuralRenderingPeripheryStagger": true,
+        "neuralRenderingParallelEyeQueue": true,
+        "neuralRenderingFlushAfterSignal": false
+      } } }]
+    },
+    {
+      "id": "nr-hybrid-flush-after-signal",
+      "label": "Default hybrid with flush after signal",
+      "group": "Neural Rendering A/B",
+      "note": "Default 55% centre plus 50% staggered periphery hybrid; changes only neuralRenderingFlushAfterSignal from the safe default.",
+      "patches": [{ "feature": "Upscaling", "settings": { "foveatedRender": {
+        "neuralRenderingEnabled": true,
+        "neuralRenderingCoverage": 55,
+        "neuralRenderingPeripheryEnabled": true,
+        "neuralRenderingPeripheryResolution": 50,
+        "neuralRenderingPeripheryStagger": true,
+        "neuralRenderingParallelEyeQueue": false,
+        "neuralRenderingFlushAfterSignal": true
+      } } }]
+    },
+    {
+      "id": "nr-hybrid-c50-p50-staggered",
+      "label": "Hybrid C50+P50 staggered",
+      "group": "Neural Rendering A/B",
+      "note": "50% linear full-resolution centre crop plus eye-staggered 50% whole-eye Periphery NR.",
+      "patches": [
+        {
+          "feature": "Upscaling",
+          "settings": {
+            "foveatedRender": {
+              "neuralRenderingEnabled": true,
+              "neuralRenderingCoverage": 50,
+              "neuralRenderingProjectionCenteredCrop": true,
+              "neuralRenderingPeripheryEnabled": true,
+              "neuralRenderingPeripheryResolution": 50,
+              "neuralRenderingPeripheryLightingGain": 0.83,
+              "neuralRenderingPeripheryStagger": true,
+              "neuralRenderingTemporalReuseCadence": 0,
+              "neuralRenderingTemporalReuseStaggerEyes": false
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "nr-hybrid-c60-p50-staggered",
+      "label": "Hybrid C60+P50 staggered",
+      "group": "Neural Rendering A/B",
+      "note": "60% linear full-resolution centre crop plus eye-staggered 50% whole-eye Periphery NR.",
+      "patches": [
+        {
+          "feature": "Upscaling",
+          "settings": {
+            "foveatedRender": {
+              "neuralRenderingEnabled": true,
+              "neuralRenderingCoverage": 60,
+              "neuralRenderingProjectionCenteredCrop": true,
+              "neuralRenderingPeripheryEnabled": true,
+              "neuralRenderingPeripheryResolution": 50,
+              "neuralRenderingPeripheryLightingGain": 0.83,
+              "neuralRenderingPeripheryStagger": true,
+              "neuralRenderingTemporalReuseCadence": 0,
+              "neuralRenderingTemporalReuseStaggerEyes": false
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "frame-annotations-off",
+      "label": "Frame Annotations off",
+      "group": "Diagnostics",
+      "note": "Turns off PIX/RenderDoc draw annotations while measuring; CPU overhead only, GPU neutrality is expected but not measured.",
+      "patches": [
+        {
+          "feature": "Advanced",
+          "settings": {
+            "Frame Annotations": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "skylighting-neutral-output",
+      "label": "Skylighting off (neutral output; probes still update)",
+      "group": "Lighting",
+      "note": "Forces neutral visibility output to estimate shading contribution. Probe resources and updates remain active, so this does not measure the full cost of disabling the feature.",
+      "patches": [
+        {
+          "feature": "Skylighting",
+          "settings": {
+            "ForceNeutralOutput": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "nr-prewarm-on",
+      "label": "NR startup prewarm on",
+      "group": "Neural Rendering A/B",
+        "note": "Startup-only, one-time timing comparison. Enable before a fresh startup and pair the [DLSSNR][PREWARM] loading/menu log timings with the cold-start timings; this is not a steady-state GPU frame-time variant.",
+      "patches": [{ "feature": "Upscaling", "settings": { "foveatedRender": {
+        "neuralRenderingPrewarm": true
+      } } }]
+    },
+    {
+      "id": "nr-prewarm-off",
+      "label": "NR startup prewarm off",
+      "group": "Neural Rendering A/B",
+      "note": "Startup-only, one-time timing comparison. Disable before a fresh startup and pair cold-start timings with the loading/menu baseline logs. Restart between this and nr-prewarm-on; this is not a steady-state GPU frame-time variant.",
+      "patches": [{ "feature": "Upscaling", "settings": { "foveatedRender": {
+        "neuralRenderingPrewarm": false
+      } } }]
+    }
   ]
 })json";
 
@@ -232,6 +692,10 @@ namespace NeuralRendering::SettingsBenchmark
 				for (const auto& patch : g_variants[static_cast<std::size_t>(index)].patches) {
 					if (run.baseline.contains(patch.feature))
 						continue;
+					if (patch.feature == "Advanced") {
+						run.baseline[patch.feature] = { { "Frame Annotations", State::GetSingleton()->frameAnnotations } };
+						continue;
+					}
 					if (auto* feature = Feature::FindFeatureByShortName(patch.feature)) {
 						json saved;
 						feature->SaveSettings(saved);
@@ -245,6 +709,10 @@ namespace NeuralRendering::SettingsBenchmark
 		{
 			SceneSettingsManager::SceneLayerGuard guard(*SceneSettingsManager::GetSingleton());
 			for (const auto& [name, saved] : baseline) {
+				if (name == "Advanced" && saved.contains("Frame Annotations")) {
+					State::GetSingleton()->frameAnnotations = saved["Frame Annotations"].get<bool>();
+					continue;
+				}
 				auto* feature = Feature::FindFeatureByShortName(name);
 				if (!feature || !saved.is_object())
 					continue;
@@ -263,6 +731,12 @@ namespace NeuralRendering::SettingsBenchmark
 		{
 			SceneSettingsManager::SceneLayerGuard guard(*SceneSettingsManager::GetSingleton());
 			for (const auto& patch : variant.patches) {
+				if (patch.feature == "Advanced") {
+					if (!patch.settings.contains("Frame Annotations") || !patch.settings["Frame Annotations"].is_boolean())
+						return "Advanced: expected boolean Frame Annotations";
+					State::GetSingleton()->frameAnnotations = patch.settings["Frame Annotations"].get<bool>();
+					continue;
+				}
 				auto* feature = Feature::FindFeatureByShortName(patch.feature);
 				if (!feature || !feature->loaded)
 					return std::format("{} is not loaded", patch.feature);
@@ -281,6 +755,11 @@ namespace NeuralRendering::SettingsBenchmark
 		std::string ValidateVariant(const Variant& variant)
 		{
 			for (const auto& patch : variant.patches) {
+				if (patch.feature == "Advanced") {
+					if (!patch.settings.contains("Frame Annotations") || !patch.settings["Frame Annotations"].is_boolean())
+						return "Advanced: expected boolean Frame Annotations";
+					continue;
+				}
 				auto* feature = Feature::FindFeatureByShortName(patch.feature);
 				if (!feature || !feature->loaded)
 					return std::format("{} is not loaded", patch.feature);
@@ -308,6 +787,7 @@ namespace NeuralRendering::SettingsBenchmark
 			auto* task = SKSE::GetTaskInterface();
 			if (!task) {
 				run.phase = Phase::Failed;
+				g_tickActive.store(false, std::memory_order_release);
 				run.message = "SKSE task interface unavailable";
 				return;
 			}
@@ -414,6 +894,7 @@ namespace NeuralRendering::SettingsBenchmark
 			}
 
 			run.phase = Phase::Finished;
+			g_tickActive.store(false, std::memory_order_release);
 			run.message = "Finished; original settings restored.";
 			if (auto* task = SKSE::GetTaskInterface())
 				task->AddTask([baseline = run.baseline]() { RestoreBaseline(baseline); });
@@ -486,6 +967,7 @@ namespace NeuralRendering::SettingsBenchmark
 				run.cellName = cell->GetName() ? cell->GetName() : "";
 		run.message = "Close the menu and stand still; measurement starts after the countdown.";
 		g_run = std::move(run);
+		g_tickActive.store(true, std::memory_order_release);
 		logger::info("[DLSSNR][Benchmark] started: {} variants, {} blocks, warmup {} / measure {} frames",
 			g_run.activeVariants.size(), g_run.schedule.size(), g_config.warmupFrames, g_config.measureFrames);
 		return true;
@@ -499,6 +981,7 @@ namespace NeuralRendering::SettingsBenchmark
 			return;
 		++g_run.switchGeneration;  // drop any in-flight switch
 		g_run.phase = Phase::Cancelled;
+		g_tickActive.store(false, std::memory_order_release);
 		g_run.message = "Cancelled; original settings restored.";
 		if (auto* task = SKSE::GetTaskInterface())
 			task->AddTask([baseline = g_run.baseline]() { RestoreBaseline(baseline); });
@@ -595,6 +1078,10 @@ namespace NeuralRendering::SettingsBenchmark
 
 	void Tick()
 	{
+		// Extension point: other streams may add experimental toggles (for example,
+		// a parallel eye queue) after defining real settings and snapshot/restore behavior.
+		if (!g_tickActive.load(std::memory_order_acquire))
+			return;
 		std::scoped_lock lock(g_mutex);
 		auto& run = g_run;
 		if (run.phase != Phase::Countdown && run.phase != Phase::Switching &&

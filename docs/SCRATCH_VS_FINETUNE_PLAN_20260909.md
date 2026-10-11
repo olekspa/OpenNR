@@ -14,7 +14,7 @@ training loss as a quality improvement.
 
 The protected best remains:
 
-`C:\OpenNR\Training\semantic_pixel_l1_pair_20260909\joint\best_all_cohorts.pt`
+`<OPENNR_DATA>\Training\semantic_pixel_l1_pair_20260909\joint\best_all_cohorts.pt`
 
 Its current semantic-joint family is the completed wide parent configuration:
 
@@ -66,13 +66,13 @@ when judging the causal scratch question.
 The primary parity corpus consists of the six cohorts that produced the
 protected best plus the audited clean-7 sparse full-eye-anchor cache:
 
-1. `E:\OpenNR_TrainingInputs\AlignedGuides_AllCohorts_20260907`
-2. `E:\OpenNR_TrainingInputs\AlignedGuides_HighEffect_20260907`
-3. `E:\OpenNR_TrainingInputs\AlignedGuides_RendererPilot_20260907`
-4. `E:\OpenNR_TrainingInputs\RendererConditioningFreshSession_20260907_2114`
-5. `D:\OpenNR_TrainingInputs\RendererStateDistillationStrict_20260908`
-6. `C:\OpenNR\TrainingCache\RendererPairsStrict_20260908`
-7. `C:\OpenNR\TrainingCache\sparse_full_eye_anchor_crop_clean7_20260909`
+1. `<DATA_ROOT>\OpenNR_TrainingInputs\AlignedGuides_AllCohorts_20260907`
+2. `<DATA_ROOT>\OpenNR_TrainingInputs\AlignedGuides_HighEffect_20260907`
+3. `<DATA_ROOT>\OpenNR_TrainingInputs\AlignedGuides_RendererPilot_20260907`
+4. `<DATA_ROOT>\OpenNR_TrainingInputs\RendererConditioningFreshSession_20260907_2114`
+5. `<DATA_ROOT>\OpenNR_TrainingInputs\RendererStateDistillationStrict_20260908`
+6. `<OPENNR_DATA>\TrainingCache\RendererPairsStrict_20260908`
+7. `<OPENNR_DATA>\TrainingCache\sparse_full_eye_anchor_crop_clean7_20260909`
 
 The clean-7 cache is the 7-sequence, 448-frame, 896-eye-row cache derived
 from the sparse-anchor tranche. The motion-invalid eighth sequence,
@@ -153,7 +153,7 @@ VR frame budget remain separate acceptance axes.
 
 Planned output root:
 
-`C:\OpenNR\Training\semantic_scratch_vs_finetune_20260909`
+`<OPENNR_DATA>\Training\semantic_scratch_vs_finetune_20260909`
 
 The output will contain separate `scratch` and `finetune` directories, the
 serialized schedule, source/manifest hashes, calibration result, histories,

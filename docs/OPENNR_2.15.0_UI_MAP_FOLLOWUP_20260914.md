@@ -21,7 +21,7 @@ configuration reset so quality decisions do not carry across budgets.
 
 ## Reported map view
 
-The active `MGO NSFW - 4.0 BETA` profile contains A Quality World Map,
+The active `<MO2_PROFILE>` profile contains A Quality World Map,
 NavigateVR, Local Map Upgrade VR, Map Markers for NavigateVR, and the Papyrus
 Extender VR MapMenu fix. Their inspected configuration files do not define a
 world-map camera distance or zoom override. NavigateVR Map Framework documents
@@ -38,7 +38,7 @@ camera behavior was too broad.
 
 On 2026-09-14 the active MO2 profile was backed up before each profile edit.
 The latest recovery copy is
-`C:\OpenNR\ConsolidationBackups\20260914\map-camera-fix-20260914-144232-before-height-calibration`.
+`<OPENNR_DATA>\ConsolidationBackups\20260914\map-camera-fix-20260914-144232-before-height-calibration`.
 The profile now contains the following targeted settings:
 
 ```ini

@@ -28,14 +28,14 @@ from torch import nn
 
 FULL_WIDTH = 2496
 FULL_HEIGHT = 2688
-DEFAULT_REPLAY_ROOT = Path(r"C:\OpenNR\NativeReplays50_20260912")
+DEFAULT_REPLAY_ROOT = Path(r"<OPENNR_DATA>\NativeReplays50_20260912")
 DEFAULT_TEST_NAME = "seq-1789064397821-5_f1-16"
 DEFAULT_VALID_NAME = "seq-1789064544626-6_f1-16"
-DEFAULT_OUTPUT = Path(r"C:\OpenNR\Native50DetailHeadPilot_20260912")
+DEFAULT_OUTPUT = Path(r"<OPENNR_DATA>\Native50DetailHeadPilot_20260912")
 
 
 def _add_tools_path() -> None:
-    tools_path = Path(r"D:\.CODEX_Projects\OpenNR-VR\tools")
+    tools_path = Path(r"<REPO>\tools")
     if str(tools_path) not in sys.path:
         sys.path.insert(0, str(tools_path))
 

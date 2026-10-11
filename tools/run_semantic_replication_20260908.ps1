@@ -1,6 +1,6 @@
 # One-off paired replication for the active training goal.
 $ErrorActionPreference = 'Stop'
-$env:PYTHONPATH = 'C:\OpenNR\python312_ml_deps_20260908'
+$env:PYTHONPATH = '<OPENNR_DATA>\python312_ml_deps_20260908'
 $statusPath = 'out\semantic_replication_status.json'
 function Write-ReplicationStatus([string]$state) {
     @{state=$state; updated=(Get-Date -Format o); test_used=$false} |
@@ -10,9 +10,9 @@ trap {
     Write-ReplicationStatus ('failed: ' + $_.Exception.Message)
     throw
 }
-$priorRun = Get-Content C:\OpenNR\Training\semantic_joint_parent400_20260908\run.json -Raw | ConvertFrom-Json
-$controlRoot = 'C:\OpenNR\Training\semantic_parent_seed812_control1200_20260908'
-$jointRoot = 'C:\OpenNR\Training\semantic_parent_seed812_joint1200_20260908'
+$priorRun = Get-Content <OPENNR_DATA>\Training\semantic_joint_parent400_20260908\run.json -Raw | ConvertFrom-Json
+$controlRoot = '<OPENNR_DATA>\Training\semantic_parent_seed812_control1200_20260908'
+$jointRoot = '<OPENNR_DATA>\Training\semantic_parent_seed812_joint1200_20260908'
 $commonArgs = @('-3.12', 'tools\train_semantic_parent_replication.py', '--warm-head', $priorRun.warm_head,
     '--steps', '1200', '--eval-every', '400', '--seed', '812', '--learning-rate', '0.0001',
     '--parent-learning-rate', '0.00001')

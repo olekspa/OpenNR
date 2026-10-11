@@ -334,7 +334,7 @@ def compare_outputs(output_dir: Path) -> None:
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("mode", choices=("prepare", "prepare-collection", "assemble"))
-    parser.add_argument("--source-dir", type=Path, default=Path(r"E:\MGO-RC3-fresh\overwrite\Root\Screenshots"))
+    parser.add_argument("--source-dir", type=Path, default=Path(r"<MO2_INSTANCE>\overwrite\Root\Screenshots"))
     parser.add_argument("--output-dir", type=Path, default=Path(r"E:\PixRestore-Skyrim-Test-20260903"))
     args = parser.parse_args()
     if args.mode == "prepare":

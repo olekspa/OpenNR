@@ -10,7 +10,7 @@ records, but it is not a temporal-training clip.
 The sequence is:
 
 ```text
-C:\OpenNR_Captures_Temporal_20260905\seq-1788638984693-1
+<DATA_ROOT>\OpenNR_Captures_Temporal_20260905\seq-1788638984693-1
 ```
 
 The byte validator found 120/120 complete records, 2,880/2,880 required
@@ -38,7 +38,7 @@ Use two separate recordings:
 
    ```powershell
    python tools\validate_temporal_capture.py `
-     C:\OpenNR_Captures_Temporal_Crops_20260905 `
+     <DATA_ROOT>\OpenNR_Captures_Temporal_Crops_20260905 `
      --mode crop `
      --output out\temporal_audit_crop_20260905.json
    ```

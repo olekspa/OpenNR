@@ -131,9 +131,14 @@ void PerfMode::MaybeBlitMenuBG(uint32_t boundRTIdx)
 	globals::features::upscaling.Upscale();
 
 	// Sharpening redirects DLSS's write to refraTempTex; RCAS's UAV write into testTexture
-	// doesn't land from this one-shot call site, so resolve with a copy instead (unsharpened).
-	if (globals::features::upscaling.IsPerfModeSharpenRedirectActive())
+	// doesn't run from this one-shot call site. Apply the opt-in map RCAS here;
+	// retain the legacy unsharpened copy for other redirected menu states.
+	const bool redirectedSharpen = globals::features::upscaling.IsPerfModeSharpenRedirectActive();
+	const bool mapRcasApplied = redirectedSharpen && globals::features::upscaling.ApplyMapMenuSharpening();
+	if (redirectedSharpen && !mapRcasApplied)
 		context->CopyResource(testTexture.get(), refraTempTex.get());
+	if (globals::state->isMapMenuOpen)
+		LogMapQualityState(mapRcasApplied);
 
 	{
 		Util::FullscreenPassScope stateScope(context);
@@ -173,6 +178,7 @@ void PerfMode::MaybeBlitMenuBG(uint32_t boundRTIdx)
 	}
 
 	blittedFrameId = currentFrame;
+	lastMenuBGBlitTarget = boundRTIdx;
 }
 
 void PerfMode::InstallCreateRTThunks()

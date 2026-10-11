@@ -35,7 +35,7 @@ target gate, so student training remains blocked.
 The source is the read-only cache:
 
 ```text
-C:\OpenNR_Cache_StrictAllCohortsVariedHighEffect_0.5.5_20260907
+<DATA_ROOT>\OpenNR_Cache_StrictAllCohortsVariedHighEffect_0.5.5_20260907
 ```
 
 The selected static tranche is 20 sequence-disjoint stereo moments / 40 eyes,
@@ -55,7 +55,7 @@ VR-budget acceptance.
 The route records and galleries remain under:
 
 ```text
-C:\OpenNR_GEN_Static_20260910
+<DATA_ROOT>\OpenNR_GEN_Static_20260910
 ```
 
 The final report contains the full route ledger, exact face metrics, model

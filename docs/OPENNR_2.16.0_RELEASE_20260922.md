@@ -15,7 +15,7 @@ run.
 
 ## Deliverable
 
-- Expected AIO: `E:/OpenNR_Builds/2.16.0/dist/OpenNR 2.16.0.7z`
+- Expected AIO: `<BUILD_DIR>/2.16.0/dist/OpenNR 2.16.0.7z`
 - Archive bytes: `228749798` (219 MiB, 7-Zip 7z/LZMA2)
 - Archive SHA-256: `E66DF09862624F2942A2B3E55DBC84A5B65B95444C2BDA22CEEE5D68818C346D`
 - DLL version: `2.16.0.0` (`CommunityShaders.dll`, 23,439,872 bytes)

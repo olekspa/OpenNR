@@ -3,6 +3,7 @@
 #include <bit>
 #include <cctype>
 #include <ranges>
+#include <unordered_set>
 
 #include <DirectXTex.h>
 #include <pystring/pystring.h>
@@ -17,6 +18,8 @@
 
 namespace
 {
+	std::unordered_set<std::string> duplicateHeightmapWarnings;
+
 	void RequestTimeJumpSynchronization()
 	{
 		Util::RequestTimeJumpTransition();
@@ -271,7 +274,7 @@ void TerrainShadows::ParseHeightmapPath(std::filesystem::path p, bool xlodgen_st
 		metadata.dir = p.parent_path().wstring();
 		metadata.filename = filename.string();
 
-		if (heightmaps.contains(metadata.worldspace))
+		if (heightmaps.contains(metadata.worldspace) && duplicateHeightmapWarnings.insert(metadata.worldspace).second)
 			logger::warn("{} has more than one height maps!", metadata.worldspace);
 		heightmaps[metadata.worldspace] = metadata;
 

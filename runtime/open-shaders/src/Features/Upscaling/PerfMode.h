@@ -29,6 +29,8 @@
 // ============================================================================
 
 #include "Utils/D3D.h"  // Util::FullscreenPassScope
+#include "PerfMode/MapMenuDisplayResolutionPolicy.h"
+#include "PerfMode/MapSupersamplePolicy.h"
 
 #include <cstdint>
 #include <d3d11.h>
@@ -52,6 +54,10 @@ struct PerfMode
 	// Phase 2: resolution hook status
 	bool IsHookActive() const { return hookActive; }
 	bool IsPostInterceptActive() const { return postInterceptActive; }
+	bool IsSwapActive() const { return postInterceptActive || autoSwapDSIdx != UINT32_MAX; }
+	bool IsMapMenuDisplayResolutionActive() const { return mapMenuDisplayResolutionActive; }
+	bool WasMenuBGBlitThisFrame(uint32_t frame) const { return blittedFrameId == frame; }
+	uint32_t GetLastMenuBGBlitTarget() const { return lastMenuBGBlitTarget; }
 	bool IsPostChainDone() const { return postChainDone; }
 	void ClearPostChainDone() { postChainDone = false; }
 	uint32_t GetDisplayEyeWidth() const { return displayEyeWidth; }
@@ -114,6 +120,19 @@ struct PerfMode
 	bool MaybeSwapDSForEnlargedRT();
 	void RestoreSwappedDS();
 
+	// Temporarily route map imagespace effects to display-res kMENUBG and its
+	// matching fake depth surface. The route also forces display-sized raster
+	// viewport/scissor state and restores the caller's state when it ends.
+	// Returns false if any prerequisite is absent.
+	bool BeginMapMenuDisplayResolution(uint32_t* a_sourceRT = nullptr);
+	void ApplyMapMenuDisplayRasterState();
+	void EndMapMenuDisplayResolution();
+	void OnMapMenuStateChanged(bool a_isOpen);
+	void LogMapQualityState(bool a_rcasApplied);
+	void ReleaseMapSymbolSupersample(const char* a_reason);
+	bool EnsureMapSymbolSupersample();
+	bool EnsureFakeDSV();
+
 	// Install the 3 named per-site CreateRenderTarget thunks (kMENUBG,
 	// kIMAGESPACE_TEMP_COPY, kTOTAL — VR-only) at startup. Called from
 	// Hooks::Install in the BSShaderRenderTargets::Create install sequence.
@@ -145,6 +164,49 @@ private:
 
 	// Phase 2: resolution hook state
 	bool hookActive = false;
+	bool mapMenuDisplayResolutionActive = false;
+	bool mapSymbolSupersampleActive = false;
+	bool mapSymbolSupersampleHookInstalled = false;
+	bool mapSymbolSupersampleOpenLogged = false;
+	bool mapQualityOpenLogged = false;
+	bool mapSymbolSupersampleFailureLatched = false;
+	float mapSymbolSupersampleFailureScale = 1.0f;
+	float mapSymbolSupersampleActiveScale = 1.0f;
+	uint32_t mapSymbolHudNativeWidth = 0;
+	uint32_t mapSymbolHudNativeHeight = 0;
+	uint32_t mapSymbolHudWidth = 0;
+	uint32_t mapSymbolHudHeight = 0;
+	winrt::com_ptr<ID3D11Texture2D> mapSymbolHudColor;
+	winrt::com_ptr<ID3D11RenderTargetView> mapSymbolHudRTV;
+	winrt::com_ptr<ID3D11ShaderResourceView> mapSymbolHudSRV;
+	winrt::com_ptr<ID3D11Texture2D> mapSymbolHudDepth;
+	winrt::com_ptr<ID3D11DepthStencilView> mapSymbolHudDepthViews[8];
+	winrt::com_ptr<ID3D11DepthStencilView> mapSymbolHudReadOnlyDepthViews[8];
+	winrt::com_ptr<ID3D11ShaderResourceView> mapSymbolHudDepthSRV;
+	winrt::com_ptr<ID3D11ShaderResourceView> mapSymbolHudStencilSRV;
+	ID3D11Texture2D* mapSymbolSavedColorTexture = nullptr;
+	ID3D11Texture2D* mapSymbolSavedColorTextureCopy = nullptr;
+	ID3D11RenderTargetView* mapSymbolSavedColorRTV = nullptr;
+	ID3D11ShaderResourceView* mapSymbolSavedColorSRV = nullptr;
+	ID3D11ShaderResourceView* mapSymbolSavedColorSRVCopy = nullptr;
+	ID3D11UnorderedAccessView* mapSymbolSavedColorUAV = nullptr;
+	ID3D11Texture2D* mapSymbolSavedDepthTexture = nullptr;
+	ID3D11DepthStencilView* mapSymbolSavedDepthViews[8]{};
+	ID3D11DepthStencilView* mapSymbolSavedReadOnlyDepthViews[8]{};
+	ID3D11ShaderResourceView* mapSymbolSavedDepthSRV = nullptr;
+	ID3D11ShaderResourceView* mapSymbolSavedStencilSRV = nullptr;
+	bool mapMenuFakeDepthRetryAttempted = false;
+	bool mapMenuSavedRTValid = false;
+	bool mapMenuSavedDSValid = false;
+	uint32_t mapMenuSavedRT = 0;
+	uint32_t mapMenuSavedDS = 0;
+	REX::W32::D3D11_VIEWPORT mapMenuSavedViewport{};
+	ID3D11DepthStencilView* mapMenuSavedViews[8]{};
+	ID3D11DepthStencilView* mapMenuSavedReadOnlyViews[8]{};
+	UINT mapMenuSavedViewportCount = 0;
+	D3D11_VIEWPORT mapMenuSavedRasterViewports[D3D11_VIEWPORT_AND_SCISSORRECT_OBJECT_COUNT_PER_PIPELINE]{};
+	UINT mapMenuSavedScissorCount = 0;
+	D3D11_RECT mapMenuSavedScissors[D3D11_VIEWPORT_AND_SCISSORRECT_OBJECT_COUNT_PER_PIPELINE]{};
 
 	// Set at the end of SetupResources after every critical Post resource
 	// (textures, views, fake DS, downscale shaders, sampler) successfully
@@ -180,6 +242,11 @@ private:
 	struct GetRenderTargetSize_Hook
 	{
 		static void thunk(RE::BSOpenVR* a_this, uint32_t* a_width, uint32_t* a_height);
+		static inline REL::Relocation<decltype(thunk)> func;
+	};
+	struct MapMenuPostDisplay_Hook
+	{
+		static void thunk(RE::MapMenu* a_menu);
 		static inline REL::Relocation<decltype(thunk)> func;
 	};
 
@@ -336,6 +403,7 @@ private:
 	// reliably reset across all states).
 	winrt::com_ptr<ID3D11PixelShader> menuBlitPS;
 	uint32_t blittedFrameId = UINT32_MAX;
+	uint32_t lastMenuBGBlitTarget = UINT32_MAX;
 
 	// CreateRenderTarget enlarge window — see BeginCreateRTEnlarge.
 	bool enlargeActive = false;

@@ -153,8 +153,7 @@ void PerformanceOverlay::DrawSettings()
 		ImGui::Indent();
 
 		// Display options
-		ImGui::TextUnformatted(T(TKEY("display_options"), "Display Options"));
-		ImGui::Separator();
+		ImGui::SeparatorText(T(TKEY("display_options"), "Display Options"));
 
 		ImGui::Checkbox(T(TKEY("show_fps"), "Show FPS Counter"), &this->settings.ShowFPS);
 		ImGui::Checkbox(T(TKEY("show_draw_calls"), "Show Draw Calls"), &this->settings.ShowDrawCalls);
@@ -179,8 +178,7 @@ void PerformanceOverlay::DrawSettings()
 		ImGui::Spacing();
 
 		// Appearance settings
-		ImGui::TextUnformatted(T(TKEY("appearance"), "Appearance"));
-		ImGui::Separator();
+		ImGui::SeparatorText(T(TKEY("appearance"), "Appearance"));
 
 		ImGui::SliderFloat(T(TKEY("text_size"), "Text Size"), &this->settings.TextSize, 0.8f, 1.2f, "%.2f");
 		ImGui::SliderFloat(T(TKEY("bg_opacity"), "Background Opacity"), &this->settings.BackgroundOpacity, 0.0f, 1.0f, "%.2f");
@@ -189,8 +187,7 @@ void PerformanceOverlay::DrawSettings()
 		ImGui::SliderInt(T(TKEY("frame_history_size"), "Frame History Size"), &this->settings.FrameHistorySize,
 			this->settings.kMinFrameHistorySize, this->settings.kMaxFrameHistorySize);
 
-		ImGui::Separator();
-		ImGui::Text("%s", T(TKEY("position"), "Position:"));
+		ImGui::SeparatorText(T(TKEY("position"), "Position"));
 		if (ImGui::Button(T(TKEY("reset_position"), "Reset Position"))) {
 			this->settings.PositionSet = false;
 		}

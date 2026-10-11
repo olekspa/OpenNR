@@ -8,9 +8,9 @@ test split was used, and no Runpod credit was spent.
 ## Data used
 
 The raw temporal pilot is
-`C:\OpenNR_Captures_FullEyeTemporalPilot_20260908` (19 sequences × 240 frames,
+`<DATA_ROOT>\OpenNR_Captures_FullEyeTemporalPilot_20260908` (19 sequences × 240 frames,
 about 88.38 GiB). The strict cache is
-`C:\OpenNR\TrainingCache\full_eye_temporal_pilot_strict_20260908`. It contains
+`<OPENNR_DATA>\TrainingCache\full_eye_temporal_pilot_strict_20260908`. It contains
 11 selected sequences split 6/2/3 across train/validation/frozen-test, 704
 frames and 1,408 eye rows. It preserves the required initial `[true, true]`
 reset, contiguous identifiers and native depth/motion guides. Eight source
@@ -19,7 +19,7 @@ the audit rather than being silently discarded. The completed cache hash is
 `efbd159ad069fbd128fb28a890ff53a07fa968ae67f1182ad259fc6ef47e13a1`.
 
 The separate spatial anchor cache is
-`C:\OpenNR\TrainingCache\full_eye_periodic_spatial_20260909`. It uses one
+`<OPENNR_DATA>\TrainingCache\full_eye_periodic_spatial_20260909`. It uses one
 full-resolution frame per sequence at frame 240 (roughly every three seconds
 at the current 80 FPS headset setting): 38 eye rows and 240 patches, split
 176/32/32 by sequence for train/validation/test. It is explicitly marked
@@ -79,7 +79,7 @@ write at step 1,425. The last persisted arm checkpoint is the exact common
 start at step 1,200 (`last.pt`, SHA-256
 `6bcb6b449eea2c70a4cd4ab0bc68b7e1e2aeba35ea5ee36d5ef011b5b70ebdab`); no
 step-1,600 checkpoint exists. The pause record is
-`C:\OpenNR\Training\semantic_periodic_context_temporal_paired_20260909\pause_record.json`.
+`<OPENNR_DATA>\Training\semantic_periodic_context_temporal_paired_20260909\pause_record.json`.
 
 The pause was verified by process inspection: no matching training process
 remains and `nvidia-smi` reports no active compute workload. The partial run,
@@ -110,7 +110,7 @@ The pause described above was superseded by the explicit goal continuation.
 The retained raw pilot was re-inspected and found to contain all six committed
 renderer G-buffer crop stages on every frame of the 11 strict selected
 sequences, both eyes. A separate overlay was built at
-`C:\OpenNR\TrainingCache\full_eye_renderer_conditioning_strict_20260909_retry2`
+`<OPENNR_DATA>\TrainingCache\full_eye_renderer_conditioning_strict_20260909_retry2`
 with schema `opennr-full-eye-renderer-conditioning-v1`, 17 aligned float16
 channels at 128x128, and exact source/payload hashes. The source raw capture,
 strict RGB/guides/context cache, and all excluded sequences were left
@@ -129,7 +129,7 @@ values `0.018713259` and `0.019049668`. The old-six mean was also worse by
 created or promoted.
 
 The arm endpoint was independently replayed with `max_difference=0.0` in
-`C:\OpenNR\Training\semantic_renderer_conditioned_pair_20260909\arm_independent_replay`.
+`<OPENNR_DATA>\Training\semantic_renderer_conditioned_pair_20260909\arm_independent_replay`.
 The branch changed held-out predictions materially, but substituting zeros
 for the real renderer channels improved full-eye validation from
 `0.019884635` to `0.018931382`; this is a learned but misdirected response,
@@ -148,7 +148,7 @@ state, and next capture contract are recorded in
 
 The user then ran the prepared full-eye every-frame contract and produced two
 complete sequences under
-`C:\OpenNR_Captures_FullEyeTemporalEveryFrame_20260909`:
+`<DATA_ROOT>\OpenNR_Captures_FullEyeTemporalEveryFrame_20260909`:
 
 | Sequence | Complete frames | Size | Result |
 | --- | ---: | ---: | --- |
@@ -170,12 +170,12 @@ lower-I/O crop-temporal contract. It retains both eyes, one 512-pixel center
 crop, 80 Hz, raw pre/post input and teacher, native depth/motion and all six
 renderer-conditioning crops, while disabling full-frame capture and raising
 the bounded queue from 16 to 32. The new root is
-`C:\OpenNR_Captures_TemporalCrops_EveryFrame_20260909`.
+`<DATA_ROOT>\OpenNR_Captures_TemporalCrops_EveryFrame_20260909`.
 
 The live profile validates with no errors or warnings. Its SHA-256 is
 `6e770b9b9a193bd959b7bc404e4583ddd1472ede7c9dd00c1034ce3f97193c6d`; its
 byte-identical backup is
-`E:\MGO-RC3-fresh\_OpenNR_Pilot_Backups\pre-crop-temporal-20260909\SettingsUser.before.json`
+`<MO2_INSTANCE>\_OpenNR_Pilot_Backups\pre-crop-temporal-20260909\SettingsUser.before.json`
 with SHA-256
 `ccde5515081396076715fba06ff66430456adf50a4995ef273ba77de76762dd0`.
 The next crop burst must pass the crop-mode strict gate before training.
@@ -186,7 +186,7 @@ The user finished the lower-I/O crop-temporal collection. The authoritative
 root now contains 18 complete sequences, not just the two-sequence preparation
 snapshot described above:
 
-C:\OpenNR_Captures_TemporalCrops_EveryFrame_20260909
+<DATA_ROOT>\OpenNR_Captures_TemporalCrops_EveryFrame_20260909
 
 Strict audit result: 18/18 temporal-ready sequences, 1,152/1,152 complete
 frames, 2,304 eye rows, initial [true, true] reset in every sequence, contiguous
@@ -200,7 +200,7 @@ documented and the source data is retained.
 
 The all-18 cache was materialized and tested at:
 
-C:\OpenNR\TrainingCache\crop_temporal_every_frame_20260909_all18
+<OPENNR_DATA>\TrainingCache\crop_temporal_every_frame_20260909_all18
 
 It is schema 2 with RGB [2304, 2, 3, 512, 512], guides
 [2304, 5, 128, 128], context [2304, 8, 96, 96], sequence-disjoint

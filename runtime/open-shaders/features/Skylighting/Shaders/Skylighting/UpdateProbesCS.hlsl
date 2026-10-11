@@ -86,6 +86,9 @@ static const float3 noise3D[32] = {
 	uint3 validMin = (uint3)max(0, settings.ValidMargin.xyz);
 	uint3 validMax = arrayDims - 1 + (uint3)min(0, settings.ValidMargin.xyz);
 	bool isValid = all(cellID >= validMin) && all(cellID <= validMax);  // check if the cell is newly added
+	uint probeUpdateState = isValid ? outAccumFramesArray[probeTexID] : 0u;
+	uint storedAccumFrames = probeUpdateState & 0xFFu;
+	uint shadowSampleIndex = (probeUpdateState >> 8) & 31u;
 	float3 cellCentreMS = cellID + 0.5 - arrayDims / 2;
 	cellCentreMS = cellCentreMS / arrayDims * Skylighting::GetArraySize(settings) + settings.PosOffset.xyz;
 
@@ -94,7 +97,7 @@ static const float3 noise3D[32] = {
 	float2 occlusionUV = cellCentreOS.xy * 0.5 + 0.5;
 
 	if (all(occlusionUV > 0) && all(occlusionUV < 1)) {
-		uint accumFrames = isValid ? (outAccumFramesArray[probeTexID] + 1) : 1;
+		uint accumFrames = storedAccumFrames + 1u;
 		float visibility = srcOcclusionDepth.SampleCmpLevelZero(comparisonSampler, occlusionUV, cellCentreOS.z);
 
 		sh2 occlusionSH = SphericalHarmonics::Scale(SphericalHarmonics::Evaluate(settings.OcclusionDir.xyz), visibility * 4.0 * Math::PI);  // 4 pi from monte carlo
@@ -108,10 +111,10 @@ static const float3 noise3D[32] = {
 		occlusionSH = lerp(unitSH, occlusionSH, min(fadeInThreshold, accumFrames) / fadeInThreshold);  // confidence fade in
 
 		outProbeArray[probeTexID] = occlusionSH;
-		outAccumFramesArray[probeTexID] = accumFrames;
+		storedAccumFrames = min(accumFrames, 255u);
 	} else if (!isValid) {
 		outProbeArray[probeTexID] = unitSH;
-		outAccumFramesArray[probeTexID] = 0;
+		storedAccumFrames = 0;
 	}
 
 	// Shadow cascade sampling with bitmask accumulation
@@ -119,53 +122,54 @@ static const float3 noise3D[32] = {
 	// Mono dispatch shared by both eyes (see Skylighting::Prepass); eye index is
 	// arbitrary but harmless for this coarse world-space visibility test.
 	float4 cellCentreCS = mul(FrameBuffer::CameraViewProj[0], float4(cellCentreMS, 1));
-	float2 screenUV = (cellCentreCS.xy / cellCentreCS.w) * float2(0.5, -0.5) + 0.5;
-	bool onScreen = cellCentreCS.w > 0 && all(screenUV > 0) && all(screenUV < 1);
+	bool onScreen = false;
+	if (cellCentreCS.w > 0) {
+		float2 screenUV = (cellCentreCS.xy / cellCentreCS.w) * float2(0.5, -0.5) + 0.5;
+		onScreen = all(screenUV > 0) && all(screenUV < 1);
+	}
 
-	if (onScreen) {
-		float shadowSample = 1.0;
+	bool advanceShadowHistory = false;
+	float shadowSample = 1.0;
+	if (onScreen && settings.ShadowDataAvailable != 0) {
 		DirectionalShadowLightData shadowData = DirectionalShadowLights[0];
-
-		uint bitIndex = SharedData::FrameCountAlwaysActive % 32;
-		float3 jitteredMS = cellCentreMS + noise3D[bitIndex] * 128;
-
-		float ndcDepth = FrameBuffer::GetShadowDepth(jitteredMS, 0);
-		float linearDepth = SharedData::GetScreenDepth(ndcDepth);
-
-		if (linearDepth > 0 && linearDepth < shadowData.EndSplitDistances.y) {
-			float3 positionWS = jitteredMS + FrameBuffer::CameraPosAdjust[0].xyz;
-
-			uint cascadeIndex = (linearDepth > shadowData.EndSplitDistances.x) ? 1u : 0u;
-
-			float3 positionLS = mul(shadowData.ShadowProj[cascadeIndex], float4(positionWS, 1)).xyz;
-
-			positionLS.xy = saturate(positionLS.xy);
-
-			shadowSample = ESRAMShadow.SampleCmpLevelZero(comparisonSampler, float3(positionLS.xy, cascadeIndex), positionLS.z);
-
-			float fade = saturate(linearDepth / shadowData.EndSplitDistances.y);
-			float fadeFactor = 1.0 - pow(fade * fade, 8);
-			shadowSample = lerp(1.0, shadowSample, fadeFactor);
+		float3 jitteredMS = cellCentreMS + noise3D[shadowSampleIndex] * 128;
+		shadowSampleIndex = (shadowSampleIndex + 1u) & 31u;
+		float4 jitteredCS = mul(FrameBuffer::CameraViewProj[0], float4(jitteredMS, 1));
+		if (jitteredCS.w > 0) {
+			float ndcDepth = jitteredCS.z / jitteredCS.w;
+			float linearDepth = SharedData::GetScreenDepth(ndcDepth);
+			if (ndcDepth > 0 && ndcDepth < 1 && linearDepth > 0) {
+				if (linearDepth >= shadowData.EndSplitDistances.y) {
+					advanceShadowHistory = true;
+				} else {
+					float3 positionWS = jitteredMS + FrameBuffer::CameraPosAdjust[0].xyz;
+					uint cascadeIndex = (linearDepth > shadowData.EndSplitDistances.x) ? 1u : 0u;
+					float3 positionLS = mul(shadowData.ShadowProj[cascadeIndex], float4(positionWS, 1)).xyz;
+					if (all(positionLS.xy > 0) && all(positionLS.xy < 1) && positionLS.z > 0 && positionLS.z < 1) {
+						shadowSample = ESRAMShadow.SampleCmpLevelZero(comparisonSampler, float3(positionLS.xy, cascadeIndex), positionLS.z);
+						float fade = saturate(linearDepth / shadowData.EndSplitDistances.y);
+						float fadeFactor = 1.0 - pow(fade * fade, 8);
+						shadowSample = lerp(1.0, shadowSample, fadeFactor);
+						advanceShadowHistory = true;
+					}
+				}
+			}
 		}
+	}
 
-		uint bitmask = isValid ? outShadowBitmask[probeTexID] : 0;
-		bitmask &= ~(1u << bitIndex);
-		if (shadowSample > 0.5)
-			bitmask |= (1u << bitIndex);
-
+	if (settings.ShadowDataAvailable == 0) {
+		outShadowBitmask[probeTexID] = 0xFFFFFFFFu;
+		outShadowVisibility[probeTexID] = 1.0;
+	} else if (advanceShadowHistory) {
+		uint bitmask = isValid ? outShadowBitmask[probeTexID] : 0xFFFFFFFFu;
+		bitmask = (bitmask << 1) | (shadowSample > 0.5 ? 1u : 0u);
 		outShadowBitmask[probeTexID] = bitmask;
-
-		// A cleared/new probe has fewer than 32 valid shadow samples. Treating the
-		// missing bits as shadowed causes a freshly reset field to fade from bright
-		// to progressively darker over the first 32 updates while the player is
-		// standing still. Normalize by the samples actually accumulated; after the
-		// history is full this is the original 32-sample estimator.
-		const uint shadowHistoryFrames = max(1u, min(outAccumFramesArray[probeTexID], 32u));
-		float shadow = float(countbits(bitmask)) / float(shadowHistoryFrames);
-		outShadowVisibility[probeTexID] = shadow;
+		// Reset history is seeded lit, so keep the full shift-register denominator.
+		outShadowVisibility[probeTexID] = float(countbits(bitmask)) / 32.0;
 	} else if (!isValid) {
-		outShadowBitmask[probeTexID] = 0;
+		outShadowBitmask[probeTexID] = 0xFFFFFFFFu;
 		outShadowVisibility[probeTexID] = 1.0;
 	}
 #endif
+	outAccumFramesArray[probeTexID] = storedAccumFrames | (shadowSampleIndex << 8);
 }

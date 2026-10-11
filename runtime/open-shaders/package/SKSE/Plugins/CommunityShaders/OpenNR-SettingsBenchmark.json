@@ -6,6 +6,148 @@
   "repeats": 1,
   "variants": [
     {
+      "id": "nr-full-eye",
+      "label": "Full eye",
+      "group": "Neural Rendering A/B",
+      "note": "Full-resolution NR over the entire eye; comparison baseline.",
+      "patches": [
+        {
+          "feature": "Upscaling",
+          "settings": {
+            "foveatedRender": {
+              "neuralRenderingEnabled": true,
+              "neuralRenderingCoverage": 100,
+              "neuralRenderingProjectionCenteredCrop": false,
+              "neuralRenderingPeripheryEnabled": false,
+              "neuralRenderingPeripheryStagger": false,
+              "neuralRenderingTemporalReuseCadence": 0,
+              "neuralRenderingTemporalReuseStaggerEyes": false,
+              "neuralRenderingParallelEyeQueue": false,
+              "neuralRenderingFlushAfterSignal": false
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "nr-coverage-crop-only",
+      "label": "Crop 55 only",
+      "group": "Neural Rendering A/B",
+      "note": "Full-resolution NR on a 55% linear coverage crop; Periphery NR is disabled.",
+      "patches": [
+        {
+          "feature": "Upscaling",
+          "settings": {
+            "foveatedRender": {
+              "neuralRenderingEnabled": true,
+              "neuralRenderingCoverage": 55,
+              "neuralRenderingProjectionCenteredCrop": false,
+              "neuralRenderingPeripheryEnabled": false,
+              "neuralRenderingPeripheryStagger": false,
+              "neuralRenderingTemporalReuseCadence": 0,
+              "neuralRenderingTemporalReuseStaggerEyes": false
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "nr-hybrid-c55-p66",
+      "label": "Hybrid C55+P66",
+      "group": "Neural Rendering A/B",
+      "note": "55% linear full-resolution centre crop plus 66% whole-eye Periphery NR.",
+      "patches": [
+        {
+          "feature": "Upscaling",
+          "settings": {
+            "foveatedRender": {
+              "neuralRenderingEnabled": true,
+              "neuralRenderingCoverage": 55,
+              "neuralRenderingProjectionCenteredCrop": true,
+              "neuralRenderingPeripheryEnabled": true,
+              "neuralRenderingPeripheryResolution": 66,
+              "neuralRenderingPeripheryLightingGain": 0.89,
+              "neuralRenderingPeripheryStagger": false,
+              "neuralRenderingTemporalReuseCadence": 0,
+              "neuralRenderingTemporalReuseStaggerEyes": false
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "nr-hybrid-c55-p66-staggered",
+      "label": "Hybrid C55+P66 staggered",
+      "group": "Neural Rendering A/B",
+      "note": "55% linear full-resolution centre crop plus eye-staggered 66% whole-eye Periphery NR.",
+      "patches": [
+        {
+          "feature": "Upscaling",
+          "settings": {
+            "foveatedRender": {
+              "neuralRenderingEnabled": true,
+              "neuralRenderingCoverage": 55,
+              "neuralRenderingProjectionCenteredCrop": true,
+              "neuralRenderingPeripheryEnabled": true,
+              "neuralRenderingPeripheryResolution": 66,
+              "neuralRenderingPeripheryLightingGain": 0.89,
+              "neuralRenderingPeripheryStagger": true,
+              "neuralRenderingTemporalReuseCadence": 0,
+              "neuralRenderingTemporalReuseStaggerEyes": false
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "nr-hybrid-c55-p50-staggered",
+      "label": "Hybrid C55+P50 staggered",
+      "group": "Neural Rendering A/B",
+      "note": "55% linear full-resolution centre crop plus eye-staggered 50% whole-eye Periphery NR.",
+      "patches": [
+        {
+          "feature": "Upscaling",
+          "settings": {
+            "foveatedRender": {
+              "neuralRenderingEnabled": true,
+              "neuralRenderingCoverage": 55,
+              "neuralRenderingProjectionCenteredCrop": true,
+              "neuralRenderingPeripheryEnabled": true,
+              "neuralRenderingPeripheryResolution": 50,
+              "neuralRenderingPeripheryLightingGain": 0.83,
+              "neuralRenderingPeripheryStagger": true,
+              "neuralRenderingTemporalReuseCadence": 0,
+              "neuralRenderingTemporalReuseStaggerEyes": false
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "nr-hybrid-c45-p50-staggered",
+      "label": "Hybrid C45+P50 staggered",
+      "group": "Neural Rendering A/B",
+      "note": "45% linear full-resolution centre crop plus eye-staggered 50% whole-eye Periphery NR.",
+      "patches": [
+        {
+          "feature": "Upscaling",
+          "settings": {
+            "foveatedRender": {
+              "neuralRenderingEnabled": true,
+              "neuralRenderingCoverage": 45,
+              "neuralRenderingProjectionCenteredCrop": true,
+              "neuralRenderingPeripheryEnabled": true,
+              "neuralRenderingPeripheryResolution": 50,
+              "neuralRenderingPeripheryLightingGain": 0.83,
+              "neuralRenderingPeripheryStagger": true,
+              "neuralRenderingTemporalReuseCadence": 0,
+              "neuralRenderingTemporalReuseStaggerEyes": false
+            }
+          }
+        }
+      ]
+    },
+    {
       "id": "nr-off",
       "label": "Neural Rendering off (reference)",
       "group": "Reference",
@@ -16,37 +158,6 @@
           "settings": {
             "foveatedRender": {
               "neuralRenderingEnabled": false
-            }
-          }
-        }
-      ]
-    },
-    {
-      "id": "nr-coverage-85",
-      "label": "NR Coverage 85%",
-      "group": "Neural Rendering",
-      "note": "Full-resolution NR on the center; DLSS periphery.",
-      "patches": [
-        {
-          "feature": "Upscaling",
-          "settings": {
-            "foveatedRender": {
-              "neuralRenderingCoverage": 85
-            }
-          }
-        }
-      ]
-    },
-    {
-      "id": "nr-coverage-80",
-      "label": "NR Coverage 80%",
-      "group": "Neural Rendering",
-      "patches": [
-        {
-          "feature": "Upscaling",
-          "settings": {
-            "foveatedRender": {
-              "neuralRenderingCoverage": 80
             }
           }
         }
@@ -249,6 +360,150 @@
           }
         }
       ]
+    },
+    {
+      "id": "nr-parallel-eye-queue",
+      "label": "NR parallel eye compute queue",
+      "group": "Neural Rendering A/B",
+      "note": "Scheduling-only experiment: runs eye 1 on a second compute queue; compare against nr-full-eye on this system.",
+      "patches": [{ "feature": "Upscaling", "settings": { "foveatedRender": {
+        "neuralRenderingParallelEyeQueue": true,
+        "neuralRenderingFlushAfterSignal": false
+      } } }]
+    },
+    {
+      "id": "nr-flush-after-signal",
+      "label": "NR flush after D3D11 signal",
+      "group": "Neural Rendering A/B",
+      "note": "Scheduling-only experiment: flushes D3D11 submission after its fence signal; compare against nr-full-eye on this system.",
+      "patches": [{ "feature": "Upscaling", "settings": { "foveatedRender": {
+        "neuralRenderingParallelEyeQueue": false,
+        "neuralRenderingFlushAfterSignal": true
+      } } }]
+    },
+    {
+      "id": "nr-hybrid-parallel-eye-queue",
+      "label": "Default hybrid with parallel eye queue",
+      "group": "Neural Rendering A/B",
+      "note": "Default 55% centre plus 50% staggered periphery hybrid; changes only neuralRenderingParallelEyeQueue from the safe default.",
+      "patches": [{ "feature": "Upscaling", "settings": { "foveatedRender": {
+        "neuralRenderingEnabled": true,
+        "neuralRenderingCoverage": 55,
+        "neuralRenderingPeripheryEnabled": true,
+        "neuralRenderingPeripheryResolution": 50,
+        "neuralRenderingPeripheryStagger": true,
+        "neuralRenderingParallelEyeQueue": true,
+        "neuralRenderingFlushAfterSignal": false
+      } } }]
+    },
+    {
+      "id": "nr-hybrid-flush-after-signal",
+      "label": "Default hybrid with flush after signal",
+      "group": "Neural Rendering A/B",
+      "note": "Default 55% centre plus 50% staggered periphery hybrid; changes only neuralRenderingFlushAfterSignal from the safe default.",
+      "patches": [{ "feature": "Upscaling", "settings": { "foveatedRender": {
+        "neuralRenderingEnabled": true,
+        "neuralRenderingCoverage": 55,
+        "neuralRenderingPeripheryEnabled": true,
+        "neuralRenderingPeripheryResolution": 50,
+        "neuralRenderingPeripheryStagger": true,
+        "neuralRenderingParallelEyeQueue": false,
+        "neuralRenderingFlushAfterSignal": true
+      } } }]
+    },
+    {
+      "id": "nr-hybrid-c50-p50-staggered",
+      "label": "Hybrid C50+P50 staggered",
+      "group": "Neural Rendering A/B",
+      "note": "50% linear full-resolution centre crop plus eye-staggered 50% whole-eye Periphery NR.",
+      "patches": [
+        {
+          "feature": "Upscaling",
+          "settings": {
+            "foveatedRender": {
+              "neuralRenderingEnabled": true,
+              "neuralRenderingCoverage": 50,
+              "neuralRenderingProjectionCenteredCrop": true,
+              "neuralRenderingPeripheryEnabled": true,
+              "neuralRenderingPeripheryResolution": 50,
+              "neuralRenderingPeripheryLightingGain": 0.83,
+              "neuralRenderingPeripheryStagger": true,
+              "neuralRenderingTemporalReuseCadence": 0,
+              "neuralRenderingTemporalReuseStaggerEyes": false
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "nr-hybrid-c60-p50-staggered",
+      "label": "Hybrid C60+P50 staggered",
+      "group": "Neural Rendering A/B",
+      "note": "60% linear full-resolution centre crop plus eye-staggered 50% whole-eye Periphery NR.",
+      "patches": [
+        {
+          "feature": "Upscaling",
+          "settings": {
+            "foveatedRender": {
+              "neuralRenderingEnabled": true,
+              "neuralRenderingCoverage": 60,
+              "neuralRenderingProjectionCenteredCrop": true,
+              "neuralRenderingPeripheryEnabled": true,
+              "neuralRenderingPeripheryResolution": 50,
+              "neuralRenderingPeripheryLightingGain": 0.83,
+              "neuralRenderingPeripheryStagger": true,
+              "neuralRenderingTemporalReuseCadence": 0,
+              "neuralRenderingTemporalReuseStaggerEyes": false
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "frame-annotations-off",
+      "label": "Frame Annotations off",
+      "group": "Diagnostics",
+      "note": "Turns off PIX/RenderDoc draw annotations while measuring; CPU overhead only, GPU neutrality is expected but not measured.",
+      "patches": [
+        {
+          "feature": "Advanced",
+          "settings": {
+            "Frame Annotations": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "skylighting-neutral-output",
+      "label": "Skylighting off (neutral output; probes still update)",
+      "group": "Lighting",
+      "note": "Forces neutral visibility output to estimate shading contribution. Probe resources and updates remain active, so this does not measure the full cost of disabling the feature.",
+      "patches": [
+        {
+          "feature": "Skylighting",
+          "settings": {
+            "ForceNeutralOutput": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "nr-prewarm-on",
+      "label": "NR startup prewarm on",
+      "group": "Neural Rendering A/B",
+      "note": "Startup-only, one-time timing comparison. Enable before a fresh startup and pair the [DLSSNR][PREWARM] loading/menu log timings with the cold-start timings; this is not a steady-state GPU frame-time variant.",
+      "patches": [{ "feature": "Upscaling", "settings": { "foveatedRender": {
+        "neuralRenderingPrewarm": true
+      } } }]
+    },
+    {
+      "id": "nr-prewarm-off",
+      "label": "NR startup prewarm off",
+      "group": "Neural Rendering A/B",
+      "note": "Startup-only, one-time timing comparison. Disable before a fresh startup and pair cold-start timings with the loading/menu baseline logs. Restart between this and nr-prewarm-on; this is not a steady-state GPU frame-time variant.",
+      "patches": [{ "feature": "Upscaling", "settings": { "foveatedRender": {
+        "neuralRenderingPrewarm": false
+      } } }]
     }
   ]
 }

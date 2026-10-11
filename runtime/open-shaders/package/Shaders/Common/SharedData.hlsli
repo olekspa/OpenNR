@@ -192,6 +192,10 @@ namespace SharedData
 		float MinSpecularVisibility;
 		uint ProbeUpdateSliceStart;
 		uint ProbeUpdateSliceCount;
+		uint EnableInInteriors;
+		uint ProbeDataReady;
+		uint ForceNeutralOutput;
+		uint ShadowDataAvailable;
 	};
 
 	struct CloudShadowsSettings

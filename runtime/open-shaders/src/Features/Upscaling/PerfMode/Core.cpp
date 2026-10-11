@@ -12,13 +12,72 @@
 
 void PerfMode::ClearFakeDS()
 {
-	if (!hookActive || !fakeDSV)
+	if (!hookActive || !fakeDSV || !globals::d3d::context)
 		return;
 	globals::d3d::context->ClearDepthStencilView(fakeDSV.get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 }
 
+bool PerfMode::EnsureFakeDSV()
+{
+	if (fakeDSV)
+		return true;
+	if (!hookActive || !globals::game::renderer || !globals::d3d::device)
+		return false;
+
+	auto* mainDSTex = globals::game::renderer->GetDepthStencilData()
+		.depthStencils[RE::RENDER_TARGETS_DEPTHSTENCIL::kMAIN].texture;
+	if (!mainDSTex)
+		return false;
+
+	D3D11_TEXTURE2D_DESC mainDesc{};
+	mainDSTex->GetDesc(Util::AsW32(&mainDesc));
+	D3D11_TEXTURE2D_DESC fakeDesc = mainDesc;
+	fakeDesc.Width = displayEyeWidth * 2;
+	fakeDesc.Height = displayEyeHeight;
+
+	HRESULT hr = globals::d3d::device->CreateTexture2D(&fakeDesc, nullptr, fakeDS.put());
+	if (FAILED(hr)) {
+		fakeDS = nullptr;
+		logger::error("[PerfMode][Map] Failed to create display-resolution depth texture: {:#x}", static_cast<uint32_t>(hr));
+		return false;
+	}
+
+	D3D11_DEPTH_STENCIL_VIEW_DESC dsvDesc{};
+	dsvDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
+	dsvDesc.Texture2D.MipSlice = 0;
+	if (fakeDesc.Format == DXGI_FORMAT_R32G8X24_TYPELESS)
+		dsvDesc.Format = DXGI_FORMAT_D32_FLOAT_S8X24_UINT;
+	else if (fakeDesc.Format == DXGI_FORMAT_R24G8_TYPELESS)
+		dsvDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
+	else if (fakeDesc.Format == DXGI_FORMAT_R32_TYPELESS)
+		dsvDesc.Format = DXGI_FORMAT_D32_FLOAT;
+	else if (fakeDesc.Format == DXGI_FORMAT_R16_TYPELESS)
+		dsvDesc.Format = DXGI_FORMAT_D16_UNORM;
+	else
+		dsvDesc.Format = fakeDesc.Format;
+
+	hr = globals::d3d::device->CreateDepthStencilView(fakeDS.get(), &dsvDesc, fakeDSV.put());
+	if (FAILED(hr)) {
+		fakeDSV = nullptr;
+		fakeDS = nullptr;
+		logger::error("[PerfMode][Map] Failed to create display-resolution DSV: {:#x}", static_cast<uint32_t>(hr));
+		return false;
+	}
+
+	Util::SetResourceName(fakeDS.get(), "PerfMode::MapDisplayDepth");
+	ClearFakeDS();
+	logger::info("[PerfMode][Map] Created display-resolution fake depth view {}x{}", fakeDesc.Width, fakeDesc.Height);
+	return true;
+}
+
 void PerfMode::SetupResources()
 {
+	ReleaseMapSymbolSupersample("resource-reset");
+	mapSymbolSupersampleOpenLogged = false;
+	mapSymbolSupersampleFailureLatched = false;
+	mapSymbolSupersampleFailureScale = 1.0f;
+	mapSymbolHudNativeWidth = mapSymbolHudNativeHeight = 0;
+	mapSymbolHudWidth = mapSymbolHudHeight = 0;
 	if (!globals::game::isVR)
 		return;
 
@@ -144,50 +203,14 @@ void PerfMode::SetupResources()
 	}
 
 	// Fake DepthStencil at DisplayRes, matching engine kMAIN DS format.
-	if (hookActive) {
-		auto& dsData = renderer->GetDepthStencilData();
-		auto* mainDSTex = dsData.depthStencils[RE::RENDER_TARGETS_DEPTHSTENCIL::kMAIN].texture;
-		if (mainDSTex) {
-			D3D11_TEXTURE2D_DESC dsDesc{};
-			mainDSTex->GetDesc(Util::AsW32(&dsDesc));
-
-			D3D11_TEXTURE2D_DESC fakeDesc = dsDesc;
-			fakeDesc.Width = displayEyeWidth * 2;
-			fakeDesc.Height = displayEyeHeight;
-
-			HRESULT hr2 = device->CreateTexture2D(&fakeDesc, nullptr, fakeDS.put());
-			if (FAILED(hr2)) {
-				logger::error("[PerfMode] Failed to create fake DS texture: {:#x}", (uint32_t)hr2);
-			} else {
-				// Create DSV — format depends on typeless base format
-				D3D11_DEPTH_STENCIL_VIEW_DESC dsvDesc{};
-				dsvDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
-				dsvDesc.Texture2D.MipSlice = 0;
-
-				// Map typeless→typed DSV format
-				if (fakeDesc.Format == DXGI_FORMAT_R32G8X24_TYPELESS)
-					dsvDesc.Format = DXGI_FORMAT_D32_FLOAT_S8X24_UINT;
-				else if (fakeDesc.Format == DXGI_FORMAT_R24G8_TYPELESS)
-					dsvDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
-				else if (fakeDesc.Format == DXGI_FORMAT_R32_TYPELESS)
-					dsvDesc.Format = DXGI_FORMAT_D32_FLOAT;
-				else if (fakeDesc.Format == DXGI_FORMAT_R16_TYPELESS)
-					dsvDesc.Format = DXGI_FORMAT_D16_UNORM;
-				else
-					dsvDesc.Format = fakeDesc.Format;  // fallback: hope it's already a DS format
-
-				hr2 = device->CreateDepthStencilView(fakeDS.get(), &dsvDesc, fakeDSV.put());
-				if (FAILED(hr2)) {
-					logger::error("[PerfMode] Failed to create fake DSV: {:#x}", (uint32_t)hr2);
-					fakeDS = nullptr;
-				}
-			}
-		} else {
-			logger::warn("[PerfMode] kMAIN DS texture not available, skipping fake DS creation");
-		}
-	}
+	if (hookActive && !EnsureFakeDSV())
+		logger::warn("[PerfMode] Fake display-resolution depth unavailable during SetupResources; map route will retry on first use");
 
 	ClearFakeDS();
+	if (hookActive && !mapSymbolSupersampleHookInstalled) {
+		stl::write_vfunc<0x6, MapMenuPostDisplay_Hook>(RE::VTABLE_MapMenu[0]);
+		mapSymbolSupersampleHookInstalled = true;
+	}
 
 	// IS shader hooks (must be installed AFTER FrameAnnotations)
 	if (hookActive && !tonemapHookInstalled) {

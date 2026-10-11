@@ -12,7 +12,7 @@ OpenNR-VR is based on the private Open Shaders DLSSNR VR 0.4.5 MGO developer pac
 
 The package points to this local source checkout:
 
-`D:\.CODEX_Projects\DLSS_5_SKYRIM\vendor\open-shaders-dlssnr-vr-091bfb4d`
+`<LEGACY_REPO>\vendor\open-shaders-dlssnr-vr-091bfb4d`
 
 Its source identity is:
 
@@ -46,8 +46,8 @@ Run these against the local baseline before a runtime experiment:
 
 ```powershell
 Get-FileHash -Algorithm SHA256 `
-  'D:\.CODEX_Projects\DLSS_5_SKYRIM\dist\Open-Shaders-DLSSNR-VR-0.4.5-MGO-Dev-PRIVATE-DLSSNR-ONLY-MO2.zip'
+  '<LEGACY_REPO>\dist\Open-Shaders-DLSSNR-VR-0.4.5-MGO-Dev-PRIVATE-DLSSNR-ONLY-MO2.zip'
 
-git -C 'D:\.CODEX_Projects\DLSS_5_SKYRIM\vendor\open-shaders-dlssnr-vr-091bfb4d' rev-parse HEAD
-git -C 'D:\.CODEX_Projects\DLSS_5_SKYRIM\vendor\open-shaders-dlssnr-vr-091bfb4d' status --short
+git -C '<LEGACY_REPO>\vendor\open-shaders-dlssnr-vr-091bfb4d' rev-parse HEAD
+git -C '<LEGACY_REPO>\vendor\open-shaders-dlssnr-vr-091bfb4d' status --short
 ```

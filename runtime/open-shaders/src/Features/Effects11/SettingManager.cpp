@@ -631,7 +631,10 @@ void SettingManager::LoadFromFile(const std::string& filePath)
 	std::filesystem::path absPath = Util::PathHelpers::SafeAbsolute(filePath);
 
 	if (!Util::PathHelpers::SafeExists(absPath)) {
-		logger::warn("[SettingManager] Settings file not found: {}, using defaults", absPath.string());
+		if (absPath.empty())
+			logger::info("[SettingManager] Settings path is empty; using defaults");
+		else
+			logger::warn("[SettingManager] Settings file not found: {}, using defaults", absPath.string());
 		return;
 	}
 

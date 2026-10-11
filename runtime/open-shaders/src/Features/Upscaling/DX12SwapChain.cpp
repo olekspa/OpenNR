@@ -9,6 +9,8 @@
 #include "Streamline.h"
 #include "Utils/D3D.h"
 
+#include <limits>
+
 void DX12SwapChain::CreateD3D12Device(IDXGIAdapter* a_adapter)
 {
 	// Idempotent: the DLSS-G probe binds Streamline to this device; a second call from
@@ -187,6 +189,11 @@ void DX12SwapChain::CreateSwapChainDirect(IDXGIAdapter* adapter, DXGI_SWAP_CHAIN
 
 void DX12SwapChain::CreateInterop()
 {
+	if (!frameFenceEvent) {
+		frameFenceEvent = winrt::handle(CreateEventW(nullptr, FALSE, FALSE, nullptr));
+		if (!frameFenceEvent)
+			DX::ThrowIfFailed(HRESULT_FROM_WIN32(GetLastError()));
+	}
 	HANDLE sharedFenceHandle;
 	DX::ThrowIfFailed(d3d12Device->CreateFence(0, D3D12_FENCE_FLAG_SHARED, IID_PPV_ARGS(&d3d12Fence)));
 	DX::ThrowIfFailed(d3d12Device->CreateSharedHandle(d3d12Fence.get(), nullptr, GENERIC_ALL, nullptr, &sharedFenceHandle));
@@ -331,8 +338,28 @@ HRESULT DX12SwapChain::Present(UINT SyncInterval, UINT Flags)
 	DX::ThrowIfFailed(commandQueue->Wait(d3d12Fence.get(), fenceValue));
 
 	// New frame, reset
-	if (frameFenceValues[frameIndex])
-		DX::ThrowIfFailed(d3d12Fence->SetEventOnCompletion(frameFenceValues[frameIndex], nullptr));
+	if (frameFenceValues[frameIndex]) {
+		const UINT64 frameFenceValue = frameFenceValues[frameIndex];
+		const UINT64 completedValue = d3d12Fence->GetCompletedValue();
+		if (completedValue == std::numeric_limits<UINT64>::max())
+			return DXGI_ERROR_DEVICE_REMOVED;
+		if (completedValue < frameFenceValue) {
+			DX::ThrowIfFailed(d3d12Fence->SetEventOnCompletion(frameFenceValue, frameFenceEvent.get()));
+			const DWORD waitResult = WaitForSingleObject(frameFenceEvent.get(), 1000);
+			if (waitResult == WAIT_TIMEOUT) {
+				static bool fenceTimeoutLogged = false;
+				if (!fenceTimeoutLogged) {
+					logger::warn("[DX12SwapChain] frame allocator fence wait exceeded 1000 ms; skipping this present");
+					fenceTimeoutLogged = true;
+				}
+				return DXGI_ERROR_WAS_STILL_DRAWING;
+			}
+			if (waitResult != WAIT_OBJECT_0)
+				return HRESULT_FROM_WIN32(GetLastError());
+			if (d3d12Fence->GetCompletedValue() < frameFenceValue)
+				return DXGI_ERROR_WAS_STILL_DRAWING;
+		}
+	}
 	DX::ThrowIfFailed(commandAllocators[frameIndex]->Reset());
 	DX::ThrowIfFailed(commandLists[frameIndex]->Reset(commandAllocators[frameIndex].get(), nullptr));
 

@@ -1600,9 +1600,17 @@ namespace ShadowCasterManager
 											"on screen lit by that light across many consecutive samples. Removes\n"
 											"the work rather than reordering it, so it can free budget for lights\n"
 											"you can actually see.\n"
-											"A skipped light keeps showing its last shadow map and redraws again as\n"
-											"soon as anything it lights comes back into view, and every skipped\n"
-											"light redraws periodically regardless. Requires the Shadow Atlas."));
+							"A skipped light keeps showing its last shadow map and redraws again as\n"
+							"soon as anything it lights comes back into view, and every skipped\n"
+							"light redraws periodically regardless. Requires the Shadow Atlas."));
+
+			ImGui::Checkbox(T(TKEY("anchor_light_radius_shadow_decisions"), "Anchor light radius for shadow decisions"),
+				&settings.AnchorLightRadiusForShadowDecisions);
+			if (ImGui::IsItemHovered())
+				ImGui::SetTooltip("%s", T(TKEY("anchor_light_radius_shadow_decisions_tooltip"),
+					"Uses one EMA-anchored light radius per scheduler frame for player-radius checks, scoring, geometry, and redraw decisions.\n"
+					"Reduces rank/redraw flapping when a mod changes live light radius with flicker.\n"
+					"Off restores the 2.20.5 decision inputs. Default: On."));
 
 			ImGui::Checkbox(T(TKEY("redraw_due_gate_enabled"), "Stop Early Once Nothing Is Due"), &settings.RedrawDueGateEnabled);
 			if (ImGui::IsItemHovered())

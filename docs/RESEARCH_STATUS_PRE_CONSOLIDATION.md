@@ -44,7 +44,7 @@ Historical bring-up instructions below describe earlier implementation stages;
 they are not the current acceptance report. Offline dataset integrity and teacher
 agreement do not establish a usable real-time VR replacement.
 
-The authoritative project brief is [PHASE0_OPENNR_SKYRIMVR_CODEX_GUIDE.md](../PHASE0_OPENNR_SKYRIMVR_CODEX_GUIDE.md). The reconstruction findings are in [docs/PHASE0_RECON.md](PHASE0_RECON.md), and the exact teacher baseline is recorded in [docs/BASELINE_OPEN_SHADERS_0.4.5.md](BASELINE_OPEN_SHADERS_0.4.5.md) and [BASELINE_OPEN_SHADERS_0.4.5.json](../BASELINE_OPEN_SHADERS_0.4.5.json).
+The reconstruction findings are in [docs/PHASE0_RECON.md](PHASE0_RECON.md), and the exact teacher baseline is recorded in [docs/BASELINE_OPEN_SHADERS_0.4.5.md](BASELINE_OPEN_SHADERS_0.4.5.md) and [BASELINE_OPEN_SHADERS_0.4.5.json](../BASELINE_OPEN_SHADERS_0.4.5.json).
 
 The dated research watches [DLSS5_RECONSTRUCTION_UPDATE_20260904.md](DLSS5_RECONSTRUCTION_UPDATE_20260904.md) and [DLSS5_RECONSTRUCTION_UPDATE_20260905.md](DLSS5_RECONSTRUCTION_UPDATE_20260905.md) record public numerical reconstruction, AMD execution, and source-available teacher-harness developments. They inform future architecture and auxiliary-data tracks, but do not change the Phase 0 acceptance gates or the current compact-student baseline.
 
@@ -58,7 +58,7 @@ The current native capture build is validated and ready for an isolated temporal
 
 OpenNR-VR references the existing teacher checkout instead of copying it into this repository:
 
-`D:\.CODEX_Projects\DLSS_5_SKYRIM\vendor\open-shaders-dlssnr-vr-091bfb4d`
+`<LEGACY_REPO>\vendor\open-shaders-dlssnr-vr-091bfb4d`
 
 The checkout already contained user-owned changes; they were preserved, and the new capture feature is implemented there as a worktree-local integration rather than copied into this repository. The baseline package contains NVIDIA-signed runtime components, including `nvngx_dlssnr.dll`; those binaries are local/private inputs and are not vendored, redistributed, or committed here. The source checkout is also dirty, so the exact commit plus dirty-state flag are part of the baseline identity.
 
@@ -71,7 +71,7 @@ terms separately from OpenNR-VR.
 ## Capture implementation
 
 The implementation lives in the teacher checkout at
-`D:\.CODEX_Projects\DLSS_5_SKYRIM\vendor\open-shaders-dlssnr-vr-091bfb4d`:
+`<LEGACY_REPO>\vendor\open-shaders-dlssnr-vr-091bfb4d`:
 
 - `src/Features/OpenNRCapture.h/.cpp` provides `[` start/stop, `]` single, and `\` burst,
   sampled capture rate, 1–4 configurable GPU crops per stage/eye, periodic full per-eye
@@ -108,7 +108,7 @@ contract for them.
 
 The 0.5.2 variants are produced with `BuildRelease.bat Dev-Fast` plus the explicit
 CMake flags below, then normalized by
-`D:\.CODEX_Projects\DLSS_5_SKYRIM\scripts\Package-OpenShadersDLSSNRPair.ps1`.
+`<LEGACY_REPO>\scripts\Package-OpenShadersDLSSNRPair.ps1`.
 The build directory is intentionally left in the non-local
 (`BUILD_OPENNR_CAPTURE=OFF`) state after packaging; the active local MO2 mod is
 refreshed separately from the OpenNR-enabled source.
@@ -138,7 +138,7 @@ For a reproducible build switch, configure with both `BUILD_OPENNR_CAPTURE` and
 `AIO_INCLUDE_OPENNR_CAPTURE` set to `ON` for the local variant, or both set to `OFF`
 for the public-label LAN variant. Run the pair packager after both AIO trees have been built:
 
-    powershell -File D:\.CODEX_Projects\DLSS_5_SKYRIM\scripts\Package-OpenShadersDLSSNRPair.ps1 -Version 0.5.2 -Force
+    powershell -File <LEGACY_REPO>\scripts\Package-OpenShadersDLSSNRPair.ps1 -Version 0.5.2 -Force
 
 The complete MO2/FOMOD and runtime-inclusion contract is maintained in
 [DLSS_5_SKYRIM/docs/DISTRIBUTION.md](../DLSS_5_SKYRIM/docs/DISTRIBUTION.md).
@@ -160,9 +160,9 @@ After enabling OpenNR Capture, use `]` for one sample, `[` to start/stop a seque
 `\` for the configured burst. Validate the resulting directory with:
 
 ```powershell
-python D:\.CODEX_Projects\OpenNR-VR\tools\validate_capture_config.py D:\.CODEX_Projects\OpenNR-VR\config\opennr_capture.example.json
-python D:\.CODEX_Projects\OpenNR-VR\tools\validate_capture.py D:\OpenNR_Captures --json
-python D:\.CODEX_Projects\OpenNR-VR\tools\preview_capture.py D:\OpenNR_Captures --limit 20
+python <REPO>\tools\validate_capture_config.py <REPO>\config\opennr_capture.example.json
+python <REPO>\tools\validate_capture.py <DATA_ROOT>\OpenNR_Captures --json
+python <REPO>\tools\preview_capture.py <DATA_ROOT>\OpenNR_Captures --limit 20
 ```
 
 For the next data-collection pass, use

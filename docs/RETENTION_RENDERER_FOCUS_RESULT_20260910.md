@@ -24,7 +24,7 @@ or VR-budget acceptance.
 ## Immutable provenance
 
 - Protected starting checkpoint:
-  `C:\OpenNR\Training\semantic_pixel_l1_pair_20260909\joint\best_all_cohorts.pt`
+  `<OPENNR_DATA>\Training\semantic_pixel_l1_pair_20260909\joint\best_all_cohorts.pt`
 - Protected SHA-256:
   `40C214A9C0BC214C6E1366872E6D9270BFE7C00D63797AEFB6B3896865C15756`
 - Architecture: `context_v7_capacity_temporal`
@@ -46,7 +46,7 @@ output roots.
 ## Calibration
 
 The calibration root was
-`C:\OpenNR\Training\semantic_retention_renderer_pair_20260910_calibration_retry2`.
+`<OPENNR_DATA>\Training\semantic_retention_renderer_pair_20260910_calibration_retry2`.
 It completed 400 updates in both arms after the correct CUDA/NumPy runtime was
 selected. Step zero matched the protected evaluator reference; the retention
 anchor had a bounded nonzero response and did not collapse the run.
@@ -129,7 +129,7 @@ Both replays report `replay_match = true`, `max_abs_difference = 0.0`, and
 
 Replay output:
 
-`C:\OpenNR\Training\semantic_retention_renderer_pair_20260910_replay`
+`<OPENNR_DATA>\Training\semantic_retention_renderer_pair_20260910_replay`
 
 The replay JSON files have SHA-256 values
 `A665317FF9581A22A3A5DD6341B0C0941657155824606E099DB183244C2B965D` for the
@@ -142,15 +142,15 @@ retention arm.
 The requested comparison set is preserved and no file was overwritten:
 
 1. Safe protected baseline —
-   `C:\OpenNR\Training\semantic_pixel_l1_pair_20260909\joint\best_all_cohorts.pt`
+   `<OPENNR_DATA>\Training\semantic_pixel_l1_pair_20260909\joint\best_all_cohorts.pt`
    — ordinary reference approximately `0.013283985`, SHA-256
    `40C214A9C0BC214C6E1366872E6D9270BFE7C00D63797AEFB6B3896865C15756`.
 2. Narrow quality frontier —
-   `C:\OpenNR\Training\semantic_scratch_v2_vs_finetune_20260910\finetune_v2\checkpoint_2400.pt`
+   `<OPENNR_DATA>\Training\semantic_scratch_v2_vs_finetune_20260910\finetune_v2\checkpoint_2400.pt`
    — ordinary `0.011729875`, SHA-256
    `C499889A889408D259DB07451E19DB5EE7FF41B6BC08DE6E3A7AE148EF252109`.
 3. Retention diagnostic, broad-mean choice —
-   `C:\OpenNR\Training\semantic_retention_renderer_pair_20260910\retention_focus\checkpoint_2400.pt`
+   `<OPENNR_DATA>\Training\semantic_retention_renderer_pair_20260910\retention_focus\checkpoint_2400.pt`
    — ordinary `0.012020144`, six-cohort mean `0.017234301`, SHA-256
    `73AF1FFB30CE1071760A334CB71241F239EBF221EB378CEA15AB64407469A324`.
 

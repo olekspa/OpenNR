@@ -11,6 +11,7 @@
 // ============================================================================
 
 #include "Buffer.h"
+#include "RouteHistory.h"
 #include <array>
 #include <cstdint>
 #include "Params.h"
@@ -87,6 +88,8 @@ namespace FoveatedRenderImpl
 
 		// Release all GPU resources owned by Core.
 		static void ClearResources();
+		// Release cached views that may retain renderer-owned outputs across NR reset.
+		static void ClearBlendSourceSRVCache();
 		// Drop crop-sensitive temporal state even when the replacement resources
 		// keep the same dimensions. A moved subrect must not inherit old guides
 		// or DLSSNR history from the previous eye region.
@@ -163,6 +166,7 @@ namespace FoveatedRenderImpl
 		static inline uint32_t vrTemporalHistoryW = 0, vrTemporalHistoryH = 0;
 		static inline uint32_t vrTemporalFrameIdx = 0;
 		static inline bool vrTemporalHistoryValid = false;
+		static inline uint32_t lastRouteFrame = kNoCompletedRouteFrame;
 
 		// Temporal smooth compute shader resources
 		static inline winrt::com_ptr<ID3D11ComputeShader> vrTemporalSmoothCS;
@@ -172,8 +176,18 @@ namespace FoveatedRenderImpl
 		// Subrect blend compute shader resources (feather / dither copy-back)
 		static inline winrt::com_ptr<ID3D11ComputeShader> vrSubrectBlendCS;
 		static inline winrt::com_ptr<ID3D11Buffer> vrSubrectBlendCB;
-		static inline winrt::com_ptr<ID3D11ShaderResourceView> vrBlendSrcSRV;
-		static inline ID3D11Resource* vrBlendSrcSRVOwner = nullptr;
+		struct BlendSourceSRVCacheEntry
+		{
+			ID3D11Resource* resource = nullptr; // Kept alive by srv, making pointer identity stable.
+			DXGI_FORMAT format = DXGI_FORMAT_UNKNOWN;
+			D3D11_SRV_DIMENSION viewDimension = D3D11_SRV_DIMENSION_UNKNOWN;
+			UINT mostDetailedMip = 0;
+			UINT mipLevels = 0;
+			uint64_t lastUse = 0;
+			winrt::com_ptr<ID3D11ShaderResourceView> srv;
+		};
+		static inline std::array<BlendSourceSRVCacheEntry, 2> vrBlendSrcSRVs{};
+		static inline uint64_t vrBlendSrcSRVUseCounter = 0;
 
 		// Subrect UV hash for resource recreation detection
 		static inline uint64_t activeSubrectUVHash = 0;

@@ -76,6 +76,9 @@ namespace NeuralRendering
 		// N2 only: alternate which eye receives native Feature 18 each frame so the
 		// per-frame NR cost stays flat; the other eye reuses its previous residual.
 		bool temporalReuseStaggerEyes = false;
+		bool parallelEyeQueue = false;
+		bool flushAfterSignal = false;
+		const char* parallelEyeQueueRoute = "primary";
 	};
 
 	/**
@@ -181,6 +184,8 @@ namespace NeuralRendering
 		void Shutdown();
 
 		[[nodiscard]] RuntimeStatus Status() const { return status_; }
+		/** @brief Borrowed device used by NGX while Status() is Initialized. */
+		[[nodiscard]] ID3D12Device* Device() const { return device_; }
 		[[nodiscard]] const std::string& Version() const { return version_; }
 		[[nodiscard]] const std::string& Detail() const { return detail_; }
 		[[nodiscard]] std::uint32_t NgxResult() const { return ngxResult_; }
@@ -189,10 +194,11 @@ namespace NeuralRendering
 		[[nodiscard]] std::uint64_t SuccessfulFrames() const { return successfulFrames_; }
 
 	private:
-		// Two eyes x nine fixed resolution tiers x three cascade stages. The
+		// Two isolated banks x two eyes x eleven fixed resolution tiers x three cascade stages. The
 		// adaptive controller still targets only its conservative 100%-70%
 		// bucket ladder; 50% and 33% are isolated fixed experimental tiers.
-		static constexpr std::uint32_t kFeatureSlotCount = 54;
+		// 2 isolated banks x 2 eyes x 11 tiers x 3 cascade stages.
+		static constexpr std::uint32_t kFeatureSlotCount = 132;
 		Runtime() = default;
 		bool EnsureFeature(ID3D12GraphicsCommandList* commandList, std::uint32_t slot,
 			const Feature18GuideContract& guide, bool* created = nullptr);
@@ -207,6 +213,7 @@ namespace NeuralRendering
 		ID3D12Device* device_ = nullptr;
 		RuntimeStatus status_ = RuntimeStatus::NotProbed;
 		std::filesystem::path path_;
+		std::wstring signedRuntimePath_;
 		std::string version_;
 		std::string detail_;
 		std::uint32_t ngxResult_ = 0;

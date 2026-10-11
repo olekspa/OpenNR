@@ -1,7 +1,7 @@
 # DLSS 5 Skyrim VR prototype
 
 This is an isolated experiment for MGO Skyrim VR. The authoritative project
-folder is `D:\.CODEX_Projects\DLSS_5_SKYRIM`.
+folder is `<LEGACY_REPO>`.
 
 ## Current Open Shaders package labels
 
@@ -19,7 +19,7 @@ prototype names below are historical records, not current package names.
 
 ## Safety boundary
 
-- Active MGO install: `E:\MGO-RC3-clean`
+- Active MGO install: `<MO2_INSTANCE>`
 - Active profile at staging time: `Mad God Overhaul - NSFW`
 - Prototype profile: `DLSS5 SkyrimVR Prototype`
 - Prototype mod: `DLSS5 SkyrimVR Experimental`

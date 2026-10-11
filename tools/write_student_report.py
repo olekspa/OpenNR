@@ -63,14 +63,14 @@ These CUDA timings include native reconstruction with GPU-resident inputs, but e
 
 ## Reproduce and use
 
-Use `E:/OpenNR-VR-Poc-Venv/Scripts/python.exe` from the project root. Derived cache: `C:/OpenNR/TrainingCache/student_v1` (source captures must remain available for native inference).
+Use `<POC_VENV>/Scripts/python.exe` from the project root. Derived cache: `<OPENNR_DATA>/TrainingCache/student_v1` (source captures must remain available for native inference).
 
 ```powershell
-python tools/test_student_v1.py --cache C:/OpenNR/TrainingCache/student_v1
+python tools/test_student_v1.py --cache <OPENNR_DATA>/TrainingCache/student_v1
 python tools/test_master_dataset.py
-python tools/infer_student.py --checkpoint out/student_v1_20260904/OpenNR_Student_v1.pt --cache C:/OpenNR/TrainingCache/student_v1 --row 0 --output out/student_v1_20260904/example.png
+python tools/infer_student.py --checkpoint out/student_v1_20260904/OpenNR_Student_v1.pt --cache <OPENNR_DATA>/TrainingCache/student_v1 --row 0 --output out/student_v1_20260904/example.png
 # Training reproduction must use a NEW output directory, preserving this frozen run:
-python tools/run_student_experiments.py --cache C:/OpenNR/TrainingCache/student_v1 --output out/student_v1_reproduction
+python tools/run_student_experiments.py --cache <OPENNR_DATA>/TrainingCache/student_v1 --output out/student_v1_reproduction
 ```
 
 The inference checkpoint reloads through `tools/opennr_student.py`; full optimizer checkpoints, logs, and validation histories remain in experiment folders. Architecture identity initialization, arbitrary dimensions, finite gradients, cache RGB equality, safe guide bounds, square and rectangular guide geometry were checked. Full native inference succeeded for every test eye.

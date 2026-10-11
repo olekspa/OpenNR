@@ -11,6 +11,8 @@
 #include <chrono>
 #include <cstring>
 #include <format>
+#include <condition_variable>
+#include <mutex>
 #include <vector>
 
 #include <nvsdk_ngx_helpers.h>
@@ -39,10 +41,44 @@ namespace NeuralRendering
 		using ReleaseFeature = NVSDK_NGX_Result(NVSDK_CONV*)(NVSDK_NGX_Handle*);
 		using GetModuleFileNameWFunction = DWORD(WINAPI*)(HMODULE, LPWSTR, DWORD);
 
-		GetModuleFileNameWFunction g_originalGetModuleFileNameW = nullptr;
-		HMODULE g_callerModule = nullptr;
-		std::wstring g_spoofedRuntimePath;
-		std::uint32_t g_proxyHits = 0;
+		struct RuntimePathProxyState
+		{
+			GetModuleFileNameWFunction originalGetModuleFileNameW = nullptr;
+			HMODULE callerModule = nullptr;
+			std::wstring spoofedRuntimePath;
+			std::uint32_t proxyHits = 0;
+			std::uint32_t activeRuntimePathScopes = 0;
+			bool installed = false;
+			std::mutex mutex;
+			std::condition_variable scopesDrained;
+			void** signedRuntimeIatSlot = nullptr;
+			HMODULE patchedRuntimeModule = nullptr;
+		};
+
+		RuntimePathProxyState& RuntimePathProxy()
+		{
+			// The carrier IAT can retain this thunk through process teardown. Keep its
+			// synchronization and fallback state alive beyond static destruction.
+			static RuntimePathProxyState* state = new RuntimePathProxyState();
+			return *state;
+		}
+
+		struct RuntimeExports
+		{
+			HMODULE runtime = nullptr;
+			HMODULE core = nullptr;
+			GetUnsignedValue getApplicationId = nullptr;
+			GetUnsignedValue getApiVersion = nullptr;
+			InitD3D12 initialize = nullptr;
+			ShutdownD3D12 shutdown = nullptr;
+			AllocateParameters allocateParameters = nullptr;
+			DestroyParameters destroyParameters = nullptr;
+			CreateFeature createFeature = nullptr;
+			EvaluateFeature evaluateFeature = nullptr;
+			ReleaseFeature releaseFeature = nullptr;
+		};
+
+		RuntimeExports g_runtimeExports{};
 
 		HMODULE FindNgxCoreModule()
 		{
@@ -52,97 +88,163 @@ namespace NeuralRendering
 				return nullptr;
 			const std::size_t count = std::min<std::size_t>(modules.size(), bytesNeeded / sizeof(HMODULE));
 			for (std::size_t index = 0; index < count; ++index) {
-				if (GetProcAddress(modules[index], "NVSDK_NGX_D3D12_AllocateParameters") &&
-					GetProcAddress(modules[index], "NVSDK_NGX_D3D12_DestroyParameters"))
-					return modules[index];
+				HMODULE pinned = nullptr;
+				if (!GetModuleHandleExW(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS,
+					reinterpret_cast<LPCWSTR>(modules[index]), &pinned))
+					continue;
+				if (GetProcAddress(pinned, "NVSDK_NGX_D3D12_AllocateParameters") &&
+					GetProcAddress(pinned, "NVSDK_NGX_D3D12_DestroyParameters"))
+					return pinned;
+				FreeLibrary(pinned);
 			}
 			return nullptr;
 		}
 
 		DWORD WINAPI SignedRuntimeGetModuleFileNameW(HMODULE module, LPWSTR filename, DWORD size)
 		{
-			if (module == g_callerModule && filename && size && !g_spoofedRuntimePath.empty()) {
-				++g_proxyHits;
-				const DWORD length = static_cast<DWORD>(g_spoofedRuntimePath.size());
-				const DWORD copyLength = std::min(length, size - 1);
-				std::memcpy(filename, g_spoofedRuntimePath.data(), copyLength * sizeof(wchar_t));
-				filename[copyLength] = L'\0';
-				return copyLength < length ? size : length;
+			auto& proxy = RuntimePathProxy();
+			GetModuleFileNameWFunction original = nullptr;
+			{
+				std::scoped_lock lock(proxy.mutex);
+				original = proxy.originalGetModuleFileNameW;
+				if (proxy.installed && proxy.activeRuntimePathScopes != 0 && module == proxy.callerModule &&
+					filename && size && !proxy.spoofedRuntimePath.empty()) {
+					++proxy.proxyHits;
+					const DWORD length = static_cast<DWORD>(proxy.spoofedRuntimePath.size());
+					const DWORD copyLength = std::min(length, size - 1);
+					std::memcpy(filename, proxy.spoofedRuntimePath.data(), copyLength * sizeof(wchar_t));
+					filename[copyLength] = L'\0';
+					return copyLength < length ? size : length;
+				}
 			}
-			return g_originalGetModuleFileNameW ? g_originalGetModuleFileNameW(module, filename, size) : 0;
+			return original ? original(module, filename, size) : 0;
+		}
+
+		bool InstallSignedRuntimePathProxy(HMODULE runtime, const std::wstring& signedRuntimePath)
+		{
+			auto& proxy = RuntimePathProxy();
+			if (!runtime || signedRuntimePath.empty())
+				return false;
+			std::scoped_lock lock(proxy.mutex);
+			HMODULE caller = nullptr;
+			if (!GetModuleHandleExW(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS | GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT,
+				reinterpret_cast<LPCWSTR>(&SignedRuntimeGetModuleFileNameW), &caller))
+				return false;
+			if (proxy.installed && proxy.patchedRuntimeModule == runtime && proxy.callerModule == caller &&
+				proxy.signedRuntimeIatSlot && *proxy.signedRuntimeIatSlot == reinterpret_cast<void*>(&SignedRuntimeGetModuleFileNameW)) {
+				proxy.spoofedRuntimePath = signedRuntimePath;
+				return true;
+			}
+
+			auto* base = reinterpret_cast<std::byte*>(runtime);
+			auto* dos = reinterpret_cast<IMAGE_DOS_HEADER*>(base);
+			if (dos->e_magic != IMAGE_DOS_SIGNATURE || dos->e_lfanew <= 0)
+				return false;
+			auto* nt = reinterpret_cast<IMAGE_NT_HEADERS*>(base + dos->e_lfanew);
+			if (nt->Signature != IMAGE_NT_SIGNATURE)
+				return false;
+			const auto& imports = nt->OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_IMPORT];
+			if (!imports.VirtualAddress)
+				return false;
+
+			auto* descriptor = reinterpret_cast<IMAGE_IMPORT_DESCRIPTOR*>(base + imports.VirtualAddress);
+			for (; descriptor->Name; ++descriptor) {
+				if (!descriptor->OriginalFirstThunk)
+					continue;
+				auto* names = reinterpret_cast<IMAGE_THUNK_DATA*>(base + descriptor->OriginalFirstThunk);
+				auto* functions = reinterpret_cast<IMAGE_THUNK_DATA*>(base + descriptor->FirstThunk);
+				for (; names->u1.AddressOfData; ++names, ++functions) {
+					if (IMAGE_SNAP_BY_ORDINAL(names->u1.Ordinal))
+						continue;
+					auto* import = reinterpret_cast<IMAGE_IMPORT_BY_NAME*>(base + names->u1.AddressOfData);
+					if (std::strcmp(reinterpret_cast<const char*>(import->Name), "GetModuleFileNameW"))
+						continue;
+					void** slot = reinterpret_cast<void**>(&functions->u1.Function);
+					auto original = reinterpret_cast<GetModuleFileNameWFunction>(*slot);
+					if (original == &SignedRuntimeGetModuleFileNameW)
+						original = proxy.originalGetModuleFileNameW;
+					if (!original)
+						return false;
+					if (*slot != reinterpret_cast<void*>(&SignedRuntimeGetModuleFileNameW)) {
+						DWORD oldProtection = 0;
+						if (!VirtualProtect(slot, sizeof(*slot), PAGE_READWRITE, &oldProtection))
+							return false;
+						*slot = reinterpret_cast<void*>(&SignedRuntimeGetModuleFileNameW);
+						DWORD ignored = 0;
+						VirtualProtect(slot, sizeof(*slot), oldProtection, &ignored);
+						FlushInstructionCache(GetCurrentProcess(), slot, sizeof(*slot));
+					}
+					proxy.originalGetModuleFileNameW = original;
+					proxy.callerModule = caller;
+					proxy.signedRuntimeIatSlot = slot;
+					proxy.patchedRuntimeModule = runtime;
+					proxy.spoofedRuntimePath = signedRuntimePath;
+					proxy.installed = true;
+					return true;
+				}
+			}
+			return false;
+		}
+
+		void RemoveSignedRuntimePathProxy(HMODULE runtime)
+		{
+			auto& proxy = RuntimePathProxy();
+			std::unique_lock lock(proxy.mutex);
+			if (!runtime || runtime != proxy.patchedRuntimeModule || !proxy.signedRuntimeIatSlot)
+				return;
+			proxy.installed = false;
+			void** slot = proxy.signedRuntimeIatSlot;
+			const auto original = proxy.originalGetModuleFileNameW;
+			if (*slot == reinterpret_cast<void*>(&SignedRuntimeGetModuleFileNameW) && original) {
+				DWORD oldProtection = 0;
+				if (VirtualProtect(slot, sizeof(*slot), PAGE_READWRITE, &oldProtection)) {
+					*slot = reinterpret_cast<void*>(original);
+					DWORD ignored = 0;
+					VirtualProtect(slot, sizeof(*slot), oldProtection, &ignored);
+					FlushInstructionCache(GetCurrentProcess(), slot, sizeof(*slot));
+				}
+			}
+			proxy.scopesDrained.wait(lock, [&proxy] { return proxy.activeRuntimePathScopes == 0; });
+			proxy.spoofedRuntimePath.clear();
+			proxy.signedRuntimeIatSlot = nullptr;
+			proxy.patchedRuntimeModule = nullptr;
+			proxy.callerModule = nullptr;
 		}
 
 		class SignedRuntimePathScope
 		{
 		public:
-			SignedRuntimePathScope(HMODULE runtime, const std::filesystem::path& ngxPath)
+			explicit SignedRuntimePathScope(const std::wstring& ngxPath)
 			{
-				if (!runtime)
-					return;
-				GetModuleHandleExW(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS | GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT,
-					reinterpret_cast<LPCWSTR>(&SignedRuntimeGetModuleFileNameW), &g_callerModule);
-				g_spoofedRuntimePath = ngxPath.wstring();
-				g_proxyHits = 0;
-
-				auto* base = reinterpret_cast<std::byte*>(runtime);
-				auto* dos = reinterpret_cast<IMAGE_DOS_HEADER*>(base);
-				if (dos->e_magic != IMAGE_DOS_SIGNATURE)
-					return;
-				auto* nt = reinterpret_cast<IMAGE_NT_HEADERS*>(base + dos->e_lfanew);
-				if (nt->Signature != IMAGE_NT_SIGNATURE)
-					return;
-				const auto& imports = nt->OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_IMPORT];
-				if (!imports.VirtualAddress)
-					return;
-
-				auto* descriptor = reinterpret_cast<IMAGE_IMPORT_DESCRIPTOR*>(base + imports.VirtualAddress);
-				for (; descriptor->Name; ++descriptor) {
-					if (!descriptor->OriginalFirstThunk)
-						continue;
-					auto* names = reinterpret_cast<IMAGE_THUNK_DATA*>(base + descriptor->OriginalFirstThunk);
-					auto* functions = reinterpret_cast<IMAGE_THUNK_DATA*>(base + descriptor->FirstThunk);
-					for (; names->u1.AddressOfData; ++names, ++functions) {
-						if (IMAGE_SNAP_BY_ORDINAL(names->u1.Ordinal))
-							continue;
-						auto* import = reinterpret_cast<IMAGE_IMPORT_BY_NAME*>(base + names->u1.AddressOfData);
-						if (std::strcmp(reinterpret_cast<const char*>(import->Name), "GetModuleFileNameW"))
-							continue;
-						slot_ = reinterpret_cast<void**>(&functions->u1.Function);
-						g_originalGetModuleFileNameW = reinterpret_cast<GetModuleFileNameWFunction>(*slot_);
-						DWORD oldProtection = 0;
-						if (VirtualProtect(slot_, sizeof(*slot_), PAGE_READWRITE, &oldProtection)) {
-							*slot_ = reinterpret_cast<void*>(&SignedRuntimeGetModuleFileNameW);
-							DWORD ignored = 0;
-							VirtualProtect(slot_, sizeof(*slot_), oldProtection, &ignored);
-							FlushInstructionCache(GetCurrentProcess(), slot_, sizeof(*slot_));
-							installed_ = true;
-						}
-						return;
-					}
+				auto& proxy = RuntimePathProxy();
+				std::scoped_lock lock(proxy.mutex);
+				if (proxy.installed && ngxPath == proxy.spoofedRuntimePath) {
+					++proxy.activeRuntimePathScopes;
+					startHits_ = proxy.proxyHits;
+					installed_ = true;
 				}
 			}
 
 			~SignedRuntimePathScope()
 			{
-				if (installed_ && slot_) {
-					DWORD oldProtection = 0;
-					if (VirtualProtect(slot_, sizeof(*slot_), PAGE_READWRITE, &oldProtection)) {
-						*slot_ = reinterpret_cast<void*>(g_originalGetModuleFileNameW);
-						DWORD ignored = 0;
-						VirtualProtect(slot_, sizeof(*slot_), oldProtection, &ignored);
-						FlushInstructionCache(GetCurrentProcess(), slot_, sizeof(*slot_));
-					}
-				}
-				g_spoofedRuntimePath.clear();
-				g_callerModule = nullptr;
-				g_originalGetModuleFileNameW = nullptr;
+				if (!installed_)
+					return;
+				auto& proxy = RuntimePathProxy();
+				std::scoped_lock lock(proxy.mutex);
+				if (--proxy.activeRuntimePathScopes == 0)
+					proxy.scopesDrained.notify_all();
 			}
 
 			[[nodiscard]] bool IsInstalled() const { return installed_; }
-			[[nodiscard]] std::uint32_t Hits() const { return g_proxyHits; }
+			[[nodiscard]] std::uint32_t Hits() const
+			{
+				auto& proxy = RuntimePathProxy();
+				std::scoped_lock lock(proxy.mutex);
+				return proxy.proxyHits - startHits_;
+			}
 
 		private:
-			void** slot_ = nullptr;
+			std::uint32_t startHits_ = 0;
 			bool installed_ = false;
 		};
 
@@ -166,8 +268,10 @@ namespace NeuralRendering
 
 	Runtime& Runtime::Instance()
 	{
-		static Runtime instance;
-		return instance;
+		// Keep NGX teardown under the renderer's explicit, fence-aware shutdown path.
+		// Static destruction can run before renderer drain/quarantine during process exit.
+		static Runtime* instance = new Runtime();
+		return *instance;
 	}
 
 	Runtime::~Runtime() { Shutdown(); }
@@ -199,26 +303,37 @@ namespace NeuralRendering
 			detail_ = std::format("LoadLibraryExW failed with {}", GetLastError());
 			return false;
 		}
+		const auto runtime = static_cast<HMODULE>(module_);
 		for (const char* exportName : kRequiredExports) {
-			if (!GetProcAddress(static_cast<HMODULE>(module_), exportName)) {
+			if (!GetProcAddress(runtime, exportName)) {
 				status_ = RuntimeStatus::MissingExport;
 				detail_ = std::format("missing export {}", exportName);
-				FreeLibrary(static_cast<HMODULE>(module_));
+				FreeLibrary(runtime);
 				module_ = nullptr;
 				return false;
 			}
 		}
-		auto getAppId = reinterpret_cast<GetUnsignedValue>(GetProcAddress(static_cast<HMODULE>(module_), "NVSDK_NGX_GetApplicationId"));
-		auto getApi = reinterpret_cast<GetUnsignedValue>(GetProcAddress(static_cast<HMODULE>(module_), "NVSDK_NGX_GetAPIVersion"));
-		if (!getAppId || !getApi) {
+		RuntimeExports exports{};
+		exports.runtime = runtime;
+		exports.getApplicationId = reinterpret_cast<GetUnsignedValue>(GetProcAddress(runtime, "NVSDK_NGX_GetApplicationId"));
+		exports.getApiVersion = reinterpret_cast<GetUnsignedValue>(GetProcAddress(runtime, "NVSDK_NGX_GetAPIVersion"));
+		exports.initialize = reinterpret_cast<InitD3D12>(GetProcAddress(runtime, "NVSDK_NGX_D3D12_Init_Ext"));
+		exports.shutdown = reinterpret_cast<ShutdownD3D12>(GetProcAddress(runtime, "NVSDK_NGX_D3D12_Shutdown1"));
+		exports.createFeature = reinterpret_cast<CreateFeature>(GetProcAddress(runtime, "NVSDK_NGX_D3D12_CreateFeature"));
+		exports.evaluateFeature = reinterpret_cast<EvaluateFeature>(GetProcAddress(runtime, "NVSDK_NGX_D3D12_EvaluateFeature"));
+		exports.releaseFeature = reinterpret_cast<ReleaseFeature>(GetProcAddress(runtime, "NVSDK_NGX_D3D12_ReleaseFeature"));
+		if (!exports.getApplicationId || !exports.getApiVersion || !exports.initialize || !exports.shutdown ||
+			!exports.createFeature || !exports.evaluateFeature || !exports.releaseFeature) {
 			status_ = RuntimeStatus::MissingExport;
-			detail_ = "signed runtime identity exports are missing";
-			FreeLibrary(static_cast<HMODULE>(module_));
+			detail_ = "signed runtime required exports are missing";
+			FreeLibrary(runtime);
 			module_ = nullptr;
 			return false;
 		}
-		applicationId_ = getAppId();
-		apiVersion_ = getApi();
+		g_runtimeExports = exports;
+		signedRuntimePath_ = (path_.parent_path() / L"nvngx.dll").wstring();
+		applicationId_ = g_runtimeExports.getApplicationId();
+		apiVersion_ = g_runtimeExports.getApiVersion();
 		status_ = RuntimeStatus::Ready;
 		return true;
 	}
@@ -234,7 +349,7 @@ namespace NeuralRendering
 		if (status_ == RuntimeStatus::Initialized && device_ == device)
 			return true;
 
-		auto initialize = reinterpret_cast<InitD3D12>(GetProcAddress(static_cast<HMODULE>(module_), "NVSDK_NGX_D3D12_Init_Ext"));
+		auto initialize = g_runtimeExports.initialize;
 		std::filesystem::path writablePath = dataPath;
 		if (writablePath.empty()) {
 			wchar_t tempPath[MAX_PATH]{};
@@ -243,17 +358,26 @@ namespace NeuralRendering
 		}
 		std::error_code error;
 		std::filesystem::create_directories(writablePath, error);
-		SignedRuntimePathScope scope(static_cast<HMODULE>(module_), path_.parent_path() / L"nvngx.dll");
-		if (!scope.IsInstalled()) {
+		if (!initialize || !InstallSignedRuntimePathProxy(static_cast<HMODULE>(module_), signedRuntimePath_)) {
 			status_ = RuntimeStatus::InitializationFailed;
 			detail_ = "failed to install signed-runtime path proxy";
 			return false;
 		}
-		ngxResult_ = static_cast<std::uint32_t>(initialize(applicationId_, writablePath.c_str(), device,
-			static_cast<NVSDK_NGX_Version>(apiVersion_), nullptr));
+		std::uint32_t proxyHits = 0;
+		{
+			SignedRuntimePathScope scope(signedRuntimePath_);
+			if (!scope.IsInstalled()) {
+				status_ = RuntimeStatus::InitializationFailed;
+				detail_ = "failed to activate signed-runtime path proxy";
+				return false;
+			}
+			ngxResult_ = static_cast<std::uint32_t>(initialize(applicationId_, writablePath.c_str(), device,
+				static_cast<NVSDK_NGX_Version>(apiVersion_), nullptr));
+			proxyHits = scope.Hits();
+		}
 		if (ngxResult_ != NVSDK_NGX_Result_Success) {
 			status_ = RuntimeStatus::InitializationFailed;
-			detail_ = std::format("NGX init failed 0x{:08X}, proxyHits={}", ngxResult_, scope.Hits());
+			detail_ = std::format("NGX init failed 0x{:08X}, proxyHits={}", ngxResult_, proxyHits);
 			return false;
 		}
 		device_ = device;
@@ -268,7 +392,18 @@ namespace NeuralRendering
 			detail_ = "NGX parameter API module was not found";
 			return false;
 		}
-		auto allocate = reinterpret_cast<AllocateParameters>(GetProcAddress(core, "NVSDK_NGX_D3D12_AllocateParameters"));
+		g_runtimeExports.core = core;
+		g_runtimeExports.allocateParameters = reinterpret_cast<AllocateParameters>(
+			GetProcAddress(core, "NVSDK_NGX_D3D12_AllocateParameters"));
+		g_runtimeExports.destroyParameters = reinterpret_cast<DestroyParameters>(
+			GetProcAddress(core, "NVSDK_NGX_D3D12_DestroyParameters"));
+		auto allocate = g_runtimeExports.allocateParameters;
+		if (!allocate || !g_runtimeExports.destroyParameters) {
+			Shutdown();
+			status_ = RuntimeStatus::CoreUnavailable;
+			detail_ = "NGX parameter API exports were not found";
+			return false;
+		}
 		NVSDK_NGX_Parameter* parameters = nullptr;
 		ngxResult_ = static_cast<std::uint32_t>(allocate(&parameters));
 		if (ngxResult_ != NVSDK_NGX_Result_Success || !parameters) {
@@ -320,11 +455,10 @@ namespace NeuralRendering
 		if (featureHandles_[slot])
 			return true;
 
-		// The signed-runtime path proxy patches the carrier's import table. Install it
-		// only when a feature is actually created; the per-frame evaluate path installs
-		// its own scope, so an existing handle no longer pays for a second patch cycle.
-		auto create = reinterpret_cast<CreateFeature>(GetProcAddress(static_cast<HMODULE>(module_), "NVSDK_NGX_D3D12_CreateFeature"));
-		SignedRuntimePathScope scope(static_cast<HMODULE>(module_), path_.parent_path() / L"nvngx.dll");
+		// Keep the signed-runtime proxy installed while the runtime module is loaded.
+		// Each short scope enables path spoofing only during an NGX call.
+		auto create = g_runtimeExports.createFeature;
+		SignedRuntimePathScope scope(signedRuntimePath_);
 		if (!create || !scope.IsInstalled()) {
 			detail_ = "native Feature 18 create export or signed-runtime proxy is unavailable";
 			return false;
@@ -383,7 +517,7 @@ namespace NeuralRendering
 		const auto inputWidth = guide.colorWidth;
 		const auto inputHeight = guide.colorHeight;
 		auto* parameters = static_cast<NVSDK_NGX_Parameter*>(parameters_);
-		auto evaluate = reinterpret_cast<EvaluateFeature>(GetProcAddress(static_cast<HMODULE>(module_), "NVSDK_NGX_D3D12_EvaluateFeature"));
+		auto evaluate = g_runtimeExports.evaluateFeature;
 		if (!parameters || !evaluate)
 			return false;
 		bool created = false;
@@ -391,7 +525,7 @@ namespace NeuralRendering
 			return false;
 		reset = reset || created;
 
-		SignedRuntimePathScope scope(static_cast<HMODULE>(module_), path_.parent_path() / L"nvngx.dll");
+		SignedRuntimePathScope scope(signedRuntimePath_);
 		if (!scope.IsInstalled())
 			return false;
 
@@ -443,8 +577,13 @@ namespace NeuralRendering
 		parameters->Set("DLSSNR.UseAutoMask", tuning.useAutoMask ? 1u : 0u);
 		parameters->Set("DLSSNR.Style", tuning.style);
 		parameters->Set("DLSSNR.UICorrection", tuning.uiCorrection ? 1u : 0u);
+		const auto evaluateStart = std::chrono::steady_clock::now();
 		ngxResult_ = static_cast<std::uint32_t>(evaluate(commandList,
 			static_cast<NVSDK_NGX_Handle*>(featureHandles_[slot]), parameters, nullptr));
+		if (successfulFrames_ == 0) {
+			const auto evaluateMs = std::chrono::duration<double, std::milli>(std::chrono::steady_clock::now() - evaluateStart).count();
+			logger::info("[DLSSNR] first Feature 18 evaluate slot={} ms={:.2f} result=0x{:08X}", slot, evaluateMs, ngxResult_);
+		}
 		if (ngxResult_ != NVSDK_NGX_Result_Success) {
 			detail_ = std::format("Feature 18 evaluate failed slot={} result=0x{:08X}", slot, ngxResult_);
 			return false;
@@ -482,8 +621,8 @@ namespace NeuralRendering
 	{
 		if (!module_ || slot >= kFeatureSlotCount)
 			return;
-		SignedRuntimePathScope scope(static_cast<HMODULE>(module_), path_.parent_path() / L"nvngx.dll");
-		auto release = reinterpret_cast<ReleaseFeature>(GetProcAddress(static_cast<HMODULE>(module_), "NVSDK_NGX_D3D12_ReleaseFeature"));
+		SignedRuntimePathScope scope(signedRuntimePath_);
+		auto release = g_runtimeExports.releaseFeature;
 		if (featureHandles_[slot] && release) {
 			const auto result = release(static_cast<NVSDK_NGX_Handle*>(featureHandles_[slot]));
 			if (result != NVSDK_NGX_Result_Success)
@@ -507,14 +646,11 @@ namespace NeuralRendering
 	{
 		if (device_ && module_) {
 			ResetFeatures();
-			HMODULE core = FindNgxCoreModule();
-			if (parameters_ && core) {
-				auto destroy = reinterpret_cast<DestroyParameters>(GetProcAddress(core, "NVSDK_NGX_D3D12_DestroyParameters"));
-				if (destroy) destroy(static_cast<NVSDK_NGX_Parameter*>(parameters_));
-			}
+			SignedRuntimePathScope scope(signedRuntimePath_);
+			if (parameters_ && g_runtimeExports.destroyParameters)
+				g_runtimeExports.destroyParameters(static_cast<NVSDK_NGX_Parameter*>(parameters_));
 			parameters_ = nullptr;
-			auto shutdown = reinterpret_cast<ShutdownD3D12>(GetProcAddress(static_cast<HMODULE>(module_), "NVSDK_NGX_D3D12_Shutdown1"));
-			SignedRuntimePathScope scope(static_cast<HMODULE>(module_), path_.parent_path() / L"nvngx.dll");
+			auto shutdown = g_runtimeExports.shutdown;
 			if (shutdown) {
 				const auto result = shutdown(device_);
 				if (result != NVSDK_NGX_Result_Success)
@@ -524,10 +660,18 @@ namespace NeuralRendering
 			device_->Release();
 			device_ = nullptr;
 		}
-		if (module_) FreeLibrary(static_cast<HMODULE>(module_));
+		parameters_ = nullptr;
+		if (module_)
+			RemoveSignedRuntimePathProxy(static_cast<HMODULE>(module_));
+		if (g_runtimeExports.core)
+			FreeLibrary(g_runtimeExports.core);
+		if (module_)
+			FreeLibrary(static_cast<HMODULE>(module_));
 		module_ = nullptr;
+		g_runtimeExports = {};
 		status_ = RuntimeStatus::NotProbed;
 		path_.clear();
+		signedRuntimePath_.clear();
 		version_.clear();
 		detail_.clear();
 		ngxResult_ = applicationId_ = apiVersion_ = 0;

@@ -6,7 +6,7 @@ only superseded or reproducible derived artifacts to the explicit archive
 directory:
 
 ```text
-C:\OpenNR_Archive_OpenNR_Prune_20260906
+<DATA_ROOT>\OpenNR_Archive_OpenNR_Prune_20260906
 ```
 
 The move was recoverable rather than destructive. Each directory was moved by
@@ -17,7 +17,7 @@ data:
 The verified cold-storage destination for this existing archive is now:
 
 ```text
-G:\OpenNR_ColdStorage\OpenNR_Archive_OpenNR_Prune_20260906
+<DATA_ROOT>\OpenNR_ColdStorage\OpenNR_Archive_OpenNR_Prune_20260906
 ```
 
 This is a storage relocation of the archive described below, not a new dataset.
@@ -37,21 +37,21 @@ The source/destination manifest and full SHA-256 verification are recorded in
 | `OpenNR_RawCropCache_0.5.5_20260906` | 8 | 6.08 GiB |
 
 The first directory is the incomplete failed legacy-cache build superseded by
-`E:\OpenNR_LegacySpatialAux_0.5.5_20260906_v2`. The merged caches and dynamic
+`<DATA_ROOT>\OpenNR_LegacySpatialAux_0.5.5_20260906_v2`. The merged caches and dynamic
 guide caches are intermediate products superseded by
-`E:\OpenNR_MergedSpatialCache_AllSpatialSources_0.5.5_20260906`, which is a
+`<DATA_ROOT>\OpenNR_MergedSpatialCache_AllSpatialSources_0.5.5_20260906`, which is a
 self-contained final cache. The two raw crop caches are derived caches; their
 capture sources remain available in their recorded provenance and the final
 all-source cache remains on E:.
 
 The following authoritative artifacts were intentionally kept on E::
 
-- `E:\OpenNR_Captures_StrictTemporal_0.5.5_20260906`
-- `E:\OpenNR_RawCropCache_StrictTemporal_0.5.5_20260906`
-- `E:\OpenNR_MergedSpatialCache_AllSpatialSources_0.5.5_20260906`
-- `E:\OpenNR_LegacySpatialAux_0.5.5_20260906_v2`
-- `E:\OpenNR_FullResMasterSpatialAux_0.5.5_20260906`
-- `E:\OpenNR_Training`
+- `<DATA_ROOT>\OpenNR_Captures_StrictTemporal_0.5.5_20260906`
+- `<DATA_ROOT>\OpenNR_RawCropCache_StrictTemporal_0.5.5_20260906`
+- `<DATA_ROOT>\OpenNR_MergedSpatialCache_AllSpatialSources_0.5.5_20260906`
+- `<DATA_ROOT>\OpenNR_LegacySpatialAux_0.5.5_20260906_v2`
+- `<DATA_ROOT>\OpenNR_FullResMasterSpatialAux_0.5.5_20260906`
+- `<DATA_ROOT>\OpenNR_Training`
 
 No model checkpoint or training run was deleted. The raw strict capture and
 older raw capture roots were also left in place. After the move, the strict,
@@ -63,8 +63,8 @@ the values observed immediately after the verified moves.
 
 ## Relocation status update
 
-The archive copy from `C:\OpenNR_Archive_OpenNR_Prune_20260906` to
-`G:\OpenNR_ColdStorage\OpenNR_Archive_OpenNR_Prune_20260906` completed with
+The archive copy from `<DATA_ROOT>\OpenNR_Archive_OpenNR_Prune_20260906` to
+`<DATA_ROOT>\OpenNR_ColdStorage\OpenNR_Archive_OpenNR_Prune_20260906` completed with
 63/63 files and 148,078,563,977/148,078,563,977 bytes. Full SHA-256
 verification reported zero missing files, zero extras, and zero mismatches.
 The C: source was removed only after that verified result. The final check
@@ -79,8 +79,8 @@ full SHA-256 comparison before their exact E: source directories were removed:
 
 | Original E: path | Verified G: path | Files | Logical bytes |
 |---|---|---:|---:|
-| `E:\OpenNR_RawCropCache_FreshTemporalClean_0.5.5_20260906` | `G:\OpenNR_ColdStorage\OpenNR_RawCropCache_FreshTemporalClean_0.5.5_20260906` | 8 | 30,453,151,436 |
-| `E:\OpenNR_RawCropCache_FreshNewDefault_0.5.5_20260906` | `G:\OpenNR_ColdStorage\OpenNR_RawCropCache_FreshNewDefault_0.5.5_20260906` | 8 | 29,969,821,401 |
+| `<DATA_ROOT>\OpenNR_RawCropCache_FreshTemporalClean_0.5.5_20260906` | `<DATA_ROOT>\OpenNR_ColdStorage\OpenNR_RawCropCache_FreshTemporalClean_0.5.5_20260906` | 8 | 30,453,151,436 |
+| `<DATA_ROOT>\OpenNR_RawCropCache_FreshNewDefault_0.5.5_20260906` | `<DATA_ROOT>\OpenNR_ColdStorage\OpenNR_RawCropCache_FreshNewDefault_0.5.5_20260906` | 8 | 29,969,821,401 |
 
 The combined E: cache is self-contained and remains on E:. Its provenance
 metadata was updated to the verified G: path for the historical fresh strict

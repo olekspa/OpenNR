@@ -90,8 +90,8 @@ failures remain reported as `dropped_frames_before` on later samples.
 Validate a completed dataset with:
 
 ```powershell
-python tools/validate_capture.py D:\OpenNR_Captures
-python tools/preview_capture.py D:\OpenNR_Captures --limit 20
+python tools/validate_capture.py <DATA_ROOT>\OpenNR_Captures
+python tools/preview_capture.py <DATA_ROOT>\OpenNR_Captures --limit 20
 ```
 
 The validator checks JSON/schema fields, unique IDs and ordering, complete configured
@@ -111,7 +111,7 @@ For a temporal training candidate, run the separate contiguous-clip gate after t
 normal validator:
 
 ```powershell
-python tools/validate_temporal_capture.py C:\OpenNR_Captures_Temporal `
+python tools/validate_temporal_capture.py <DATA_ROOT>\OpenNR_Captures_Temporal `
   --output out\temporal_audit.json
 ```
 
@@ -120,7 +120,7 @@ readback cannot sustain contiguous cadence, a separate crop-temporal contract
 is available:
 
 ```powershell
-python tools/validate_temporal_capture.py C:\OpenNR_Captures_Temporal_Crops `
+python tools/validate_temporal_capture.py <DATA_ROOT>\OpenNR_Captures_Temporal_Crops `
   --mode crop `
   --output out\temporal_audit_crop.json
 ```

@@ -9,7 +9,7 @@ from train_long_student import epoch_indices
 
 def main():
     torch.set_num_threads(2)
-    data=DynamicPatches('C:/OpenNR/TrainingCache/student_v1','C:/OpenNR/TrainingCache/dynamic_guides_v1')
+    data=DynamicPatches('<OPENNR_DATA>/TrainingCache/student_v1','<OPENNR_DATA>/TrainingCache/dynamic_guides_v1')
     assert len(pickle.dumps(data))<4096,'Dataset serializes mapped image arrays'
     batches=EpochBatches(len(data),4,1927,1931)
     loader=DataLoader(data,batch_sampler=batches,num_workers=2,pin_memory=False)

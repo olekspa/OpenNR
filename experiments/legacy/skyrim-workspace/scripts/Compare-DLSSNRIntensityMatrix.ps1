@@ -4,7 +4,7 @@ param(
     [int]$Columns = 3,
     [double]$Scale = 0.5,
     [string]$OutputPath,
-    [string]$ProjectRoot = 'D:\.CODEX_Projects\DLSS_5_SKYRIM'
+    [string]$ProjectRoot = '<LEGACY_REPO>'
 )
 
 $ErrorActionPreference = 'Stop'

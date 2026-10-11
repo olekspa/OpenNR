@@ -27,11 +27,11 @@ GUIDE_HEIGHT = 1792
 FRAME_COUNT = 16
 SCALES = (75, 65, 50)
 SEQUENCE = Path(
-    r"C:\OpenNR_Captures_FullEyeTemporalStateTranche_20260910\seq-1789064397821-5"
+    r"<DATA_ROOT>\OpenNR_Captures_FullEyeTemporalStateTranche_20260910\seq-1789064397821-5"
 )
-OUTPUT = Path(r"C:\OpenNR\NativeSequenceResidualScales_20260912")
+OUTPUT = Path(r"<OPENNR_DATA>\NativeSequenceResidualScales_20260912")
 DLL = Path(
-    r"E:\MGO-RC3-fresh\mods\Open Shaders DLSSNR VR 0.5.7 OpenNR"
+    r"<MO2_INSTANCE>\mods\Open Shaders DLSSNR VR 0.5.7 OpenNR"
     r"\Shaders\Upscaling\Streamline\nvngx_dlssnr.dll"
 )
 

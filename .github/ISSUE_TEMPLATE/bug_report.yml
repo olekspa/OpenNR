@@ -1,0 +1,86 @@
+name: Bug report
+description: Something looks wrong, crashes, or logs errors
+labels: ["bug", "needs-triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for testing. OpenNR releases are pre-release test builds. Please play for about 2 minutes, then quit the game normally so the log is complete, and attach the log.
+        Do not attach or link NVIDIA binaries.
+  - type: input
+    id: version
+    attributes:
+      label: OpenNR version
+      description: Release name, e.g. 2.22.2
+    validations:
+      required: true
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened, and what did you expect?
+      description: Where in the game (location, menu, world map), and a screenshot if it is visual. Does it happen with the Safe mode preset?
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+    validations:
+      required: false
+  - type: input
+    id: headset
+    attributes:
+      label: Headset and connection
+      description: e.g. Quest 3 via Virtual Desktop / Air Link / Link cable, Pimax, Index
+    validations:
+      required: true
+  - type: input
+    id: gpu
+    attributes:
+      label: GPU and NVIDIA driver version
+    validations:
+      required: true
+  - type: input
+    id: game
+    attributes:
+      label: Game and SKSE versions
+      description: e.g. Skyrim VR 1.4.15 and your SKSE VR version
+    validations:
+      required: true
+  - type: input
+    id: nrdll
+    attributes:
+      label: Neural Rendering runtime version
+      description: File version of your nvngx_dlssnr.dll (expected 310.8.x), or "not installed"
+    validations:
+      required: true
+  - type: textarea
+    id: settings
+    attributes:
+      label: Neural Rendering settings
+      description: Preset name or a screenshot of the Neural Rendering page. Say if you changed defaults.
+    validations:
+      required: true
+  - type: textarea
+    id: log
+    attributes:
+      label: Log file
+      description: Drag in Documents\My Games\Skyrim VR\SKSE\CommunityShaders.log (zip it if large). For performance reports also attach the benchmark JSON from the OpenNR-SettingsBenchmark folder next to it.
+    validations:
+      required: true
+  - type: textarea
+    id: mods
+    attributes:
+      label: Other graphics mods
+      description: ENB, ReShade, other shader mods, or "none".
+    validations:
+      required: false
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Checks
+      options:
+        - label: I am using only one of Community Shaders / Open Shaders / OpenNR
+          required: true
+        - label: I attached the CommunityShaders.log from the session with the problem
+          required: true

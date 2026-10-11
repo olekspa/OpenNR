@@ -7,10 +7,10 @@ masters; no image/tensor repair is written into the source directories.
 
 ## Reproduce preparation
 
-Use `E:\OpenNR-VR-Poc-Venv\Scripts\python.exe` from the project root:
+Use `<POC_VENV>\Scripts\python.exe` from the project root:
 
 ```powershell
-python tools/audit_master_capture.py C:/OpenNR_Captures_FullRes_Pilot_20260904 out/fullres_audit_20260904 --workers 3
+python tools/audit_master_capture.py <DATA_ROOT>/OpenNR_Captures_FullRes_Pilot_20260904 out/fullres_audit_20260904 --workers 3
 python tools/prepare_master_dataset.py out/fullres_audit_20260904
 python tools/test_master_audit.py
 python tools/test_master_dataset.py --manifest out/fullres_audit_20260904/training_manifest.jsonl
@@ -28,10 +28,10 @@ when preparation successfully salvages its valid subset.
 
 ```python
 import sys
-sys.path.insert(0, 'D:/.CODEX_Projects/OpenNR-VR/tools')
+sys.path.insert(0, '<REPO>/tools')
 from master_dataset import MasterPatchDataset
 dataset = MasterPatchDataset(
-    'D:/.CODEX_Projects/OpenNR-VR/out/fullres_audit_20260904/training_manifest.jsonl',
+    '<REPO>/out/fullres_audit_20260904/training_manifest.jsonl',
     split='train', patch_size=512, patches_per_eye=4)
 sample = dataset[0]
 # Float tensors in CHW layout: input, teacher, depth, motion.

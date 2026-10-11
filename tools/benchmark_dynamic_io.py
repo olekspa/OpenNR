@@ -7,7 +7,7 @@ import torch
 from dynamic_patches import DynamicPatches
 
 torch.set_num_threads(2)
-datasets={mode:DynamicPatches('C:/OpenNR/TrainingCache/student_v1','C:/OpenNR/TrainingCache/dynamic_guides_v1',color_io=mode) for mode in ('mmap','strip')}
+datasets={mode:DynamicPatches('<OPENNR_DATA>/TrainingCache/student_v1','<OPENNR_DATA>/TrainingCache/dynamic_guides_v1',color_io=mode) for mode in ('mmap','strip')}
 ids=np.random.default_rng(991).choice(len(datasets['mmap']),32,replace=False).tolist()
 times={mode:[] for mode in datasets}
 for n,index in enumerate(ids):

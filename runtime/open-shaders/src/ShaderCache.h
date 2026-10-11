@@ -469,6 +469,9 @@ namespace SIE
 	class ShaderCache
 	{
 	public:
+		/** @brief Emit Lighting permutation compile/cache diagnostics for 10 seconds after an interior load. */
+		static void ArmInteriorLightingCompileDiagnostics(bool a_active);
+
 		static ShaderCache& Instance()
 		{
 			static ShaderCache instance;

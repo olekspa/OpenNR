@@ -85,6 +85,7 @@ public:
 
 	winrt::com_ptr<ID3D11Fence> d3d11Fence;
 	winrt::com_ptr<ID3D12Fence> d3d12Fence;
+	winrt::handle frameFenceEvent;
 
 	winrt::com_ptr<ID3D12Resource> swapChainBuffers[3];
 

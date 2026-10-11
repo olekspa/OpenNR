@@ -3,7 +3,7 @@
 > This file is the historical v9-v43/v42-v43 iteration record. The current
 > fresh-capture audit and v45-v65 model lineage supersede its outcome and
 > recommendation sections; use
-> [FRESH_CAPTURE_AUDIT_AND_MODEL_ITERATION_0.5.5_20260906.md](D:/.CODEX_Projects/OpenNR-VR/docs/FRESH_CAPTURE_AUDIT_AND_MODEL_ITERATION_0.5.5_20260906.md)
+> [FRESH_CAPTURE_AUDIT_AND_MODEL_ITERATION_0.5.5_20260906.md](<REPO>/docs/FRESH_CAPTURE_AUDIT_AND_MODEL_ITERATION_0.5.5_20260906.md)
 > for the current v61 candidate and data-quality evidence.
 
 ## Current superseding outcome
@@ -11,7 +11,7 @@
 The latest organized corpus contains 126 strict temporal-safe fresh sequences,
 5 spatial-only quarantined fresh sequences, and 73 historical strict sequences.
 The current practical all-non-test candidate is the v65 best-MAE checkpoint at
-`E:\OpenNR_Training\fullres_aux_oversample_v65_probe_0.5.5_20260906\best_mae.pt`.
+`<DATA_ROOT>\OpenNR_Training\fullres_aux_oversample_v65_probe_0.5.5_20260906\best_mae.pt`.
 It measures `0.014935002` fresh MAE, `0.025628855` historical MAE, and
 `0.018847388` combined across the two held-out cohorts. The requested `0.011`
 target remains open, and these are crop-space offline streaming results rather
@@ -59,7 +59,7 @@ strict temporal capture, merged spatial cache, older full-resolution cache,
 new non-strict temporal crops, project reports, previous model outputs and
 related Codex task history. The old full-resolution cache is not silently
 missing from the merged training source: its manifest is listed as
-`fullres_20260904` in `E:\OpenNR_MergedSpatialCache_20260905`, alongside the
+`fullres_20260904` in `<DATA_ROOT>\OpenNR_MergedSpatialCache_20260905`, alongside the
 0.5.3 raw-crop source. The current merged cache adds the 0.5.5 raw-crop source.
 
 The strict temporal cache remains the clean temporal source:
@@ -77,7 +77,7 @@ The strict temporal cache remains the clean temporal source:
 | Merged spatial source | 20,334 patches / 11,864 rows; `test_used_for_tuning=false` |
 
 The continuation also built and audited an all-source spatial cache at
-`E:\OpenNR_MergedSpatialCache_AllSpatialSources_0.5.5_20260906`: 21,950 patches
+`<DATA_ROOT>\OpenNR_MergedSpatialCache_AllSpatialSources_0.5.5_20260906`: 21,950 patches
 and 12,584 rows, with 15,772 train patches, 2,100 validation patches and 4,078
 test patches. It combines the previous merged/raw sources plus the selected
 spatial-only rows from the four zero-motion-vector eye anomalies and the
@@ -209,26 +209,26 @@ validation. A current frequency audit gives the validation effect bands as
 weakest, but it is too small and too poorly generalized for a strong isolated
 loss to improve the whole validation objective; v39 confirmed that tradeoff.
 The fit and frequency artifacts are preserved at
-`E:\OpenNR_Training\v33_fit_diagnostic_0.5.5_20260906\result.json` and
-`E:\OpenNR_Training\v33_frequency_diagnostic_0.5.5_20260906\result.json`.
+`<DATA_ROOT>\OpenNR_Training\v33_fit_diagnostic_0.5.5_20260906\result.json` and
+`<DATA_ROOT>\OpenNR_Training\v33_frequency_diagnostic_0.5.5_20260906\result.json`.
 The v39 run and its explicit early-stop status are preserved at
-`E:\OpenNR_Training\effect_highfreq_v39_0.5.5_20260906`.
+`<DATA_ROOT>\OpenNR_Training\effect_highfreq_v39_0.5.5_20260906`.
 
 The v40 fixed-fit checkpoint and its single frozen-test evaluation are
-preserved at `E:\OpenNR_Training\final_fit_v40_all_nontest_0.5.5_20260906\last.pt`
-and `E:\OpenNR_Training\final_fit_v40_all_nontest_frozen_test_0.5.5_20260906\result.json`.
+preserved at `<DATA_ROOT>\OpenNR_Training\final_fit_v40_all_nontest_0.5.5_20260906\last.pt`
+and `<DATA_ROOT>\OpenNR_Training\final_fit_v40_all_nontest_frozen_test_0.5.5_20260906\result.json`.
 The v40 checkpoint SHA-256 is
 `121bedcf66573f04ef8d9ef01d510c3b32e94c0dc0ac840186b5471364717a4c`.
 The v41 fixed-fit checkpoint and frozen-test evaluation are preserved at
-`E:\OpenNR_Training\final_fit_v41_all_nontest_cooldown_0.5.5_20260906\last.pt`
+`<DATA_ROOT>\OpenNR_Training\final_fit_v41_all_nontest_cooldown_0.5.5_20260906\last.pt`
 and
-`E:\OpenNR_Training\final_fit_v41_all_nontest_cooldown_frozen_test_0.5.5_20260906\result.json`.
+`<DATA_ROOT>\OpenNR_Training\final_fit_v41_all_nontest_cooldown_frozen_test_0.5.5_20260906\result.json`.
 The v41 checkpoint SHA-256 is
 `f5d8775c6779f3eddde0971a74ef1c3843883d084db32cf8b95692c9239c9018`.
 The v42 fixed-fit checkpoint and frozen-test evaluation are preserved at
-`E:\OpenNR_Training\final_fit_v42_all_nontest_cooldown_0.5.5_20260906\last.pt`
+`<DATA_ROOT>\OpenNR_Training\final_fit_v42_all_nontest_cooldown_0.5.5_20260906\last.pt`
 and
-`E:\OpenNR_Training\final_fit_v42_all_nontest_cooldown_frozen_test_0.5.5_20260906\result.json`.
+`<DATA_ROOT>\OpenNR_Training\final_fit_v42_all_nontest_cooldown_frozen_test_0.5.5_20260906\result.json`.
 The v42 checkpoint SHA-256 is
 `6b8f103382258e9d8a5481cab7ceeb8e08cb77f6293404e9585cb585d43ad39e`.
 Its frozen-test evaluation covers 15 sequences, 30 eye streams and 1,920
@@ -242,7 +242,7 @@ windows with 2-frame burn-in and batch 2, and used learning rates
 SHA is the v41 checkpoint SHA above, and `test_used=false` is recorded in the
 run metadata.
 The v43 style-modulation probe is preserved at
-`E:\OpenNR_Training\style_modulation_v43_probe_0.5.5_20260906`, with its
+`<DATA_ROOT>\OpenNR_Training\style_modulation_v43_probe_0.5.5_20260906`, with its
 early-stop status in `status.json`, validation history in `history.jsonl`, and
 step-0/step-275 checkpoints. The zero-initialized branch exactly reproduced
 the v33 parent at initialization (`0.022239204340924818` MAE and
@@ -263,16 +263,16 @@ v16 learned gate stayed effectively inactive.
 
 The following sheets are direct crop-space A/B evidence, not live VR proof:
 
-- [Shifted-attention v21 A/B sample](D:/.CODEX_Projects/OpenNR-VR/out/shifted_attention_v21_gallery/seq-1788671399304-47_f01_e0.jpg)
-- [Plain-attention v18 A/B sample](D:/.CODEX_Projects/OpenNR-VR/out/attention_temporal_v18_gallery/seq-1788671399304-47_f01_e0.jpg)
-- [Detail v14 A/B sample](D:/.CODEX_Projects/OpenNR-VR/out/detail_temporal_v14_gallery/seq-1788671399304-47_f01_e0.jpg)
-- [All-source v27 A/B sample](D:/.CODEX_Projects/OpenNR-VR/out/multiscale_all_spatial_v27_gallery/seq-1788671497693-63_f32_e0.jpg)
-- [Current v29 A/B sample](D:/.CODEX_Projects/OpenNR-VR/out/temporal_from_all_spatial_static_v29_gallery/seq-1788671612549-70_f01_e0.jpg)
-- [Current v32 A/B sample](D:/.CODEX_Projects/OpenNR-VR/out/capacity_v31_continuation_v32_gallery/seq-1788671497693-63_f32_e0.jpg)
-- [Current v33 A/B sample](D:/.CODEX_Projects/OpenNR-VR/out/capacity_v32_continuation_v33_gallery/seq-1788671497693-63_f32_e0.jpg)
-- [Current v40 A/B sample](D:/.CODEX_Projects/OpenNR-VR/out/final_fit_v40_gallery/seq-1788671497693-63_f32_e0.jpg)
-- [Current v41 A/B sample](D:/.CODEX_Projects/OpenNR-VR/out/final_fit_v41_gallery/seq-1788671497693-63_f32_e0.jpg)
-- [Current v42 A/B sample](D:/.CODEX_Projects/OpenNR-VR/out/final_fit_v42_gallery/seq-1788671497693-63_f32_e0.jpg)
+- [Shifted-attention v21 A/B sample](<REPO>/out/shifted_attention_v21_gallery/seq-1788671399304-47_f01_e0.jpg)
+- [Plain-attention v18 A/B sample](<REPO>/out/attention_temporal_v18_gallery/seq-1788671399304-47_f01_e0.jpg)
+- [Detail v14 A/B sample](<REPO>/out/detail_temporal_v14_gallery/seq-1788671399304-47_f01_e0.jpg)
+- [All-source v27 A/B sample](<REPO>/out/multiscale_all_spatial_v27_gallery/seq-1788671497693-63_f32_e0.jpg)
+- [Current v29 A/B sample](<REPO>/out/temporal_from_all_spatial_static_v29_gallery/seq-1788671612549-70_f01_e0.jpg)
+- [Current v32 A/B sample](<REPO>/out/capacity_v31_continuation_v32_gallery/seq-1788671497693-63_f32_e0.jpg)
+- [Current v33 A/B sample](<REPO>/out/capacity_v32_continuation_v33_gallery/seq-1788671497693-63_f32_e0.jpg)
+- [Current v40 A/B sample](<REPO>/out/final_fit_v40_gallery/seq-1788671497693-63_f32_e0.jpg)
+- [Current v41 A/B sample](<REPO>/out/final_fit_v41_gallery/seq-1788671497693-63_f32_e0.jpg)
+- [Current v42 A/B sample](<REPO>/out/final_fit_v42_gallery/seq-1788671497693-63_f32_e0.jpg)
 
 The sheets place input, the spatial control, the candidate and the Feature 18
 teacher side by side. The inspected frame shows the same persistent difference

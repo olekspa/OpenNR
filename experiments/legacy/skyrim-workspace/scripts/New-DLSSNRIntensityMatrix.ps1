@@ -8,9 +8,9 @@ param(
     [string]$Name = 'nr-intensity',
     [string]$SourcePath,
     [int]$WaitSeconds = 45,
-    [string]$ProjectRoot = 'D:\.CODEX_Projects\DLSS_5_SKYRIM',
+    [string]$ProjectRoot = '<LEGACY_REPO>',
     [string]$GameRoot = 'E:\Games\Steam\steamapps\common\SkyrimVR',
-    [string]$SettingsPath = 'E:\MGO-RC3-clean\overwrite\SKSE\Plugins\CommunityShaders\SettingsUser.json',
+    [string]$SettingsPath = '<MO2_INSTANCE>\overwrite\SKSE\Plugins\CommunityShaders\SettingsUser.json',
     [string]$ScreenshotRoot
 )
 

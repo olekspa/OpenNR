@@ -63,10 +63,10 @@ stop before starting the next arm and retain the completed evidence.
 
 | Input | Local source | Bytes | Rows-manifest SHA-256 / checkpoint SHA-256 |
 | --- | --- | ---: | --- |
-| Prior strict temporal cache | `E:\OpenNR_TrainingInputs\OpenNR_RawCropCache_StrictAllCohortsNextGrid_0.5.5_20260906` | 70,330,153,978 | `0aeffc9bfce46e2a9d8da05a7039e3ca73df3fa083c0db0daa01984f058b5410` |
-| New clean temporal cache | `E:\OpenNR_RawCropCache_VariedHighEffectTemporalClean_0.5.5_20260907` | 6,767,573,396 | `030a856cdcf4bc0cb8b5eac1bdf3dd4015dfbb79ed7726e4d80a266b4cbeb2bd` |
-| New all-crop spatial auxiliary cache | `C:\OpenNR_Cache_VariedHighEffectSpatialAllCrops_0.5.5_20260907` | 30,937,397,742 | `74351fc4c6e3e83816e6be45a8d3f607c62b96a6183dcdb663974248a345af46` |
-| v65 parent `best_mae.pt` | `E:\OpenNR_Training\fullres_aux_oversample_v65_probe_0.5.5_20260906\best_mae.pt` | 47,475,229 | `5672252b438669169d8b2fed9ffb16f20768270f01d79dc924f32b9318fbc3e3` |
+| Prior strict temporal cache | `<DATA_ROOT>\OpenNR_TrainingInputs\OpenNR_RawCropCache_StrictAllCohortsNextGrid_0.5.5_20260906` | 70,330,153,978 | `0aeffc9bfce46e2a9d8da05a7039e3ca73df3fa083c0db0daa01984f058b5410` |
+| New clean temporal cache | `<DATA_ROOT>\OpenNR_RawCropCache_VariedHighEffectTemporalClean_0.5.5_20260907` | 6,767,573,396 | `030a856cdcf4bc0cb8b5eac1bdf3dd4015dfbb79ed7726e4d80a266b4cbeb2bd` |
+| New all-crop spatial auxiliary cache | `<DATA_ROOT>\OpenNR_Cache_VariedHighEffectSpatialAllCrops_0.5.5_20260907` | 30,937,397,742 | `74351fc4c6e3e83816e6be45a8d3f607c62b96a6183dcdb663974248a345af46` |
+| v65 parent `best_mae.pt` | `<DATA_ROOT>\OpenNR_Training\fullres_aux_oversample_v65_probe_0.5.5_20260906\best_mae.pt` | 47,475,229 | `5672252b438669169d8b2fed9ffb16f20768270f01d79dc924f32b9318fbc3e3` |
 
 The remote layout is:
 
@@ -178,14 +178,14 @@ the exact v65 parent on both validation cohorts:
 | Arm C, 192/6 + 96/3 | **`0.019690728`** | **`-0.000114275` (`0.577%`)** | **`0.019369167`** | **`-0.000607888` (`3.043%`)** |
 
 The independent result files are under
-`E:\OpenNR_Training\runpod_latest_cache_width_ablation_0.5.5_20260907\local_eval`.
+`<DATA_ROOT>\OpenNR_Training\runpod_latest_cache_width_ablation_0.5.5_20260907\local_eval`.
 The selected checkpoint for every arm is a single recovered `best_mae.pt`,
 not a favorable combination of separate old- and new-domain checkpoints.
 
 ## Effect-band and visual checks
 
 Effect-bin result files are under
-`E:\OpenNR_Training\runpod_latest_cache_width_ablation_0.5.5_20260907\effect_bins`.
+`<DATA_ROOT>\OpenNR_Training\runpod_latest_cache_width_ablation_0.5.5_20260907\effect_bins`.
 Arm C has the best overall MAE on both cohorts, but the extreme-effect tail
 is not monotonic with width:
 
@@ -203,7 +203,7 @@ the full image and the middle bands, but it does not solve the low-effect
 correction problem and Arm A is slightly stronger in the extreme tail.
 
 Matched frame-32 new-validation sheets for v65 and Arms A/B/C are in
-`E:\OpenNR_Training\runpod_latest_cache_width_ablation_0.5.5_20260907\visuals\new_validation_frame32`.
+`<DATA_ROOT>\OpenNR_Training\runpod_latest_cache_width_ablation_0.5.5_20260907\visuals\new_validation_frame32`.
 They replay the same three validation sequences and both eyes from a strict
 reset. At the available sheet scale, no obvious teacher-resemblance regression
 is visible in Arm C; this remains offline visual evidence, not live VR
@@ -215,7 +215,7 @@ After validation selection was frozen, Arm C was evaluated once on the merged
 test cache (`8,448` frames; rows SHA-256
 `8363da3e04b58f66cd4acadb8e60648f593aacaad51945ad9cea0d59a8871e18`). The
 result is
-`E:\OpenNR_Training\runpod_latest_cache_width_ablation_0.5.5_20260907\test_eval_arm_C_merged\result.json`.
+`<DATA_ROOT>\OpenNR_Training\runpod_latest_cache_width_ablation_0.5.5_20260907\test_eval_arm_C_merged\result.json`.
 
 | Metric | v65 merged test | Arm C merged test | Change |
 | --- | ---: | ---: | ---: |
@@ -261,7 +261,7 @@ versus Arm C's `0.0196907281` prior and `0.0193691671` new. It improves the
 new cohort but is marginally worse on the prior cohort, so it fails the
 two-cohort rule and is rejected for the next Runpod run. The local pilot
 artifacts are retained at
-`E:\OpenNR_Training\local_effect_high_frequency_from_arm_C_0.5.5_20260907`.
+`<DATA_ROOT>\OpenNR_Training\local_effect_high_frequency_from_arm_C_0.5.5_20260907`.
 
 The pilot's effect-band readout is retained under its `effect_bins` directory.
 On the prior validation cohort, the `0–0.01` band was `0.007012` student MAE
@@ -280,7 +280,7 @@ for 400 steps with only `--micro-identity-weight 2.0` instead of the recipe's
 evaluation degraded to `0.0199544549` prior and `0.0195108640` new, so the
 stronger micro-identity term is rejected as a general continuation recipe.
 The complete local run and independent results are retained at
-`E:\OpenNR_Training\local_micro_identity2_from_arm_C_0.5.5_20260907`.
+`<DATA_ROOT>\OpenNR_Training\local_micro_identity2_from_arm_C_0.5.5_20260907`.
 This zero-cloud-cost pilot reinforces that the remaining error is not solved by
 simply increasing the low-effect penalty; the next cloud gate remains the
 pre-registered seed-338 Arm C confirmation.
@@ -294,7 +294,7 @@ sampling fixed and halved all three learning rates to
 trainer kept step 0 as best; the final step-400 values were `0.0197196` prior
 and `0.0193749` new, both worse than the starting point. The independent
 step-0 confirmation is retained under
-`E:\OpenNR_Training\local_conservative_continuation_from_arm_C_0.5.5_20260907`.
+`<DATA_ROOT>\OpenNR_Training\local_conservative_continuation_from_arm_C_0.5.5_20260907`.
 The low-LR continuation is rejected, so there is no evidence for spending more
 time on the current-corpus Arm C cooldown while the seed-338 cloud gate runs.
 
@@ -328,7 +328,7 @@ blind width/depth continuation. The remaining Runpod budget is reserved for
 the first such recipe that passes the two-cohort gate.
 
 The seed-338 visual sheet is retained at
-`E:\OpenNR_Training\runpod_arm_C_seed338_confirmation_0.5.5_20260907\visuals\new_validation_frame32\seed338.png`.
+`<DATA_ROOT>\OpenNR_Training\runpod_arm_C_seed338_confirmation_0.5.5_20260907\visuals\new_validation_frame32\seed338.png`.
 No production or MO2 installation was changed.
 
 ## Zero-cloud local follow-up: context-style modulation rejected
@@ -341,7 +341,7 @@ measured `0.019704359` prior and `0.019328705` new, versus Arm C at
 with a prior-domain regression (`0.000013631`), so the two-cohort gate rejects
 the recipe. Artifacts and the pre-registration are retained in
 `docs/LOCAL_ARM_C_STYLE_MODULATION_PILOT_0.5.5_20260907.md` and
-`E:\OpenNR_Training\local_style_modulation_from_arm_C_0.5.5_20260907`.
+`<DATA_ROOT>\OpenNR_Training\local_style_modulation_from_arm_C_0.5.5_20260907`.
 
 ## Zero-cloud local follow-up: global residual calibration rejected
 
@@ -364,7 +364,7 @@ train-fit value even though the new cohort improves by `0.000008980`. The
 grid optima also point in opposite directions, so scalar effect calibration is
 rejected as a general recipe and will not consume Runpod budget. The complete
 train-only diagnostic is
-`E:\OpenNR_Training\arm_C_effect_calibration_0.5.5_20260907\result.json`;
+`<DATA_ROOT>\OpenNR_Training\arm_C_effect_calibration_0.5.5_20260907\result.json`;
 the frozen test split was untouched.
 
 The next zero-cloud test is a parent-preserving depth expansion from Arm C:
@@ -384,7 +384,7 @@ evaluated at `0.019810200` prior and `0.019321325` new, versus Arm C at
 but the prior regressed by `0.000119455`; the depth expansion is rejected.
 No frozen test evaluation or production/MO2 change was made. Full evidence is
 in `docs/LOCAL_ARM_C_DEPTH_EXPANSION_PILOT_0.5.5_20260907.md` and
-`E:\OpenNR_Training\local_arm_C_depth_expansion_0.5.5_20260907`.
+`<DATA_ROOT>\OpenNR_Training\local_arm_C_depth_expansion_0.5.5_20260907`.
 
 ## Runpod budget guard recheck — 2026-09-07 09:28 EDT
 

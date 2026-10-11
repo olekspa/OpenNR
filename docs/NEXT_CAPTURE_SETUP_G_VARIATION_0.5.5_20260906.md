@@ -10,18 +10,18 @@ The active local OpenNR capture profile is prepared for the next deliberately
 varied environment pass. SkyrimVR and MO2 were closed during the change. The
 The initial 2026-09-06 setup temporarily pointed the capture writer at:
 
-`G:\OpenNR_Captures_VariedHighEffect_0.5.5_20260906`
+`<DATA_ROOT>\OpenNR_Captures_VariedHighEffect_0.5.5_20260906`
 
 G: was measured at approximately 395.67 GiB free when this setup was made.
 The output root was created but contains no capture sequences at setup time.
 
 The live file is:
 
-`E:\MGO-RC3-fresh\overwrite\SKSE\Plugins\CommunityShaders\SettingsUser.json`
+`<MO2_INSTANCE>\overwrite\SKSE\Plugins\CommunityShaders\SettingsUser.json`
 
 Before editing, it was copied and SHA-256 verified at:
 
-`G:\OpenNR_Capture_Setup_Backups\pre-varied-high-effect-0.5.5-20260906-235556\SettingsUser.json`
+`<DATA_ROOT>\OpenNR_Capture_Setup_Backups\pre-varied-high-effect-0.5.5-20260906-235556\SettingsUser.json`
 
 Source and backup hash before the edit:
 
@@ -30,8 +30,8 @@ Source and backup hash before the edit:
 At the initial G: setup, only two live capture values changed from the backed-up
 profile:
 
-- `output_directory`: `C:\OpenNR_Captures_NextGridPilot_0.5.5_20260906` ->
-  `G:\OpenNR_Captures_VariedHighEffect_0.5.5_20260906`
+- `output_directory`: `<DATA_ROOT>\OpenNR_Captures_NextGridPilot_0.5.5_20260906` ->
+  `<DATA_ROOT>\OpenNR_Captures_VariedHighEffect_0.5.5_20260906`
 - `queue_capacity`: `32` -> `64`
 
 The active Open Shaders DLL remains the known 0.5.5 OpenNR build. No teacher
@@ -41,14 +41,14 @@ settings, renderer resources, runtime route, or MO2 profile was changed.
 
 The active future destination is now:
 
-`C:\OpenNR_Captures_VariedHighEffect_0.5.5_20260907`
+`<DATA_ROOT>\OpenNR_Captures_VariedHighEffect_0.5.5_20260907`
 
 C: had approximately 202.14 GiB free when the relocation was made. The new
 root was created empty and is the only destination that should be used for the
 next capture. Before this second edit, the live settings file was backed up and
 hash-verified at:
 
-`G:\OpenNR_Capture_Setup_Backups\pre-capture-relocate-to-c-0.5.5-20260907-000337\SettingsUser.json`
+`<DATA_ROOT>\OpenNR_Capture_Setup_Backups\pre-capture-relocate-to-c-0.5.5-20260907-000337\SettingsUser.json`
 
 The backup SHA-256 is
 `BE75B25CC9BC5ACF72438F51D8BBEC5257D3093001090375A4D624CAF972BFE7`.

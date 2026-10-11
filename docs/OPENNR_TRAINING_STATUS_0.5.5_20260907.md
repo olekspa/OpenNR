@@ -5,21 +5,21 @@
 This file preserves historical experiments below. The authoritative latest synthesis is [latest findings and next steps](OPENNR_LATEST_FINDINGS_20260908.md). Weak-conditioning, multi-layer, renderer-input and chroma-preserving luma arms are complete with no eligible promotion; independent replay and full training-fit audits are complete for the latest luma arm. The first renderer/state capture tranche is collected and strictly accepts 37 of 38 sequence folders; its aligned cache is complete, exact reset/warm discovery found zero pairs, and the registered 400-step renderer-conditioned pilot was a verified null with both arms selecting step zero. Goal MAE 0.011 remains unmet; no runtime/public-build change or cloud rental. See the [luma ablation report](CHROMA_PRESERVING_LUMA_ABLATION_20260908.md), [renderer-context report](RENDERER_CONTEXT_CONDITIONING_20260908.md), [renderer/state preparation protocol](RENDERER_STATE_DISTILLATION_PREP_20260908.md), and [renderer/state capture and pilot report](RENDERER_STATE_CAPTURE_AND_PILOT_20260908.md).
 
 The first renderer/state capture root
-`C:\OpenNR_Captures_RendererStateDistillation_0.5.7_20260908` is preserved
+`<DATA_ROOT>\OpenNR_Captures_RendererStateDistillation_0.5.7_20260908` is preserved
 separately. The live profile is now armed for the next paired replay at the
-new empty root `C:\OpenNR_Captures_RendererStatePairs_0.5.7_20260908`; a
+new empty root `<DATA_ROOT>\OpenNR_Captures_RendererStatePairs_0.5.7_20260908`; a
 hash-verified pre-edit settings backup is at
-`E:\MGO-RC3-fresh\_OpenNR_Pilot_Backups\pre-renderer-state-pairs-output-root-20260908`.
+`<MO2_INSTANCE>\_OpenNR_Pilot_Backups\pre-renderer-state-pairs-output-root-20260908`.
 
 ## Superseding result: verified two-seed retention improvement
 
-Corrected-guide retention training completed for seeds352/353, 1200 steps each. Both select step400 under the all-cohort rule against the original Arm-C baseline. Selected prior/high-effect/latest MAE: seed352 0.019445660 /0.017931557 /0.015411406; seed353 0.019470947 /0.018039097 /0.015471227. Both saved models reproduced their metrics on validation replay. Fixed visual comparisons are in E:/OpenNR_Training/retention_comparison_20260907/index.html and were inspected. Teacher texture/contrast differences remain; no frozen-test confirmation, deployment, or target0.011 claim. No training or verification job from this experiment remains live. See [retention protocol and evidence](D:/.CODEX_Projects/OpenNR-VR/docs/ALIGNED_RETENTION_CONTINUATION_20260907.md). Next investigate remaining training-fit versus generalization error; more identical seed trials are not the immediate priority.
+Corrected-guide retention training completed for seeds352/353, 1200 steps each. Both select step400 under the all-cohort rule against the original Arm-C baseline. Selected prior/high-effect/latest MAE: seed352 0.019445660 /0.017931557 /0.015411406; seed353 0.019470947 /0.018039097 /0.015471227. Both saved models reproduced their metrics on validation replay. Fixed visual comparisons are in <DATA_ROOT>/OpenNR_Training/retention_comparison_20260907/index.html and were inspected. Teacher texture/contrast differences remain; no frozen-test confirmation, deployment, or target0.011 claim. No training or verification job from this experiment remains live. See [retention protocol and evidence](<REPO>/docs/ALIGNED_RETENTION_CONTINUATION_20260907.md). Next investigate remaining training-fit versus generalization error; more identical seed trials are not the immediate priority.
 
 ## Latest result — completed native-guide alignment comparison
 
 Both local 1,200-step runs are complete. Corrected-guide prior/high-effect/latest validation MAE is **0.019734763 / 0.017683441 / 0.015286623**, versus the matched existing-guide control **0.019696476 / 0.017727330 / 0.015918944**. The corrected model improves new cohorts, but remains slightly worse on prior data than the original-input parent (0.019690721). No production promotion. The MAE 0.011 goal stays active.
 
-A confirmed legacy guide-crop mapping defect is addressed in separate, hash-verified training/validation guide overlays and in the canonical builder for future caches (explicit legacy reproduction remains available). The full 3.481M-parameter Arm-C model trained across prior, high-effect and latest pilot cohorts. Test access is prohibited in this experiment. See [alignment evidence and protocol](D:/.CODEX_Projects/OpenNR-VR/docs/ALIGNED_GUIDE_MULTICOHORT_TRAINING_20260907.md). Results and visual comparisons are under `E:\OpenNR_Training\alignment_multicohort_20260907`.
+A confirmed legacy guide-crop mapping defect is addressed in separate, hash-verified training/validation guide overlays and in the canonical builder for future caches (explicit legacy reproduction remains available). The full 3.481M-parameter Arm-C model trained across prior, high-effect and latest pilot cohorts. Test access is prohibited in this experiment. See [alignment evidence and protocol](<REPO>/docs/ALIGNED_GUIDE_MULTICOHORT_TRAINING_20260907.md). Results and visual comparisons are under `<DATA_ROOT>\OpenNR_Training\alignment_multicohort_20260907`.
 
 ## Latest completed update — 2026-09-07 afternoon
 
@@ -27,7 +27,7 @@ The newly collected renderer-conditioning clips have now been validated and used
 
 A frozen Arm-C parent plus a 62,016-parameter refiner was trained for 1,000 steps per arm. Test MAE: parent **0.021267248**, control without renderer features **0.018983047**, conditioned refiner **0.021005986**. The conditioned model won validation but lost test to the control, so this recipe is not promoted. The control's 10.74% same-session test improvement is useful offline evidence, not a claim of general MAE 0.011, old-cohort improvement, or VR readiness. Both arms slightly worsen temporal-delta error. Direct causal validation replay verified the saved results.
 
-Training is complete and the GPU is idle. No cloud resource was rented; no more capture is required to complete this pilot. See [the complete pilot protocol, results, caveats and artifact paths](D:/.CODEX_Projects/OpenNR-VR/docs/RENDERER_CONDITIONED_TRAINING_PILOT_20260907.md). The historical pending-capture sections below describe the earlier state and are superseded by this update.
+Training is complete and the GPU is idle. No cloud resource was rented; no more capture is required to complete this pilot. See [the complete pilot protocol, results, caveats and artifact paths](<REPO>/docs/RENDERER_CONDITIONED_TRAINING_PILOT_20260907.md). The historical pending-capture sections below describe the earlier state and are superseded by this update.
 
 ## Historical decision before the latest capture and training
 
@@ -102,7 +102,7 @@ none changed production or the MO2 installation:
 The depth expansion was zero-initialized for its new residual blocks, reproduced
 Arm C exactly at step 0, completed 400 steps without OOM or non-finite loss,
 and still regressed the prior cohort. Its evidence remains at
-`E:\OpenNR_Training\local_arm_C_depth_expansion_0.5.5_20260907`.
+`<DATA_ROOT>\OpenNR_Training\local_arm_C_depth_expansion_0.5.5_20260907`.
 
 An offline scalar residual-gain calibration also failed as a universal fix:
 the prior validation cohort preferred approximately `alpha=0.980`, while the
@@ -115,7 +115,7 @@ missing-context hypothesis rather than a single global strength knob.
 
 The active isolated profile is:
 
-`E:\MGO-RC3-fresh\overwrite\SKSE\Plugins\CommunityShaders\SettingsUser.json`
+`<MO2_INSTANCE>\overwrite\SKSE\Plugins\CommunityShaders\SettingsUser.json`
 
 The verified capture settings are:
 
@@ -125,7 +125,7 @@ The verified capture settings are:
 - eight-frame bursts;
 - one `512x512` crop;
 - full-frame capture disabled to keep the pilot manageable;
-- output root `C:\OpenNR_Captures_RendererConditioningPilot_0.5.5_20260907`.
+- output root `<DATA_ROOT>\OpenNR_Captures_RendererConditioningPilot_0.5.5_20260907`.
 
 At the time of this status save, that capture root did not exist and contained
 zero files. The next handoff is therefore user capture, followed by a strict
@@ -157,7 +157,7 @@ reviewed separately from numerical integrity checks.
 
 See [fresh-session intake and training plan](FRESH_SESSION_INTAKE_20260907_2114.md)
 for authoritative progress. The separate cache is being built at
-`E:/OpenNR_TrainingInputs/RendererConditioningFreshSession_20260907_2114`, with
+`<DATA_ROOT>/OpenNR_TrainingInputs/RendererConditioningFreshSession_20260907_2114`, with
 16train/5validation/6frozen-test sequences. Existing cohort splits remain fixed.
 The prepared continuation starts at verified broad U-Net5600 and adds this fourth
 cohort at25% of updates; old cohorts retain75% in their existing relative mix.
@@ -166,7 +166,7 @@ promote a runtime model, enable two-pass teacher training, or modify any public 
 
 Subsequent update: fresh cache completed successfully and passed independent loader
 hash/sequence verification. Local continuation launched at
-`E:/OpenNR_Training/stable_unet_fresh_session_20260907_2114` (session58365).
+`<DATA_ROOT>/OpenNR_Training/stable_unet_fresh_session_20260907_2114` (session58365).
 Startup provenance and baseline replay precede optimizer updates; launch alone
 does not establish training progress or improved model quality.
 
@@ -183,7 +183,7 @@ Both new caches are complete and independently hash-verified:27one-pass clips pl
 preserved exclusions (one single frame; one constant left-eye vertex-AO mask pending
 semantic review). See TWOPASS_DATA_INTEGRATION_20260907.md for exact provenance.
 
-Joint session65149/output E:/OpenNR_Training/stable_unet_joint_teacher_20260907
+Joint session65149/output <DATA_ROOT>/OpenNR_Training/stable_unet_joint_teacher_20260907
 passed original-cohort baseline replay and reached50successful optimizer updates,
 including8fresh-one-pass and7two-pass draws. New validation baseline MAE .01624963
 and .04391099 respectively. No post-training validation gain or goal achievement
@@ -203,7 +203,7 @@ The status above is historical where it says diagnostics are running. They have 
 completed, followed by the next controlled renderer-input experiment.
 
 The stronger multi-layer run
-`E:/OpenNR_Training/stable_unet_joint_teacher_multilayer6000_20260908` completed
+`<DATA_ROOT>/OpenNR_Training/stable_unet_joint_teacher_multilayer6000_20260908` completed
 6,000 updates. Its final validation MAE was
 `0.0205285050 / 0.0173715550 / 0.0150178303 / 0.0161182648 / 0.0458451717`
 for prior, high-effect, renderer-pilot, fresh one-pass and two-pass. The checkpoint
@@ -212,12 +212,12 @@ response/precision diagnostic and fixed galleries completed. It did not satisfy 
 all-five promotion rule.
 
 The next justified conditioning arm
-`E:/OpenNR_Training/stable_unet_renderer_conditioned1200_20260908_retry2` exposed
+`<DATA_ROOT>/OpenNR_Training/stable_unet_renderer_conditioned1200_20260908_retry2` exposed
 the 17 hash-verified renderer channels at the stable U-Net stem. It copied the
 original 19 input weights and zero-initialized the 17 new slices, so its direct
 zero-input functional smoke test was exactly identical to the original head. It
 used the fresh 1,200-step control
-`E:/OpenNR_Training/stable_unet_joint_teacher_20260907`, not the unrelated
+`<DATA_ROOT>/OpenNR_Training/stable_unet_joint_teacher_20260907`, not the unrelated
 6,000-step continuation, with the same seed, optimizer initialization, cohort
 draws, loss, holdouts and sample schedule.
 

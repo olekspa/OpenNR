@@ -54,10 +54,10 @@ EXPECTED_PROTECTED_SHA256 = (
     "40C214A9C0BC214C6E1366872E6D9270BFE7C00D63797AEFB6B3896865C15756"
 )
 DEFAULT_PROTECTED = Path(
-    r"C:\OpenNR\Training\semantic_pixel_l1_pair_20260909\joint\best_all_cohorts.pt"
+    r"<OPENNR_DATA>\Training\semantic_pixel_l1_pair_20260909\joint\best_all_cohorts.pt"
 )
 DEFAULT_RUNTIME_CLONE = Path(
-    r"C:\OpenNR\Training\recovery\semantic_full_eye_state_short_20260910\recovered_best_all_cohorts.pt"
+    r"<OPENNR_DATA>\Training\recovery\semantic_full_eye_state_short_20260910\recovered_best_all_cohorts.pt"
 )
 
 

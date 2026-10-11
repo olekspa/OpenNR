@@ -7,7 +7,7 @@ from trt_inference import TensorRTStudent
 from opennr_student import load_student
 from evaluate_student import load_eye
 
-torch.set_num_threads(4);base=Path('out/student_v2_20260904');cache=Path('C:/OpenNR/TrainingCache/student_v1');rows=json.loads((cache/'rows.json').read_text());contexts=np.load(cache/'context.npy',mmap_mode='r');i=next(i for i,r in enumerate(rows) if r['split']=='validation')
+torch.set_num_threads(4);base=Path('out/student_v2_20260904');cache=Path('<OPENNR_DATA>/TrainingCache/student_v1');rows=json.loads((cache/'rows.json').read_text());contexts=np.load(cache/'context.npy',mmap_mode='r');i=next(i for i,r in enumerate(rows) if r['split']=='validation')
 engine=TensorRTStudent(base/'runtime_v2_fast/student_fp16.engine');model,_=load_student(base/'fast/best.pt','cuda');eyes=[]
 with torch.inference_mode():
     for index in (i,i+1):

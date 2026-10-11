@@ -240,6 +240,30 @@ check(profiler.GetResults().empty() && profiler.GetCapturedCpuFrameCount() == 0 
     "Reinitialization resets both publications");
 ''')
 
+    def test_full_hybrid_frame_scope_inventory_fits_profiler_capacity(self):
+        self.compile_profiler(r'''
+Profiler profiler;
+profiler.Initialize(&device, &context);
+const char* scopes[] = {
+    "Upscaling::EvaluateStereo", "FoveatedLdrBeforeUI", "Upscaling::Composite",
+    "TemporalReuse::Warp", "Handoff::Stage", "Copies::Input", "Copies::Output"
+};
+for (uint32_t eye = 0; eye < 2; ++eye) {
+    for (const char* instance : {"Centre", "Periphery"}) {
+        for (const char* scope : scopes) {
+            const std::string label = std::string("NeuralRendering::") + instance + "::Eye" +
+                std::to_string(eye) + "::" + scope;
+            pass(profiler, label.c_str());
+        }
+    }
+}
+profiler.RequestCapture();
+profiler.EndFrame(1);
+check(profiler.GetSlotRefusals() == 0, "all hybrid NR scopes are retained");
+check(profiler.GetAcquiredSlots() < 64 && profiler.GetAcquiredSlots() < Profiler::kMaxTimers,
+    "full hybrid frame scope inventory stays well under 1024 timer capacity");
+''')
+
     def test_statistics_group_percentiles_use_frame_sums(self):
         renderer = (ROOT / "src/Menu/ProfilingRenderer.cpp").read_text(encoding="utf-8")
         header = (ROOT / "src/Menu/ProfilingRenderer.h").read_text(encoding="utf-8")

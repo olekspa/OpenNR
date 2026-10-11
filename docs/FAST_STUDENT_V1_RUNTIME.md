@@ -24,7 +24,7 @@ The implementation is in [fast_student_v1.py](../tools/fast_student_v1.py).
 
 ## Validation already run
 
-Using the pinned local ML environment (`E:\OpenNR-VR-Poc-Venv\Scripts\python.exe`):
+Using the pinned local ML environment (`<POC_VENV>\Scripts\python.exe`):
 
 - `tools/test_fast_student_v1.py` passed exact identity, odd-size state-shape,
   recurrent-step, finite-gradient, and finite-output checks.
@@ -52,16 +52,16 @@ integration still need to be measured after a trained checkpoint exists.
 Run the contract test:
 
 ```powershell
-& 'E:\OpenNR-VR-Poc-Venv\Scripts\python.exe' tools\test_fast_student_v1.py
+& '<POC_VENV>\Scripts\python.exe' tools\test_fast_student_v1.py
 ```
 
 Benchmark the architecture before training:
 
 ```powershell
-& 'E:\OpenNR-VR-Poc-Venv\Scripts\python.exe' tools\benchmark_fast_student.py `
+& '<POC_VENV>\Scripts\python.exe' tools\benchmark_fast_student.py `
   --height 512 --width 512 --guide-height 128 --guide-width 128
 
-& 'E:\OpenNR-VR-Poc-Venv\Scripts\python.exe' tools\benchmark_fast_student.py `
+& '<POC_VENV>\Scripts\python.exe' tools\benchmark_fast_student.py `
   --height 887 --width 824 --guide-height 672 --guide-width 624
 ```
 
@@ -70,7 +70,7 @@ cache. Replace both placeholders explicitly; do not point `--output` at an
 existing joint-model run:
 
 ```powershell
-& 'E:\OpenNR-VR-Poc-Venv\Scripts\python.exe' tools\train_fast_student.py `
+& '<POC_VENV>\Scripts\python.exe' tools\train_fast_student.py `
   --cache '<STRICT_TEMPORAL_CACHE>' `
   --output '<ISOLATED_FAST_STUDENT_OUTPUT>' `
   --steps 4000 --window 8 --burn-in 1 --batch 2
@@ -80,7 +80,7 @@ Export a trained checkpoint to fixed-shape ONNX and FP16 TensorRT for the
 current 33% Skyrim test surface:
 
 ```powershell
-& 'E:\OpenNR-VR-Poc-Venv\Scripts\python.exe' tools\export_fast_student_runtime.py `
+& '<POC_VENV>\Scripts\python.exe' tools\export_fast_student_runtime.py `
   --checkpoint '<ISOLATED_FAST_STUDENT_OUTPUT>\best_mae.pt' `
   --output '<ISOLATED_FAST_STUDENT_OUTPUT>\trt_33pct' `
   --height 887 --width 824 `

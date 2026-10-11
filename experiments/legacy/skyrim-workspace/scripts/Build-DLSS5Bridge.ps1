@@ -1,6 +1,6 @@
 [CmdletBinding()]
 param(
-    [string]$ProjectRoot = 'D:\.CODEX_Projects\DLSS_5_SKYRIM',
+    [string]$ProjectRoot = '<LEGACY_REPO>',
     [string]$SourceRoot = '',
     [string]$SdkVersion = ''
 )

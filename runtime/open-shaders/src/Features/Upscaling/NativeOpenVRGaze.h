@@ -75,6 +75,14 @@ namespace FoveatedRenderImpl::NativeOpenVRGaze
 		Diagnostics diagnostics{};
 	};
 
+	struct ProjectionTangents
+	{
+		float left = 0.0f;
+		float right = 0.0f;
+		float top = 0.0f;
+		float bottom = 0.0f;
+	};
+
 	const char* StatusName(Status status);
 
 	// The caller uses this shared safety predicate so the foveated DLSS route and
@@ -94,5 +102,7 @@ namespace FoveatedRenderImpl::NativeOpenVRGaze
 		bool allowDynamic);
 
 	Diagnostics GetDiagnostics();
+	// Reads both eyes through the same BSOpenVR IVRSystem pointer used by gaze.
+	bool GetProjectionRawTangents(std::array<ProjectionTangents, 2>& out);
 	void Reset();
 }

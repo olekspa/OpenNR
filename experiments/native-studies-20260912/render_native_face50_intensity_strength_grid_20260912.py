@@ -16,11 +16,11 @@ FULL_HEIGHT = 2688
 WORK_WIDTH = 1248
 WORK_HEIGHT = 1344
 FRAME = Path(
-    r"C:\OpenNR_Captures_FullEyeTemporalStateTranche_20260910"
+    r"<DATA_ROOT>\OpenNR_Captures_FullEyeTemporalStateTranche_20260910"
     r"\seq-1789064397821-5\frames\frame_00000008"
 )
-ROOT = Path(r"C:\OpenNR\NativeFace50IntensityResetSweep_20260912")
-OUTPUT = Path(r"C:\OpenNR\NativeFace50IntensityStrengthGrid_20260912")
+ROOT = Path(r"<OPENNR_DATA>\NativeFace50IntensityResetSweep_20260912")
+OUTPUT = Path(r"<OPENNR_DATA>\NativeFace50IntensityStrengthGrid_20260912")
 INTENSITIES = (1.0, 1.7, 2.0)
 STRENGTHS = (0.5, 1.0, 1.5, 2.0)
 FACE_CROP = (1480, 700, 1980, 1300)
@@ -111,7 +111,7 @@ def main() -> None:
     full_input = read_rgba8(FRAME / "input_eye0_full.raw.bin", FULL_WIDTH, FULL_HEIGHT)
     full_native = read_rgba8(FRAME / "teacher_eye0_full.raw.bin", FULL_WIDTH, FULL_HEIGHT)
     work_input = read_rgba8(
-        Path(r"C:\OpenNR\NativeFaceResidualLadder_20260912\scale050") / "input_eye0.rgba",
+        Path(r"<OPENNR_DATA>\NativeFaceResidualLadder_20260912\scale050") / "input_eye0.rgba",
         WORK_WIDTH,
         WORK_HEIGHT,
     )

@@ -30,10 +30,10 @@ import torch.nn.functional as F
 
 
 DEFAULT_STUDY = Path(
-    r"D:\.CODEX_Projects\OpenNR-VR\out\native_teacher_resolution_study_20260912"
+    r"<REPO>\out\native_teacher_resolution_study_20260912"
 )
 DEFAULT_SEQUENCE = Path(
-    r"C:\OpenNR_Captures_FullEyeTemporalStateTranche_20260910"
+    r"<DATA_ROOT>\OpenNR_Captures_FullEyeTemporalStateTranche_20260910"
     r"\seq-1789063628889-1"
 )
 DEFAULT_SCALES = (100, 90, 85, 75, 50, 33)

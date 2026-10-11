@@ -28,11 +28,11 @@ SCALES = (50, 33)
 INTENSITIES = (1.0, 1.7, 2.0)
 STRENGTHS = (0.5, 1.0, 1.5, 2.0)
 SEQUENCE = Path(
-    r"C:\OpenNR_Captures_FullEyeTemporalStateTranche_20260910\seq-1789064397821-5"
+    r"<DATA_ROOT>\OpenNR_Captures_FullEyeTemporalStateTranche_20260910\seq-1789064397821-5"
 )
-REPLAY_ROOT = Path(r"C:\OpenNR\NativeSequenceLowResIntensity_20260912")
-BASELINE_ROOT = Path(r"C:\OpenNR\NativeSequenceResidualScales_20260912")
-OUTPUT = Path(r"C:\OpenNR\NativeSequenceLowResIntensityStrengthEvaluation_20260912")
+REPLAY_ROOT = Path(r"<OPENNR_DATA>\NativeSequenceLowResIntensity_20260912")
+BASELINE_ROOT = Path(r"<OPENNR_DATA>\NativeSequenceResidualScales_20260912")
+OUTPUT = Path(r"<OPENNR_DATA>\NativeSequenceLowResIntensityStrengthEvaluation_20260912")
 FACE_CROP = (1480, 700, 1980, 1300)
 
 
@@ -445,7 +445,7 @@ def main() -> int:
         }
 
     baseline_json = json.loads(
-        (Path(r"C:\OpenNR\NativeSequenceResidualScaleEvaluation_20260912") / "result.json")
+        (Path(r"<OPENNR_DATA>\NativeSequenceResidualScaleEvaluation_20260912") / "result.json")
         .read_text(encoding="utf-8")
     )
     baseline: dict[str, object] = {}

@@ -6,11 +6,11 @@ The new C: capture is structurally trustworthy for a first spatial distillation
 run, with explicit exclusions. It is not yet a temporal training set and it is
 not evidence that a student can replace Feature 18 in live stereo VR.
 
-The source recording is `C:\OpenNR_Captures_FullRes_Pilot_20260904`. The
+The source recording is `<DATA_ROOT>\OpenNR_Captures_FullRes_Pilot_20260904`. The
 preserved copy made by the capture move is separate:
-`C:\OpenNR\_Captures\_FullRes\_Pilot\_20260904\OpenNR_Captures_FullRes_Pilot_20260904`.
+`<OPENNR_DATA>\_Captures\_FullRes\_Pilot\_20260904\OpenNR_Captures_FullRes_Pilot_20260904`.
 The move verification manifest is
-`C:\OpenNR\capture-move-verified.csv`; the source recordings were not rewritten
+`<OPENNR_DATA>\capture-move-verified.csv`; the source recordings were not rewritten
 by this audit.
 
 ## Audit evidence
@@ -137,7 +137,7 @@ frame records, but it has only three consecutive stored frame pairs and one
 guide-outlier frame, so it is not a temporal set either.
 
 The older crop-only dataset at
-`C:\OpenNR\_Captures\_FullRes\_Pilot\_20260904\OpenNR_Captures` passed the
+`<OPENNR_DATA>\_Captures\_FullRes\_Pilot\_20260904\OpenNR_Captures` passed the
 existing validator: 33 sequences, 919 complete frames, 29,432 artifacts,
 no missing files, duplicate IDs, duplicate hashes, or zero-valued data. It is
 valuable provenance and spatial pretraining material, but its crop/guide

@@ -91,6 +91,7 @@ void ExponentialHeightFog::SaveSettings(json& o_json)
 ExponentialHeightFog::Settings ExponentialHeightFog::GetCommonBufferData() const
 {
 	Settings data = settings;
+	data.enabled = data.enabled && !globals::state->isMapMenuOpen;
 
 #if defined(ENABLE_EFFECTS11)
 	if (globals::features::effects11.loaded) {
@@ -377,7 +378,7 @@ ID3D11ComputeShader* ExponentialHeightFog::GetIntegrationCS()
 
 void ExponentialHeightFog::Prepass()
 {
-	if (!settings.enabled || !settings.volumetricFogEnabled || settings.volumetricFogExtinctionScale <= 0.0f) {
+	if (!settings.enabled || globals::state->isMapMenuOpen || !settings.volumetricFogEnabled || settings.volumetricFogExtinctionScale <= 0.0f) {
 		ReleaseVolumetricResources();
 		return;
 	}
@@ -407,7 +408,7 @@ void ExponentialHeightFog::Prepass()
 	                    !ibl.IsDisabledForCurrentScene() &&
 	                    ibl.envIBLTexture &&
 	                    ibl.skyIBLTexture;
-	const bool hasSkylighting = skylighting.loaded && skylighting.texProbeArray;
+	const bool hasSkylighting = skylighting.loaded && skylighting.texProbeArray && skylighting.texProbeArray->srv;
 
 	const auto linearLightingData = globals::features::linearLighting.GetCommonBufferData();
 	const std::array currentColorSpace{ linearLightingData.enableLinearLighting, linearLightingData.enableACEScg };

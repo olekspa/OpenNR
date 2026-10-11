@@ -19,7 +19,7 @@ from PIL import Image
 
 
 DEFAULT_DLL = Path(
-    r"E:\MGO-RC3-fresh\mods\Open Shaders DLSSNR VR 0.5.7 OpenNR"
+    r"<MO2_INSTANCE>\mods\Open Shaders DLSSNR VR 0.5.7 OpenNR"
     r"\Shaders\Upscaling\Streamline\nvngx_dlssnr.dll"
 )
 DEFAULT_CORE_ROOT = Path(r"C:\Windows\System32\DriverStore\FileRepository")

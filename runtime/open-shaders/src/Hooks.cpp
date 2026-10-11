@@ -618,7 +618,7 @@ struct BSShaderRenderTargets_Create
 		// only) upscale-method-change, so IsLoaded() must already be latched by then.
 		FoveatedRenderImpl::Bridge::BootSequence();
 
-		globals::state->Setup();
+		globals::state->Setup("BSShaderRenderTargets_Create", "globals::ReInit after render-target creation");
 
 		// PerfMode is not in the Feature list (it's a worker driven by the
 		// upscaling toggle), so SetupResources runs here directly.

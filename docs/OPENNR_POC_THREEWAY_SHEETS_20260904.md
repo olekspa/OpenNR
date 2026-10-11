@@ -15,7 +15,7 @@ the RGB+depth/MV variant remains available in the earlier four-column sheets.
 
 Sheets are generated under:
 
-    D:\.CODEX_Projects\OpenNR-VR\out\opennr_poc\threeway_labeled
+    <REPO>\out\opennr_poc\threeway_labeled
 
 - `threeway_rgb_sheet_01_of_03.png`
 - `threeway_rgb_sheet_02_of_03.png`

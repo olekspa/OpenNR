@@ -13,15 +13,15 @@ all existing raw capture roots, and every checkpoint remain untouched controls.
 
 Live settings file:
 
-`E:\MGO-RC3-fresh\overwrite\SKSE\Plugins\CommunityShaders\SettingsUser.json`
+`<MO2_INSTANCE>\overwrite\SKSE\Plugins\CommunityShaders\SettingsUser.json`
 
 Fresh output root:
 
-`C:\OpenNR_Captures_TemporalCrops_SparseFullEye_20260909`
+`<DATA_ROOT>\OpenNR_Captures_TemporalCrops_SparseFullEye_20260909`
 
 Backup and rollback record:
 
-`E:\MGO-RC3-fresh\_OpenNR_Pilot_Backups\pre-sparse-full-eye-anchor-20260909-221903`
+`<MO2_INSTANCE>\_OpenNR_Pilot_Backups\pre-sparse-full-eye-anchor-20260909-221903`
 
 The pre-edit live settings and the backup are byte-identical with SHA-256
 `ECE329C43261C16DD640C80FEB639408AE3BF3F727EA91535E55E9E0661DA444`.
@@ -40,8 +40,8 @@ they remain retained and are not silently relabeled or deleted.
 
 The authoritative reports are:
 
-- `C:\OpenNR\Training\sparse_full_eye_anchor_temporal_audit_20260909.json`
-- `C:\OpenNR\Training\sparse_full_eye_anchor_byte_audit_20260909.json`
+- `<OPENNR_DATA>\Training\sparse_full_eye_anchor_temporal_audit_20260909.json`
+- `<OPENNR_DATA>\Training\sparse_full_eye_anchor_byte_audit_20260909.json`
 
 ## Effective settings
 
@@ -141,15 +141,15 @@ resources on every frame. Master mode is expected to reject these sequences;
 that is a validator-contract mismatch, not a reason to discard the crop data.
 
 ```powershell
-python D:\.CODEX_Projects\OpenNR-VR\tools\validate_temporal_capture.py `
-  C:\OpenNR_Captures_TemporalCrops_SparseFullEye_20260909 `
+python <REPO>\tools\validate_temporal_capture.py `
+  <DATA_ROOT>\OpenNR_Captures_TemporalCrops_SparseFullEye_20260909 `
   --mode crop `
   --expected-pass-count 1 `
-  --output C:\OpenNR\Training\sparse_full_eye_anchor_temporal_audit_20260909.json
+  --output <OPENNR_DATA>\Training\sparse_full_eye_anchor_temporal_audit_20260909.json
 ```
 
 The exhaustive byte audit is
-`C:\OpenNR\Training\sparse_full_eye_anchor_byte_audit_20260909.json`; its
+`<OPENNR_DATA>\Training\sparse_full_eye_anchor_byte_audit_20260909.json`; its
 `full_frame_frames=8` and `missing_master_full_frame_artifacts=0` fields are
 the periodic-anchor check. Then run decoded content checks, native guide
 checks, renderer-conditioning audit, and stereo alignment review. Keep
@@ -161,7 +161,7 @@ keep the test split unread during tuning.
 
 - No checkpoint was overwritten, merged, or promoted.
 - The 18-sequence crop-temporal cache remains immutable.
-- The rejected root `C:\OpenNR_Captures_FullEyeStateProbe_EveryFrame_20260909`
+- The rejected root `<DATA_ROOT>\OpenNR_Captures_FullEyeStateProbe_EveryFrame_20260909`
   was not deleted.
 - No existing capture root was reused.
 - No Runpod credit was spent.

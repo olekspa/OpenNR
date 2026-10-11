@@ -1,7 +1,7 @@
 # Adaptive crop / reduced NR sampling correction, September 17
 
 The 11:16–11:21 SkyrimVR session is recorded in
-`C:/Users/oleks/OneDrive/Documents/My Games/Skyrim VR/SKSE/CommunityShaders.log`.
+`<USER_HOME>/Documents/My Games/Skyrim VR/SKSE/CommunityShaders.log`.
 The prior search missed this redirected Documents location. Normal info logging
 contains the required crop commits, NR tiers, and native feature creation times.
 
@@ -56,7 +56,7 @@ model_resolution_envelope_test.exe features\Upscaling\Shaders\Upscaling\NeuralRe
 ## Deployment and next live test
 
 Only `CommunityShaders.dll` and `Shaders/Upscaling/NeuralRendering/ModelResolutionCS.hlsl`
-were replaced in the enabled `E:/MGO-RC3-fresh/mods/OpenNR 2.15.0` mod.
+were replaced in the enabled `<MO2_INSTANCE>/mods/OpenNR 2.15.0` mod.
 Previous files and the inspected logs are preserved in
 `E:/MGO-Installer/Codex-Backups/OpenNR-crop-valid-rect-20260917-1125`.
 The deployed DLL SHA-256 is

@@ -4,7 +4,7 @@ Motivation: bounded learning-rate continuation did not improve the retained cand
 
 Read-only inference from verified seed352 step400. Frame32 after causal history1..32 for every207 training sequence, both eyes (414 images). No validation/test access or optimization. Orthonormal2D FFT of prediction-minus-teacher and teacher-minus-input; radial frequency bands below1/32,1/32..1/8,1/8..1/4,and above1/4 cycles/pixel. Sum error energy per band and compare against identity prediction. Check Parseval energy conservation within1e-5. Unwindowed transforms conserve the whole error but can include periodic-edge artifacts. Energy fractions refer to MSE, not additive MAE or semantic/perceptual quality. Frame32 is a fixed snapshot, not all-frame coverage.
 
-Script tools/diagnose_retention_spectrum.py, derived from the existing spectral audit concept but using the current strict temporal loader/model. Output E:/OpenNR_Training/retention_spectral_diagnostic_20260907; live session71966. Preserve completed experiments and do not restart on stale status.
+Script tools/diagnose_retention_spectrum.py, derived from the existing spectral audit concept but using the current strict temporal loader/model. Output <DATA_ROOT>/OpenNR_Training/retention_spectral_diagnostic_20260907; live session71966. Preserve completed experiments and do not restart on stale status.
 
 ## Completed result and user visual priority
 

@@ -21,7 +21,7 @@
     "toggle_capture_key": 219,
     "single_capture_key": 221,
     "burst_capture_key": 220,
-    "output_directory": "C:\\OpenNR_Captures_FullEyeTemporalStateTranche_20260910",
+    "output_directory": "<DATA_ROOT>\\OpenNR_Captures_FullEyeTemporalStateTranche_20260910",
     "crops": [
       { "center_x": 0.50, "center_y": 0.50 }
     ],

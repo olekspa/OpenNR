@@ -17,12 +17,12 @@ FULL_HEIGHT = 2688
 WORK_WIDTH = 1622
 WORK_HEIGHT = 1747
 FRAME = Path(
-    r"C:\OpenNR_Captures_FullEyeTemporalStateTranche_20260910"
+    r"<DATA_ROOT>\OpenNR_Captures_FullEyeTemporalStateTranche_20260910"
     r"\seq-1789063628889-1\frames\frame_00000001"
 )
-RESET_ROOT = Path(r"C:\OpenNR\Native65IntensityResetSweep_20260912")
-TIMING_ROOT = Path(r"C:\OpenNR\Native65IntensitySweep_20260912")
-OUTPUT = Path(r"C:\OpenNR\Native65IntensityComparison_20260912")
+RESET_ROOT = Path(r"<OPENNR_DATA>\Native65IntensityResetSweep_20260912")
+TIMING_ROOT = Path(r"<OPENNR_DATA>\Native65IntensitySweep_20260912")
+OUTPUT = Path(r"<OPENNR_DATA>\Native65IntensityComparison_20260912")
 INTENSITIES = (1.0, 1.7, 2.0)
 DETAIL_CROP = (700, 500, 1800, 1600)
 
@@ -92,7 +92,7 @@ def main() -> None:
     full_input = read_rgba8(FRAME / "input_eye0_full.raw.bin", FULL_WIDTH, FULL_HEIGHT)
     full_native = read_rgba8(FRAME / "teacher_eye0_full.raw.bin", FULL_WIDTH, FULL_HEIGHT)
     work_input = read_rgba8(
-        Path(r"C:\OpenNR\NativeResolutionStudy65_20260912") / "input_eye0.rgba",
+        Path(r"<OPENNR_DATA>\NativeResolutionStudy65_20260912") / "input_eye0.rgba",
         WORK_WIDTH,
         WORK_HEIGHT,
     )

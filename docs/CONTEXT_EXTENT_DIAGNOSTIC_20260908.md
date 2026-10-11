@@ -2,7 +2,7 @@
 
 The current strict crop builder constructs the RGB channels of `context.npy` by resizing the captured512x512 input crop to96x96 (`tools/build_raw_crop_cache.py`, `_build_cache`). The aligned renderer builder does the same (`tools/prepare_conditioning_pilot.py`). Consequently, this context does not contain scene information outside the crop, despite older model comments referring to whole-eye context. The teacher is evaluated on an entire eye image. This is a potential missing-input limitation, not proof that context explains the remaining MAE gap.
 
-The older audited spatial master cache `C:/OpenNR/TrainingCache/student_v1` retains true whole-eye96x96 RGB context derived from native2496x2688 input images. Those masters are spatial evidence; they are not strict reset-qualified temporal clips.
+The older audited spatial master cache `<OPENNR_DATA>/TrainingCache/student_v1` retains true whole-eye96x96 RGB context derived from native2496x2688 input images. Those masters are spatial evidence; they are not strict reset-qualified temporal clips.
 
 ## Registered inference diagnostic
 
@@ -10,7 +10,7 @@ Use only the26 primary training sequences from `out/fullres_audit_20260904/train
 
 Compare the same verified stable U-Net step5600 and frozen parent with two variants: true whole-eye context RGB versus a thumbnail of the current crop. Keep the image patch, native guide tensors, whole-eye context-guide planes and initial student state identical. Only the three context RGB channels change. This isolates RGB context extent at inference; it is not a matched training experiment, not a complete swap to the new crop cache contract, and not temporal or held-out acceptance.
 
-Tool: `tools/diagnose_context_extent.py`. Output: `C:/OpenNR/Training/context_extent_primary_train_20260908`. A positive result would motivate a controlled context-input training study; a negative inference result would not prove global context is uninformative after training. No source captures or existing caches are altered.
+Tool: `tools/diagnose_context_extent.py`. Output: `<OPENNR_DATA>/Training/context_extent_primary_train_20260908`. A positive result would motivate a controlled context-input training study; a negative inference result would not prove global context is uninformative after training. No source captures or existing caches are altered.
 
 ## Completed result
 
@@ -20,7 +20,7 @@ This is a meaningful RGB-context sensitivity result and considerably larger than
 
 ## Registered held-out diagnostic follow-up
 
-Apply the same fixed comparison to the four primary validation sequences, first eye row and first fixed patch per sequence/eye (eight patches). No fitting or model selection occurs, and no test data is read. This tests whether the direction of the RGB-context effect transfers to a small existing spatial holdout. It still cannot establish temporal or scene-disjoint acceptance and does not compare trained context variants. Output: `C:/OpenNR/Training/context_extent_primary_validation_20260908`.
+Apply the same fixed comparison to the four primary validation sequences, first eye row and first fixed patch per sequence/eye (eight patches). No fitting or model selection occurs, and no test data is read. This tests whether the direction of the RGB-context effect transfers to a small existing spatial holdout. It still cannot establish temporal or scene-disjoint acceptance and does not compare trained context variants. Output: `<OPENNR_DATA>/Training/context_extent_primary_validation_20260908`.
 
 ## Held-out result: training direction did not replicate
 
@@ -49,9 +49,9 @@ patches. The full-eye arm ended at validation MAE `0.025302864`; the matched
 crop-context arm ended at `0.025424943`, a `0.480%` full-eye advantage. The
 advantage remained mixed by sequence (two improved, two regressed), and this was
 still an independent spatial reset study, not recurrent temporal acceptance.
-The complete paired record is `C:/OpenNR/Training/semantic_context_pair_20260908`;
+The complete paired record is `<OPENNR_DATA>/Training/semantic_context_pair_20260908`;
 the read-only diagnostic is
-`C:/OpenNR/Training/context_extent_semantic_joint1200_20260908`.
+`<OPENNR_DATA>/Training/context_extent_semantic_joint1200_20260908`.
 
 This strengthens the case for measuring global context in a future bounded
 full-eye temporal pilot, but does not justify a large sparse capture yet. A

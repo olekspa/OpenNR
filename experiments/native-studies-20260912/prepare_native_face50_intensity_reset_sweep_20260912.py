@@ -13,13 +13,13 @@ WORK_HEIGHT = 1344
 GUIDE_WIDTH = 1664
 GUIDE_HEIGHT = 1792
 FRAME = Path(
-    r"C:\OpenNR_Captures_FullEyeTemporalStateTranche_20260910"
+    r"<DATA_ROOT>\OpenNR_Captures_FullEyeTemporalStateTranche_20260910"
     r"\seq-1789064397821-5\frames\frame_00000008"
 )
-SOURCE = Path(r"C:\OpenNR\NativeFaceResidualLadder_20260912\scale050")
-ROOT = Path(r"C:\OpenNR\NativeFace50IntensityResetSweep_20260912")
+SOURCE = Path(r"<OPENNR_DATA>\NativeFaceResidualLadder_20260912\scale050")
+ROOT = Path(r"<OPENNR_DATA>\NativeFace50IntensityResetSweep_20260912")
 DLL = Path(
-    r"E:\MGO-RC3-fresh\mods\Open Shaders DLSSNR VR 0.5.7 OpenNR"
+    r"<MO2_INSTANCE>\mods\Open Shaders DLSSNR VR 0.5.7 OpenNR"
     r"\Shaders\Upscaling\Streamline\nvngx_dlssnr.dll"
 )
 CORE_ROOT = Path(r"C:\Windows\System32\DriverStore\FileRepository")

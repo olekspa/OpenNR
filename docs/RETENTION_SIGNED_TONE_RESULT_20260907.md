@@ -1,6 +1,6 @@
 # Signed tone diagnosis: user highlight/shadow feedback supported
 
-Read-only diagnostic session16217 completed successfully. Source E:/OpenNR_Training/retention_tone_diagnostic_20260907/result.json;414 training eye images, frame32 after causal history. Signed code-value luma error is prediction minus teacher; positive means too bright, negative too dim. Pixel-weighted region means below. These are not physical luminance or held-out metrics, and no skin segmentation is used.
+Read-only diagnostic session16217 completed successfully. Source <DATA_ROOT>/OpenNR_Training/retention_tone_diagnostic_20260907/result.json;414 training eye images, frame32 after causal history. Signed code-value luma error is prediction minus teacher; positive means too bright, negative too dim. Pixel-weighted region means below. These are not physical luminance or held-out metrics, and no skin segmentation is used.
 
 | Cohort | Teacher darkest quintile | Teacher brightest quintile | Teacher brightens input >0.02 | Teacher darkens input >0.02 |
 |---|---:|---:|---:|---:|

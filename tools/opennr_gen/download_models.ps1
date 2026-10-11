@@ -1,10 +1,10 @@
 param(
-    [string]$ModelRoot = 'C:\OpenNR\Models'
+    [string]$ModelRoot = '<OPENNR_DATA>\Models'
 )
 
 $ErrorActionPreference = 'Stop'
 $env:PYTHONIOENCODING = 'utf-8'
-$env:PYTHONPATH = 'C:\OpenNR\python312_ml_deps_gen_20260910;C:\OpenNR\python312_ml_deps_20260908'
+$env:PYTHONPATH = '<OPENNR_DATA>\python312_ml_deps_gen_20260910;<OPENNR_DATA>\python312_ml_deps_20260908'
 
 $baseRevision = '462165984030d82259a11f4367a4eed129e94a7b'
 $controlRevision = 'eb115a19a10d14909256db740ed109532ab1483c'

@@ -11,7 +11,7 @@ import torch
 
 
 OPENNR = Path(r"C:\OpenNR")
-TOOLS = Path(r"D:\.CODEX_Projects\OpenNR-VR\tools")
+TOOLS = Path(r"<REPO>\tools")
 for path in (OPENNR, TOOLS):
     if str(path) not in sys.path:
         sys.path.insert(0, str(path))
@@ -26,10 +26,10 @@ from train_native50_detail_head_20260912 import (  # noqa: E402
 )
 
 
-OUTPUT = Path(r"C:\OpenNR\Native50DetailHeadPilot_20260912")
+OUTPUT = Path(r"<OPENNR_DATA>\Native50DetailHeadPilot_20260912")
 CHECKPOINT = OUTPUT / "best.pt"
-TEST_ROOT = Path(r"C:\OpenNR\NativeReplays50_20260912\seq-1789064397821-5_f1-16")
-VALID_ROOT = Path(r"C:\OpenNR\NativeReplays50_20260912\seq-1789064544626-6_f1-16")
+TEST_ROOT = Path(r"<OPENNR_DATA>\NativeReplays50_20260912\seq-1789064397821-5_f1-16")
+VALID_ROOT = Path(r"<OPENNR_DATA>\NativeReplays50_20260912\seq-1789064544626-6_f1-16")
 
 
 def mean_metric(records: list[dict[str, float]]) -> dict[str, float | int]:

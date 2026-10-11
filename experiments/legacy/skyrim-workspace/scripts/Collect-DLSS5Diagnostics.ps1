@@ -1,8 +1,8 @@
 [CmdletBinding()]
 param(
-    [string]$ProjectRoot = 'D:\.CODEX_Projects\DLSS_5_SKYRIM',
+    [string]$ProjectRoot = '<LEGACY_REPO>',
     [string]$GameRoot = 'E:\Games\Steam\steamapps\common\SkyrimVR',
-    [string]$MgoRoot = 'E:\MGO-RC3-clean'
+    [string]$MgoRoot = '<MO2_INSTANCE>'
 )
 
 $ErrorActionPreference = 'Continue'

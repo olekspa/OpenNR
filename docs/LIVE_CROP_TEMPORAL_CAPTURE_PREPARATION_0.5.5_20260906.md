@@ -5,13 +5,13 @@ The current full-frame sequence is being preserved as diagnostic/full-resolution
 Current diagnostic sequence:
 
 ```text
-E:\OpenNR_Captures_Temporal_MasterRaw_0.5.5_20260905\seq-1788664426311-1
+<DATA_ROOT>\OpenNR_Captures_Temporal_MasterRaw_0.5.5_20260905\seq-1788664426311-1
 ```
 
 The standalone crop-temporal profile is prepared here:
 
 ```text
-D:\.CODEX_Projects\OpenNR-VR\out\live_capture_temporal_crop_preparation_0.5.5_20260906\SettingsUser.OpenNR-CropTemporal.0.5.5.json
+<REPO>\out\live_capture_temporal_crop_preparation_0.5.5_20260906\SettingsUser.OpenNR-CropTemporal.0.5.5.json
 ```
 
 It has been validated with `tools/validate_capture_config.py`. The live `SettingsUser.json` and installed `CommunityShaders.dll` were not modified while Skyrim was running.
@@ -19,7 +19,7 @@ It has been validated with `tools/validate_capture_config.py`. The live `Setting
 The crop profile keeps both eyes, pre-NR input, teacher output, native Feature 18 depth, and native Feature 18 motion vectors. It disables full-frame masters, keeps raw artifacts, uses one 512x512 crop, requests every eligible frame, and bounds each burst at 64 records. Its output root is:
 
 ```text
-E:\OpenNR_Captures_Temporal_Crops_0.5.5_20260906
+<DATA_ROOT>\OpenNR_Captures_Temporal_Crops_0.5.5_20260906
 ```
 
 After Skyrim exits and the current full-frame writer has stopped, back up the live settings, merge the `OpenNR Capture` block from the standalone profile into the live settings, and relaunch through the same MGO profile. Do not copy or rebuild `CommunityShaders.dll`.

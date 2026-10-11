@@ -2,8 +2,8 @@
 param(
     [Parameter(Mandatory = $true)]
     [string]$AdaNeuralDllPath,
-    [string]$SourceModPath = 'E:\MGO-RC3-clean\mods\DLSS5 SkyrimVR Open Shaders DLSSNR',
-    [string]$OutputRoot = 'D:\.CODEX_Projects\DLSS_5_SKYRIM\dist',
+    [string]$SourceModPath = '<MO2_INSTANCE>\mods\DLSS5 SkyrimVR Open Shaders DLSSNR',
+    [string]$OutputRoot = '<LEGACY_REPO>\dist',
     [string]$Version = '0.2.0-mgo-vr.1',
     [switch]$AllowPrivateAdaRuntime,
     [switch]$Force

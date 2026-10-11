@@ -56,13 +56,13 @@ relabeled.
 The static source tranche is derived from the read-only cache:
 
 ```text
-C:\OpenNR_Cache_StrictAllCohortsVariedHighEffect_0.5.5_20260907
+<DATA_ROOT>\OpenNR_Cache_StrictAllCohortsVariedHighEffect_0.5.5_20260907
 ```
 
 The selected manifest is:
 
 ```text
-C:\OpenNR_GEN_Static_20260910\pilot_v1\manifest.json
+<DATA_ROOT>\OpenNR_GEN_Static_20260910\pilot_v1\manifest.json
 ```
 
 Its recorded SHA-256 is:
@@ -97,19 +97,19 @@ The three directly viewable galleries are:
 1. Correct raw-input route at strength `0.08`:
 
    ```text
-   C:\OpenNR_GEN_Static_20260910\sdxl_raw_input_face_probe_v1\full_face_ordered_gallery.png
+   <DATA_ROOT>\OpenNR_GEN_Static_20260910\sdxl_raw_input_face_probe_v1\full_face_ordered_gallery.png
    ```
 
 2. Correct raw-input route at maximum tested strength `0.60`:
 
    ```text
-   C:\OpenNR_GEN_Static_20260910\sdxl_raw_input_strength060_face_probe_v1\full_face_ordered_gallery.png
+   <DATA_ROOT>\OpenNR_GEN_Static_20260910\sdxl_raw_input_strength060_face_probe_v1\full_face_ordered_gallery.png
    ```
 
 3. Earlier pleasing but teacher-conditioned route:
 
    ```text
-   C:\OpenNR_GEN_Static_20260910\sdxl_strength008_face_probe_v1\full_face_ordered_gallery.png
+   <DATA_ROOT>\OpenNR_GEN_Static_20260910\sdxl_strength008_face_probe_v1\full_face_ordered_gallery.png
    ```
 
 The third gallery is the one that looked more realistic than the vanilla input.
@@ -145,7 +145,7 @@ destroys image fidelity instead.
 | SDXL `strength008_probe_v2` | teacher | 2 | Rejected | Coherent pair, but no independent realism gain; edge/high-frequency proxies were lower than the teacher. | No |
 | SDXL face probe | teacher | 1 | Offline-only | Pleasing full-face output; invalid because the enhancer input was the teacher. | No |
 | SDXL interrupted full route | teacher | 12 | Stopped / invalid | Stopped after 12 eyes when the input-role mistake was corrected; preserved for provenance only. | No |
-| SDXL stale clone | teacher | 0 | Stopped / superseded | Manifest paths pointed at `C:\OpenNR_GEN_Static_20260910\samples` instead of the route-local sample directory. | No |
+| SDXL stale clone | teacher | 0 | Stopped / superseded | Manifest paths pointed at `<DATA_ROOT>\OpenNR_GEN_Static_20260910\samples` instead of the route-local sample directory. | No |
 | Correct SDXL raw-input face | raw | 1 | Rejected | Correct graph, but conservative/near raw and worse on teacher MAE than vanilla. | No |
 | Correct SDXL raw-input maximum | raw | 1 | Rejected | Maximum tested strength produced psychedelic texture and facial distortion. | No |
 | Juggernaut-XL-v9 `0.08` | teacher | 2 | Rejected | Shield surface changed, visible fire was suppressed, and stone/material response changed. | No |
@@ -201,7 +201,7 @@ The local model provenance is:
   `462165984030d82259a11f4367a4eed129e94a7b`;
 - Canny ControlNet: `diffusers/controlnet-canny-sdxl-1.0`, pinned revision
   `eb115a19a10d14909256db740ed109532ab1483c`;
-- local model directories under `C:\OpenNR\Models\`.
+- local model directories under `<OPENNR_DATA>\Models\`.
 
 The upstream cards are [SDXL base](https://huggingface.co/stabilityai/stable-diffusion-xl-base-1.0),
 [Canny ControlNet](https://huggingface.co/diffusers/controlnet-canny-sdxl-1.0),
@@ -259,8 +259,8 @@ The cleanup was intentionally narrow:
 4. Closed the stale metadata state in:
 
    ```text
-   C:\OpenNR_GEN_Static_20260910\sdxl_strength008_full_v1\target_records.json
-   C:\OpenNR_GEN_Static_20260910\sdxl_strength008_probe_v1\target_records.json
+   <DATA_ROOT>\OpenNR_GEN_Static_20260910\sdxl_strength008_full_v1\target_records.json
+   <DATA_ROOT>\OpenNR_GEN_Static_20260910\sdxl_strength008_probe_v1\target_records.json
    ```
 
    The first is `stopped` after 12 teacher-conditioned eyes. The second is
@@ -285,9 +285,9 @@ unrelated dirty worktree content was deleted.
 
 ### Kept as useful evidence
 
-- `C:\OpenNR_Cache_StrictAllCohortsVariedHighEffect_0.5.5_20260907` source
+- `<DATA_ROOT>\OpenNR_Cache_StrictAllCohortsVariedHighEffect_0.5.5_20260907` source
   cache;
-- `C:\OpenNR_GEN_Static_20260910\pilot_v1` manifest, selection gallery,
+- `<DATA_ROOT>\OpenNR_GEN_Static_20260910\pilot_v1` manifest, selection gallery,
   coverage review, scores, and lower-strength review;
 - correct raw-input face galleries and their route-local manifests/scores;
 - the teacher-conditioned face gallery, explicitly marked offline-only;

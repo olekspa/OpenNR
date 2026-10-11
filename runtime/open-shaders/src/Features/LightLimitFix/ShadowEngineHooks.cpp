@@ -2,6 +2,12 @@
 // Every game-engine touchpoint of the shadow caster scheduler: hook thunks, engine accessors, and Install().
 
 #include <atomic>
+#include <algorithm>
+#include <cstddef>
+#include <condition_variable>
+#include <mutex>
+#include <thread>
+#include <vector>
 
 #include "../../Deferred.h"
 #include "../../Globals.h"
@@ -19,6 +25,37 @@
 
 namespace ShadowCasterManager
 {
+	namespace
+	{
+		struct ShadowClearArgs
+		{
+			std::uint64_t arg2;
+			std::uint64_t arg3;
+			std::uint64_t arg4;
+			bool operator==(const ShadowClearArgs&) const = default;
+		};
+
+		using ShadowClearCoordinator = ShadowTeardownCoordinator<RE::NiPointer<RE::ShadowSceneNode>, ShadowClearArgs>;
+		ShadowClearCoordinator s_shadowClearCoordinator(s_shadowWorkGate, s_pendingSessionReset, [] {
+			logger::warn("[SCM] Deferring reentrant ClearLightArrays until shadow work exits; teardown remains pending");
+		});
+	}
+
+	bool TryEnterShadowWork() noexcept
+	{
+		return s_shadowWorkGate.TryEnter();
+	}
+
+	void LeaveShadowWork() noexcept
+	{
+		if (s_shadowWorkGate.Leave()) {
+			try {
+				s_shadowClearCoordinator.CompleteDeferredForCurrentThread();
+			} catch (...) {
+				logger::critical("[SCM] Deferred shadow teardown failed; admission remains closed");
+			}
+		}
+	}
 	// =========================================================================
 	// Helpers for depth-target index globals
 	// SE: 14304EEE8 / AE: n/a (adjacent) / VR: 143180df0
@@ -869,26 +906,17 @@ namespace ShadowCasterManager
 		}
 	}
 
-	// Detours the engine's bulk shadow-light teardown (bypasses RemoveLight):
-	// flags a session reset, then bounded-waits out any in-flight shadow render
-	// before letting the engine free -- freeing mid-render-walk zeroes nodes.
+	// Detours the engine's bulk shadow-light teardown (bypasses RemoveLight).
 	struct Hook_ClearLightArrays
 	{
 		static void thunk(RE::ShadowSceneNode* a_ssn, std::uint64_t a_2, std::uint64_t a_3, std::uint64_t a_4)
 		{
 			if (a_ssn == GetShadowSceneNode()) {
-				s_pendingSessionReset.store(true, std::memory_order_release);
-				s_teardownWaiting.store(true, std::memory_order_release);
-				const auto deadline = std::chrono::steady_clock::now() + std::chrono::milliseconds(100);
-				while (s_shadowFlushReaders.load(std::memory_order_acquire) > 0) {
-					if (std::chrono::steady_clock::now() > deadline) {
-						logger::warn("[SCM] ClearLightArrays proceeding with a shadow render still in flight (reader wait timed out)");
-						break;
-					}
-					std::this_thread::yield();
-				}
-				func(a_ssn, a_2, a_3, a_4);
-				s_teardownWaiting.store(false, std::memory_order_release);
+				s_shadowClearCoordinator.Clear(a_ssn, RE::NiPointer<RE::ShadowSceneNode>(a_ssn),
+					ShadowClearArgs{ a_2, a_3, a_4 },
+					[](const auto& heldNode, const auto& args) {
+						Hook_ClearLightArrays::func(heldNode.get(), args.arg2, args.arg3, args.arg4);
+					});
 				return;
 			}
 			func(a_ssn, a_2, a_3, a_4);

@@ -28,6 +28,34 @@
 
 #include <chrono>
 #include <cstdint>
+#include <string>
+
+namespace NeuralRendering
+{
+	enum class RouteKind : std::uint8_t
+	{
+		Off,
+		FullEye,
+		NrOnlyCrop,
+		PeripheryHybrid,
+		Refused,
+	};
+
+	struct RouteStatus
+	{
+		RouteKind route = RouteKind::Off;
+		std::string refusalTerm;
+		std::uint32_t displayWidth = 0;
+		std::uint32_t displayHeight = 0;
+		std::uint32_t renderWidth = 0;
+		std::uint32_t renderHeight = 0;
+		std::uint32_t coveragePercent = 100;
+		std::uint32_t peripheryResolutionPercent = 0;
+		friend bool operator==(const RouteStatus&, const RouteStatus&) = default;
+	};
+
+	RouteStatus GetRouteStatus();
+}
 
 struct FoveatedRender
 {
@@ -90,21 +118,21 @@ struct FoveatedRender
 	// are silent no-ops that mislead users.
 	struct Settings
 	{
-		uint enabled = 0;  // opt-in: requires restart to take effect via LatchEnabled()
+		uint enabled = 1;  // Serialized compatibility mirror of neuralRenderingEnabled.
 		uint dlssMode = (uint)DlssMode::kDefault;
 		uint stretchMode = (uint)StretchMode::kGaussianBlur;
 		float peripheryBlurRadius = 1.0f;
 		uint debugVisualize = 0;  // tint cheap-stretched periphery red; runtime toggle
 		uint peripheryAAMode = static_cast<uint>(PeripheryAAMode::kTemporalSmooth);
 		float peripheryTemporalAlpha = 0.16f;
-		uint subrectBlendMode = static_cast<uint>(SubrectBlendMode::kFeather);
+		uint subrectBlendMode = static_cast<uint>(SubrectBlendMode::kDither);
 		uint subrectMaskMode = static_cast<uint>(SubrectMaskMode::kOval);
-		float subrectFeatherWidth = 64.0f;
+		float subrectFeatherWidth = 128.0f;
 		// Shape of the oval/feather transition. 1.0 is the balanced smoothstep
 		// curve; lower values move the neural result farther into the band, while
 		// higher values keep the stretched periphery longer before the handoff.
-		float subrectFalloffCurve = 1.0f;
-		float subrectDitherStrength = 1.0f;
+		float subrectFalloffCurve = 1.23f;
+		float subrectDitherStrength = 1.45f;
 		// First-run NR defaults mirror the validated internal DLSSNR tuning target.
 		// FoveatedRender itself remains opt-in, so this does not activate NR outside
 		// an explicitly enabled foveated-DLSS session.
@@ -112,7 +140,24 @@ struct FoveatedRender
 		uint neuralRenderingModelResolution = 100;
 		// NR-only centered coverage (linear %, per axis). DLSS stays full eye; Feature 18
 		// runs at 100% model resolution on the center and is edge-blended onto DLSS.
-		uint neuralRenderingCoverage = 100;
+		uint neuralRenderingCoverage = 55;
+		// Optional per-eye crop center from the projection's forward ray. Presets opt in;
+		// disabled preserves the original centered rectangle and does not query projection data.
+		bool neuralRenderingProjectionCenteredCrop = true;
+		float neuralRenderingProjectionCenterOffsetXPx = 0.0f;
+		float neuralRenderingProjectionCenterOffsetYPx = 0.0f;
+		float neuralRenderingProjectionCenterOffsetLeftXPx = 0.0f;
+		float neuralRenderingProjectionCenterOffsetLeftYPx = 0.0f;
+		float neuralRenderingProjectionCenterOffsetRightXPx = 0.0f;
+		float neuralRenderingProjectionCenterOffsetRightYPx = 0.0f;
+		// Optional whole-eye reduced-resolution Feature 18 pass. The centre still
+		// runs its normal 100% coverage crop; this separate pass fills the background.
+		bool neuralRenderingPeripheryEnabled = true;
+		bool neuralRenderingPeripheryGuidedFilter = false;
+		bool neuralRenderingPeripheryStagger = true;
+		uint neuralRenderingPeripheryResolution = 50;
+		float neuralRenderingPeripheryLightingGain = 0.83f;
+		float neuralRenderingPeripheryFeatherWidth = 160.0f;
 		uint neuralRenderingPreset = 0;  // 0 = Default; 5 = Custom
 		float neuralRenderingIntensity = 1.70f;
 		float neuralRenderingLocalTone = 1.00f;
@@ -201,6 +246,11 @@ struct FoveatedRender
 		bool neuralRenderingEyeTrackedFoveation = false;
 		float neuralRenderingEyeTrackedSmoothingMs = 0.0f;
 		uint neuralRenderingEyeTrackedQuantizationPixels = 8;
+		// Scheduling experiments require an in-game A/B; safe existing path remains default.
+		bool neuralRenderingParallelEyeQueue = false;
+		bool neuralRenderingFlushAfterSignal = false;
+		// Pre-create the per-eye NGX features on a loading/menu render frame.
+		bool neuralRenderingPrewarm = true;
 	};
 
 	inline static constexpr Util::Settings::RestartTable<Settings, 1> kRestartFields{ {
@@ -232,11 +282,6 @@ struct FoveatedRender
 	bool adaptiveNextDownshiftIsCrop = true;
 	std::uint64_t adaptiveCropDiagnosticGeneration = UINT64_MAX;
 
-	// Called from Upscaling::DrawSettings. DrawEnable renders the always-visible
-	// header + Enable checkbox at the parent's top level; DrawSettings renders
-	// the body knobs inside a collapsible TreeNode (Upscaling wraps it in
-	// BeginDisabled when settings.enabled == 0).
-	void DrawEnable();
 	void DrawSettings(bool showSharedPanelNote = true, bool vrControlsFirst = false,
 		bool showNeuralRenderingStatusButton = true);
 	void DrawNeuralRenderingStatusButton();
@@ -259,6 +304,7 @@ struct FoveatedRender
 	bool IsRuntimeSupported() const;
 	bool IsActive() const;
 	bool IsLoaded() const { return enabledAtBoot; }
+	void DrawDLSSModeControl();
 
 	/** @brief Update the adaptive NR/crop policy once for the current engine frame. */
 	void UpdateAdaptiveState(std::uint32_t frame, bool routeEligible);
@@ -288,8 +334,12 @@ struct FoveatedRender
 	};
 	FoveationProfile GetFoveationProfile() const;
 
-	// Main enable: latched at boot, change requires restart
-	void LatchEnabled() { enabledAtBoot = (settings.enabled != 0); }
+	// Restart-sensitive foveation resources follow the Neural Rendering master setting.
+	void LatchEnabled()
+	{
+		settings.enabled = settings.neuralRenderingEnabled ? 1u : 0u;
+		enabledAtBoot = settings.neuralRenderingEnabled;
+	}
 
 	// Quality mode reads through Upscaling::Settings — latch the boot value so
 	// downstream RT allocations stay coherent if the user moves the slider.
@@ -318,7 +368,7 @@ struct FoveatedRender
 	void ClampSettings();
 
 private:
-	bool enabledAtBoot = false;                            // latched from settings.enabled at boot
+	bool enabledAtBoot = false;                            // latched from the Neural Rendering master setting
 	uint qualityModeAtBoot = 4;                            // latched from Upscaling::Settings::qualityMode at boot
 	std::chrono::steady_clock::time_point lastDragTime{};  // epoch -- no force-visualize at boot
 

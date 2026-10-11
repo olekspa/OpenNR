@@ -17,7 +17,7 @@ The installed DLL contains the `write_color_previews` capture setting. No
 settings file was backed up at:
 
 ```text
-E:\MGO-RC3-fresh\_OpenNR_Pilot_Backups\pre-next-capture-latest-0.5.3-20260905-172118\SettingsUser.json
+<MO2_INSTANCE>\_OpenNR_Pilot_Backups\pre-next-capture-latest-0.5.3-20260905-172118\SettingsUser.json
 ```
 
 Only four keys in the `OpenNR Capture` block changed from the prior live
@@ -29,7 +29,7 @@ unchanged.
 The prepared probe writes to:
 
 ```text
-C:\OpenNR_Captures_Temporal_Crops_0.5.3_NoPreview_20260905
+<DATA_ROOT>\OpenNR_Captures_Temporal_Crops_0.5.3_NoPreview_20260905
 ```
 
 It captures both eyes, one centered 512×512 crop, pre-NR input, post-NR
@@ -45,7 +45,7 @@ until the first directory is finished. Then validate it with:
 
 ```powershell
 python tools\validate_temporal_capture.py `
-  C:\OpenNR_Captures_Temporal_Crops_0.5.3_NoPreview_20260905 `
+  <DATA_ROOT>\OpenNR_Captures_Temporal_Crops_0.5.3_NoPreview_20260905 `
   --mode crop `
   --allow-missing-initial-reset `
   --output out\temporal_audit_latest_0.5.3_20260905.json

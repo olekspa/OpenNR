@@ -54,6 +54,10 @@ namespace FoveatedRenderImpl
 		// Resolve the adaptive decision before Params hashes the crop. The same
 		// effective UVs are then consumed by DLSS, VRS, and the later NR hook.
 		const auto frame = globals::state ? globals::state->frameCount : 0;
+		if (NeedsPeripheryHistoryReset(Core::lastRouteFrame, frame)) {
+			Core::vrTemporalFrameIdx = 0;
+			Core::vrTemporalHistoryValid = false;
+		}
 		globals::features::upscaling.foveatedRender.UpdateAdaptiveState(frame, true);
 		auto p = VRDlssParams::Resolve(upscalingTexture, depthTexture, reactiveMask, transparencyMask, motionVectors);
 		// Preserve the source guides for the optional display-space crop handoff.
@@ -92,6 +96,12 @@ namespace FoveatedRenderImpl
 		                  ExecuteDefaultMode(streamline, p);
 		Bridge::foveatedEvaluating = false;
 		Bridge::gazeHistoryReset = false;
+		if (result)
+			Core::lastRouteFrame = frame;
+		else {
+			Core::vrTemporalFrameIdx = 0;
+			Core::vrTemporalHistoryValid = false;
+		}
 		return result;
 	}
 

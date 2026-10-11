@@ -120,6 +120,7 @@ NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_WITH_DEFAULT(
 	ContactShadowDepthFade,
 	ContactShadowMinIntensity,
 	ShowShadowOverlay,
+	ResetTemporalHistoryOnWorldChange,
 	ShadowSettings,
 	EnableParticleContactShadows,
 	EnableParticleLights,

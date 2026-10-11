@@ -3,6 +3,6 @@
   "cache": "C:/OpenNR/TrainingCache",
   "training": "C:/OpenNR/Training",
   "output": "C:/OpenNR/Outputs",
-  "build": "E:/OpenNR_Builds/2.15.0",
-  "dependencies": "C:/OpenNR/Dependencies/runtime-2.15.0"
+  "build": "E:/OpenNR_Builds/2.20.2",
+  "dependencies": "C:/OpenNR/Dependencies/runtime-2.16.0"
 }

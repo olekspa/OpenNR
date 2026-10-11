@@ -106,7 +106,7 @@ void EffectManager::LogPresetStatus() const
 
 	// Effects11 stays inert without a preset, so make the reason findable
 	if (!enbEffect.IsFilePresent()) {
-		logger::warn("[EFFECTS11] No preset in use: '{}' not found", enbEffect.GetFilePath().string());
+		logger::info("[EFFECTS11] No preset in use: '{}' not found", enbEffect.GetFilePath().string());
 	} else {
 		const auto& errors = enbEffect.GetErrors();
 		logger::error("[EFFECTS11] No preset in use: '{}' failed to load: {}", enbEffect.GetFilePath().string(),

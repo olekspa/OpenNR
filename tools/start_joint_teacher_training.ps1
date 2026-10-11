@@ -19,5 +19,5 @@ $trainingArguments = @((Join-Path $PSScriptRoot 'train_spatial_tone.py'), '--run
     '--output', $recipe.output, '--stable-unet', '--initial-head-run', $recipe.initial_head_run,
     '--additional-cohort', $recipe.cohorts[3], '--two-pass-cohort', $recipe.cohorts[4],
     '--steps', [string]$recipe.steps, '--seed', [string]$recipe.seed)
-& 'E:/OpenNR-VR-Poc-Venv/Scripts/python.exe' @trainingArguments
+& '<POC_VENV>/Scripts/python.exe' @trainingArguments
 exit $LASTEXITCODE

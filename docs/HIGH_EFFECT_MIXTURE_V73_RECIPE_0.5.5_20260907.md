@@ -21,19 +21,19 @@ and untouched.
 ## Immutable inputs
 
 - Parent:
-  `E:\OpenNR_Training\fullres_aux_oversample_v65_probe_0.5.5_20260906\best_mae.pt`
+  `<DATA_ROOT>\OpenNR_Training\fullres_aux_oversample_v65_probe_0.5.5_20260906\best_mae.pt`
 - Parent SHA-256:
   `5672252B438669169D8B2FED9FFB16F20768270F01D79DC924F32B9318FBC3E3`
 - Old temporal cache, NVMe staging copy:
-  `E:\OpenNR_TrainingInputs\OpenNR_RawCropCache_StrictAllCohortsNextGrid_0.5.5_20260906`
+  `<DATA_ROOT>\OpenNR_TrainingInputs\OpenNR_RawCropCache_StrictAllCohortsNextGrid_0.5.5_20260906`
 - Old temporal cache, cold verified copy:
-  `G:\OpenNR_ColdStorage\OpenNR_RawCropCache_StrictAllCohortsNextGrid_0.5.5_20260906`
+  `<DATA_ROOT>\OpenNR_ColdStorage\OpenNR_RawCropCache_StrictAllCohortsNextGrid_0.5.5_20260906`
 - New temporal cache:
-  `E:\OpenNR_RawCropCache_VariedHighEffectTemporalClean_0.5.5_20260907`
+  `<DATA_ROOT>\OpenNR_RawCropCache_VariedHighEffectTemporalClean_0.5.5_20260907`
 - Training-only spatial cache:
-  `C:\OpenNR_Cache_VariedHighEffectSpatialAllCrops_0.5.5_20260907`
+  `<DATA_ROOT>\OpenNR_Cache_VariedHighEffectSpatialAllCrops_0.5.5_20260907`
 - Output (new directory):
-  `E:\OpenNR_Training\high_effect_mixture_v73_probe_0.5.5_20260907`
+  `<DATA_ROOT>\OpenNR_Training\high_effect_mixture_v73_probe_0.5.5_20260907`
 
 The old staging copy has 8/8 files and 65.500 GiB with exact size/SHA-256
 agreement against G:. The new cache has 28 clean strict sequences, split 17
@@ -42,16 +42,16 @@ corpus; it must not be rebuilt by concatenating raw row files.
 
 ## Exact command
 
-Run from `D:\.CODEX_Projects\OpenNR-VR` only after GPU ownership is released:
+Run from `<REPO>` only after GPU ownership is released:
 
 ```powershell
-& 'E:\OpenNR-VR-Poc-Venv\Scripts\python.exe' 'tools\train_capacity_temporal_student.py' `
-  --initialize 'E:\OpenNR_Training\fullres_aux_oversample_v65_probe_0.5.5_20260906\best_mae.pt' `
-  --cache 'E:\OpenNR_TrainingInputs\OpenNR_RawCropCache_StrictAllCohortsNextGrid_0.5.5_20260906' `
-  --new-temporal-cache 'E:\OpenNR_RawCropCache_VariedHighEffectTemporalClean_0.5.5_20260907' `
+& '<POC_VENV>\Scripts\python.exe' 'tools\train_capacity_temporal_student.py' `
+  --initialize '<DATA_ROOT>\OpenNR_Training\fullres_aux_oversample_v65_probe_0.5.5_20260906\best_mae.pt' `
+  --cache '<DATA_ROOT>\OpenNR_TrainingInputs\OpenNR_RawCropCache_StrictAllCohortsNextGrid_0.5.5_20260906' `
+  --new-temporal-cache '<DATA_ROOT>\OpenNR_RawCropCache_VariedHighEffectTemporalClean_0.5.5_20260907' `
   --new-temporal-prob 0.35 `
-  --spatial-cache 'C:\OpenNR_Cache_VariedHighEffectSpatialAllCrops_0.5.5_20260907' `
-  --output 'E:\OpenNR_Training\high_effect_mixture_v73_probe_0.5.5_20260907' `
+  --spatial-cache '<DATA_ROOT>\OpenNR_Cache_VariedHighEffectSpatialAllCrops_0.5.5_20260907' `
+  --output '<DATA_ROOT>\OpenNR_Training\high_effect_mixture_v73_probe_0.5.5_20260907' `
   --steps 1200 `
   --window 8 `
   --burn-in 2 `

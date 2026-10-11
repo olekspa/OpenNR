@@ -3,6 +3,13 @@
 #include "GpuPass.h"
 #include "State.h"
 #include "Util.h"
+#include "Features/Upscaling.h"
+#include "Features/Upscaling/PerfMode/MapProbeIndexPolicy.h"
+#include "Features/Upscaling/PerfMode/MapMenuDisplayResolutionPolicy.h"
+
+#include <spdlog/spdlog.h>
+#include <algorithm>
+#include <Windows.h>
 
 #pragma comment(lib, "dxguid.lib")
 
@@ -10,6 +17,325 @@ namespace FrameAnnotations
 {
 	namespace
 	{
+		struct MapProbeSession
+		{
+			bool active = false;
+			std::uint32_t draws = 0;
+			std::uint32_t loggedImageSpaceDraws = 0;
+			std::uint32_t targetBinds = 0;
+			std::uint32_t isMapDraws = 0;
+			std::uint32_t isWorldMapDraws = 0;
+			std::uint32_t isWorldMapNoSkyBlurDraws = 0;
+			std::uint32_t isCopyDraws = 0;
+			std::uint32_t routedDisplayResDraws = 0;
+			bool invalidRtLogged = false;
+			bool invalidDsLogged = false;
+			bool drawFaultLogged = false;
+			bool bindFaultLogged = false;
+		};
+		MapProbeSession mapProbe;
+		bool mapResolutionLogged = false;
+		bool mapRouteDenialLogged = false;
+
+		std::pair<std::uint32_t, std::uint32_t> GetMapRenderTargetSize(std::uint32_t a_index)
+		{
+			auto* renderer = globals::game::renderer;
+			if (!renderer || a_index >= std::size(renderer->GetRuntimeData().renderTargets))
+				return {};
+			auto& target = renderer->GetRuntimeData().renderTargets[a_index];
+			if (!target.texture)
+				return {};
+			D3D11_TEXTURE2D_DESC desc{};
+			Util::AsReal(target.texture)->GetDesc(&desc);
+			return { desc.Width, desc.Height };
+		}
+
+		std::pair<std::uint32_t, std::uint32_t> GetMapFinalCompositeSize()
+		{
+			auto* renderer = globals::game::renderer;
+			if (!renderer)
+				return {};
+
+			if (globals::game::isVR) {
+				if (RE::RENDER_TARGETS::kVR_FRAMEBUFFER >= static_cast<std::uint32_t>(Util::GetRenderTargetCount()))
+					return {};
+				// The VR runtime appends its presented SBS target after the flat
+				// render-target array; follow the same slot used by screenshot capture.
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Warray-bounds"
+				auto& target = renderer->GetRuntimeData().renderTargets[RE::RENDER_TARGETS::kVR_FRAMEBUFFER];
+#pragma clang diagnostic pop
+				if (!target.texture)
+					return {};
+				D3D11_TEXTURE2D_DESC desc{};
+				Util::AsReal(target.texture)->GetDesc(&desc);
+				return { desc.Width, desc.Height };
+			}
+
+			return GetMapRenderTargetSize(RE::RENDER_TARGETS::kTOTAL);
+		}
+
+		std::pair<std::uint32_t, std::uint32_t> GetMapCopySourceSize()
+		{
+			if (!globals::d3d::context)
+				return {};
+			ID3D11ShaderResourceView* sourceView = nullptr;
+			globals::d3d::context->PSGetShaderResources(0, 1, &sourceView);
+			if (!sourceView)
+				return {};
+			ID3D11Resource* sourceResource = nullptr;
+			sourceView->GetResource(&sourceResource);
+			sourceView->Release();
+			if (!sourceResource)
+				return {};
+			winrt::com_ptr<ID3D11Texture2D> sourceTexture;
+			const HRESULT queryResult = sourceResource->QueryInterface(__uuidof(ID3D11Texture2D), sourceTexture.put_void());
+			sourceResource->Release();
+			if (FAILED(queryResult))
+				return {};
+			D3D11_TEXTURE2D_DESC desc{};
+			sourceTexture->GetDesc(&desc);
+			return { desc.Width, desc.Height };
+		}
+
+		void LogMapResolutionOnce(bool a_displayRouteApplied)
+		{
+			if (mapResolutionLogged)
+				return;
+			mapResolutionLogged = true;
+			const auto mapSize = GetMapRenderTargetSize(RE::RENDER_TARGETS::kMENUBG);
+			const auto sourceSize = GetMapCopySourceSize();
+			const auto destinationSize = GetMapRenderTargetSize(RE::RENDER_TARGETS::kMENUBG);
+			const auto compositeSize = GetMapFinalCompositeSize();
+			const auto compositeTarget = globals::game::isVR ? "kVR_FRAMEBUFFER" : "kTOTAL";
+			logger::info("[PerfMode][Map] size-chain mapTarget={}x{} ISCopySource={}x{} ISCopyDestination={}x{} displayRouteApplied={} finalCompositeTarget={} finalComposite={}x{}",
+				mapSize.first, mapSize.second, sourceSize.first, sourceSize.second,
+				destinationSize.first, destinationSize.second, a_displayRouteApplied,
+				compositeTarget,
+				compositeSize.first, compositeSize.second);
+			spdlog::default_logger()->flush();
+		}
+
+		struct MapProbeRasterState
+		{
+			UINT viewportCount = 0;
+			D3D11_VIEWPORT viewport{};
+			UINT scissorCount = 0;
+			D3D11_RECT scissor{};
+		};
+
+		MapProbeRasterState CaptureMapProbeRasterState()
+		{
+			MapProbeRasterState state{};
+			if (!globals::d3d::context)
+				return state;
+
+			state.viewportCount = 1;
+			globals::d3d::context->RSGetViewports(&state.viewportCount, &state.viewport);
+			state.scissorCount = 1;
+			globals::d3d::context->RSGetScissorRects(&state.scissorCount, &state.scissor);
+			return state;
+		}
+
+		void FlushMapProbeLine()
+		{
+			spdlog::default_logger()->flush();
+		}
+
+		void LogMapProbeOpen(std::uint32_t frame)
+		{
+			const auto& upscaling = globals::features::upscaling;
+			const auto& perfMode = upscaling.perfMode;
+			logger::info("[MapProbe] open frame={} perfMode={} renderEye={}x{} displayEye={}x{} renderAtUpscaleRes={}",
+				frame, perfMode.IsHookActive(), perfMode.GetRenderEyeWidth(), perfMode.GetRenderEyeHeight(),
+				perfMode.GetDisplayEyeWidth(), perfMode.GetDisplayEyeHeight(), upscaling.settings.renderAtUpscaleRes);
+			FlushMapProbeLine();
+		}
+
+		void LogInvalidMapProbeIndexOnce(bool& logged, const char* kind, std::uint64_t index, std::size_t bound)
+		{
+			if (logged)
+				return;
+			logged = true;
+			logger::info("[MapProbe] invalid index kind={} value=0x{:X} bound={}; probe record skipped", kind, index, bound);
+		}
+
+		void LogMapProbeFaultOnce(bool& logged, const char* kind)
+		{
+			if (logged)
+				return;
+			logged = true;
+			logger::error("[MapProbe] caught structured exception in {} probe; record skipped", kind);
+			FlushMapProbeLine();
+		}
+
+		void LogMapProbeImageSpaceDrawUnsafe(std::uint16_t rawEffect, std::uint32_t frame, bool routedDisplayRes)
+		{
+			if (!mapProbe.active || !globals::state || !globals::state->isMapMenuOpen)
+				return;
+
+			++mapProbe.draws;
+			if (mapProbe.loggedImageSpaceDraws >= 20)
+				return;
+			++mapProbe.loggedImageSpaceDraws;
+			const auto effect = static_cast<RE::ImageSpaceManager::ImageSpaceEffectEnum>(rawEffect);
+			const auto shaderName = RE::ImageSpaceManager::GetImageSpaceEffectName(effect);
+			const auto raster = CaptureMapProbeRasterState();
+			logger::info("[MapProbe] imagespace draw #{} frame={} shader={} effect={}({}) routedDisplayRes={} viewportCount={} viewport=({:.1f},{:.1f},{:.1f},{:.1f}) scissorCount={} scissor=({},{},{},{})",
+				mapProbe.loggedImageSpaceDraws, frame, shaderName, rawEffect, magic_enum::enum_name(effect), routedDisplayRes,
+				raster.viewportCount, raster.viewport.TopLeftX, raster.viewport.TopLeftY,
+				raster.viewport.Width, raster.viewport.Height,
+				raster.scissorCount, raster.scissor.left, raster.scissor.top, raster.scissor.right, raster.scissor.bottom);
+			FlushMapProbeLine();
+
+			const auto* renderer = globals::game::renderer;
+			const auto* shadowState = globals::game::shadowState;
+			const auto& perfMode = globals::features::upscaling.perfMode;
+			std::uint64_t rtIndex = UINT64_MAX;
+			std::uint64_t dsIndex = UINT64_MAX;
+			std::uint32_t rtWidth = 0, rtHeight = 0, dsWidth = 0, dsHeight = 0;
+			if (shadowState) {
+				const auto& runtime = shadowState->GetVRRuntimeData();
+				rtIndex = static_cast<std::uint64_t>(runtime.renderTargets[0]);
+				dsIndex = static_cast<std::uint64_t>(runtime.depthStencil);
+			}
+			if (!renderer || !shadowState)
+				return;
+			auto& renderTargets = renderer->GetRuntimeData().renderTargets;
+			auto& depthStencils = renderer->GetDepthStencilData().depthStencils;
+			auto* target = MapProbeIndexPolicy::TryIndex(renderTargets, rtIndex);
+			if (!target) {
+				LogInvalidMapProbeIndexOnce(mapProbe.invalidRtLogged, "render-target", rtIndex, std::size(renderTargets));
+				return;
+			}
+			auto* depth = MapProbeIndexPolicy::TryIndex(depthStencils, dsIndex);
+			if (!depth) {
+				LogInvalidMapProbeIndexOnce(mapProbe.invalidDsLogged, "depth-stencil", dsIndex, std::size(depthStencils));
+				return;
+			}
+			using RenderTarget = RE::RENDER_TARGETS::RENDER_TARGET;
+			using DepthStencil = RE::RENDER_TARGETS_DEPTHSTENCIL::RENDER_TARGET_DEPTHSTENCIL;
+			const auto rtEnum = static_cast<RenderTarget>(rtIndex);
+			const auto dsEnum = static_cast<DepthStencil>(dsIndex);
+			if (target->texture) {
+				D3D11_TEXTURE2D_DESC desc{};
+				Util::AsReal(target->texture)->GetDesc(&desc);
+				rtWidth = desc.Width;
+				rtHeight = desc.Height;
+			}
+			{
+				ID3D11View* view = routedDisplayRes ? static_cast<ID3D11View*>(perfMode.GetFakeDSV()) :
+					static_cast<ID3D11View*>(Util::AsReal(depth->depthSRV));
+				if (view) {
+					winrt::com_ptr<ID3D11Resource> resource;
+					view->GetResource(resource.put());
+					winrt::com_ptr<ID3D11Texture2D> texture;
+					if (resource && SUCCEEDED(resource->QueryInterface(__uuidof(ID3D11Texture2D), texture.put_void()))) {
+						D3D11_TEXTURE2D_DESC desc{};
+						texture->GetDesc(&desc);
+						dsWidth = desc.Width;
+						dsHeight = desc.Height;
+					}
+				}
+			}
+
+			const auto rtName = magic_enum::enum_name(rtEnum);
+			const auto dsName = magic_enum::enum_name(dsEnum);
+			const bool inEnlargeSet = rtEnum == RE::RENDER_TARGETS::kTOTAL ||
+				rtEnum == RE::RENDER_TARGETS::kMENUBG || rtEnum == RE::RENDER_TARGETS::kIMAGESPACE_TEMP_COPY;
+			logger::info("[MapProbe] imagespace resources #{} frame={} rtIdx={}({}) rtSize={}x{} dsIdx={}({}) dsSize={}x{} inPerfModeEnlargeSet={} swapActive={}",
+				mapProbe.loggedImageSpaceDraws,
+				frame, rtIndex, rtName, rtWidth, rtHeight, dsIndex, dsName, dsWidth, dsHeight,
+				inEnlargeSet, perfMode.IsSwapActive());
+			FlushMapProbeLine();
+		}
+
+		void LogMapProbeImageSpaceDraw(std::uint16_t rawEffect, std::uint32_t frame, bool routedDisplayRes)
+		{
+			__try {
+				LogMapProbeImageSpaceDrawUnsafe(rawEffect, frame, routedDisplayRes);
+			} __except (EXCEPTION_EXECUTE_HANDLER) {
+				LogMapProbeFaultOnce(mapProbe.drawFaultLogged, "imagespace-draw");
+			}
+		}
+
+		void LogMapProbeRenderTargetBindUnsafe()
+		{
+			if (!mapProbe.active || !globals::state || !globals::state->isMapMenuOpen)
+				return;
+			++mapProbe.targetBinds;
+			if (mapProbe.targetBinds > 20)
+				return;
+			const auto* shadowState = globals::game::shadowState;
+			const auto* renderer = globals::game::renderer;
+			if (!shadowState || !renderer)
+				return;
+			const auto& runtime = shadowState->GetVRRuntimeData();
+			const auto& perfMode = globals::features::upscaling.perfMode;
+			using RenderTarget = RE::RENDER_TARGETS::RENDER_TARGET;
+			using DepthStencil = RE::RENDER_TARGETS_DEPTHSTENCIL::RENDER_TARGET_DEPTHSTENCIL;
+			const auto rtIndex = static_cast<std::uint64_t>(runtime.renderTargets[0]);
+			auto& renderTargets = renderer->GetRuntimeData().renderTargets;
+			auto* target = MapProbeIndexPolicy::TryIndex(renderTargets, rtIndex);
+			if (!target) {
+				LogInvalidMapProbeIndexOnce(mapProbe.invalidRtLogged, "render-target", rtIndex, std::size(renderTargets));
+				return;
+			}
+			const auto rtEnum = static_cast<RenderTarget>(rtIndex);
+			if (rtEnum != RE::RENDER_TARGETS::kMENUBG && rtEnum != RE::RENDER_TARGETS::kTOTAL &&
+				rtEnum != RE::RENDER_TARGETS::kPROJECTEDMENU)
+				return;
+			const auto dsIndex = static_cast<std::uint64_t>(runtime.depthStencil);
+			const auto dsEnum = static_cast<DepthStencil>(dsIndex);
+			auto& depthStencils = renderer->GetDepthStencilData().depthStencils;
+			auto* depth = MapProbeIndexPolicy::TryIndex(depthStencils, dsIndex);
+			if (!depth) {
+				LogInvalidMapProbeIndexOnce(mapProbe.invalidDsLogged, "depth-stencil", dsIndex, std::size(depthStencils));
+				return;
+			}
+			std::uint32_t rtWidth = 0, rtHeight = 0, dsWidth = 0, dsHeight = 0;
+			if (target->texture) {
+				D3D11_TEXTURE2D_DESC desc{};
+				Util::AsReal(target->texture)->GetDesc(&desc);
+				rtWidth = desc.Width;
+				rtHeight = desc.Height;
+			}
+			{
+				ID3D11View* depthView = perfMode.IsMapMenuDisplayResolutionActive() ?
+					static_cast<ID3D11View*>(perfMode.GetFakeDSV()) :
+					static_cast<ID3D11View*>(Util::AsReal(depth->depthSRV));
+				if (depthView) {
+					winrt::com_ptr<ID3D11Resource> resource;
+					depthView->GetResource(resource.put());
+					winrt::com_ptr<ID3D11Texture2D> texture;
+					if (resource && SUCCEEDED(resource->QueryInterface(__uuidof(ID3D11Texture2D), texture.put_void()))) {
+						D3D11_TEXTURE2D_DESC desc{};
+						texture->GetDesc(&desc);
+						dsWidth = desc.Width;
+						dsHeight = desc.Height;
+					}
+				}
+			}
+			const auto raster = CaptureMapProbeRasterState();
+			logger::info("[MapProbe] target bind #{} rt={}({}) size={}x{} ds={}({}) size={}x{} viewportCount={} viewport=({:.1f},{:.1f},{:.1f},{:.1f}) scissorCount={} scissor=({},{},{},{}) inPerfModeEnlargeSet={} swapActive={}",
+				mapProbe.targetBinds, rtIndex, magic_enum::enum_name(rtEnum), rtWidth, rtHeight,
+				dsIndex, magic_enum::enum_name(dsEnum), dsWidth, dsHeight,
+				raster.viewportCount, raster.viewport.TopLeftX, raster.viewport.TopLeftY,
+				raster.viewport.Width, raster.viewport.Height,
+				raster.scissorCount, raster.scissor.left, raster.scissor.top, raster.scissor.right, raster.scissor.bottom,
+				rtEnum == RE::RENDER_TARGETS::kMENUBG || rtEnum == RE::RENDER_TARGETS::kTOTAL,
+				perfMode.IsSwapActive());
+		}
+
+		void LogMapProbeRenderTargetBind()
+		{
+			__try {
+				LogMapProbeRenderTargetBindUnsafe();
+			} __except (EXCEPTION_EXECUTE_HANDLER) {
+				LogMapProbeFaultOnce(mapProbe.bindFaultLogged, "target-bind");
+			}
+		}
+
 		// Cache the shader-defines suffix (a rarely-changing global) so the per-draw
 		// annotation doesn't re-derive it every draw. Render-thread only, plain static.
 		static std::string_view CachedDefinesSuffix()
@@ -40,12 +366,73 @@ namespace FrameAnnotations
 		}
 	}
 
+	void OnMapMenuState(bool open, std::uint32_t frame)
+	{
+		mapResolutionLogged = false;
+		mapRouteDenialLogged = false;
+		if (!globals::features::upscaling.settings.mapProbeDiagnostics) {
+			mapProbe = {};
+			return;
+		}
+		if (open && !mapProbe.active) {
+			mapProbe = {};
+			mapProbe.active = true;
+			LogMapProbeOpen(frame);
+		} else if (!open && mapProbe.active) {
+			logger::info("[MapProbe] close frame={} draws={}", frame, mapProbe.draws);
+			logger::info("[MapProbe] effect count shader=ISMap raw={} draws={}",
+				static_cast<std::uint16_t>(RE::ImageSpaceManager::ISMap), mapProbe.isMapDraws);
+			logger::info("[MapProbe] effect count shader=ISWorldMap raw={} draws={}",
+				static_cast<std::uint16_t>(RE::ImageSpaceManager::ISWorldMap), mapProbe.isWorldMapDraws);
+			logger::info("[MapProbe] effect count shader=ISWorldMapNoSkyBlur raw={} draws={}",
+				static_cast<std::uint16_t>(RE::ImageSpaceManager::ISWorldMapNoSkyBlur), mapProbe.isWorldMapNoSkyBlurDraws);
+			logger::info("[MapProbe] effect count shader=ISCopy raw={} draws={} routedDisplayRes={}",
+				static_cast<std::uint16_t>(RE::ImageSpaceManager::ISCopy), mapProbe.isCopyDraws,
+				mapProbe.routedDisplayResDraws);
+			logger::info("[MapProbe] target binds logged={} total={}", std::min(mapProbe.targetBinds, 20u), mapProbe.targetBinds);
+			FlushMapProbeLine();
+			mapProbe = {};
+		}
+	}
+
+	void OnMapShaderDraw(std::uint16_t effect, std::uint32_t frame, bool routedDisplayRes)
+	{
+		if (mapProbe.active && globals::state && globals::state->isMapMenuOpen) {
+			switch (static_cast<RE::ImageSpaceManager::ImageSpaceEffectEnum>(effect)) {
+			case RE::ImageSpaceManager::ISMap:
+				++mapProbe.isMapDraws;
+				break;
+			case RE::ImageSpaceManager::ISWorldMap:
+				++mapProbe.isWorldMapDraws;
+				break;
+			case RE::ImageSpaceManager::ISWorldMapNoSkyBlur:
+				++mapProbe.isWorldMapNoSkyBlurDraws;
+				break;
+			case RE::ImageSpaceManager::ISCopy:
+			case RE::ImageSpaceManager::ISCopyCustomViewport:
+			case RE::ImageSpaceManager::ISCopyDynamicFetchDisabled:
+				++mapProbe.isCopyDraws;
+				if (routedDisplayRes)
+					++mapProbe.routedDisplayResDraws;
+				break;
+			default:
+				break;
+			}
+		}
+		LogMapProbeImageSpaceDraw(effect, frame, routedDisplayRes);
+	}
+
+	void OnMapRenderTargetBind()
+	{
+		LogMapProbeRenderTargetBind();
+	}
+
 	template <RE::BSShader::Type ShaderType>
 	struct BSShader_SetupGeometry
 	{
 		static void thunk(RE::BSShader* shader, RE::BSRenderPass* pass, uint32_t renderFlags)
 		{
-			if (globals::state->frameAnnotations) {
+			if (globals::state->frameAnnotations && globals::state->IsPerfCaptureActive()) {
 				uint32_t descriptor = 0;
 				if (globals::game::currentPixelShader && *globals::game::currentPixelShader) {
 					descriptor = (*globals::game::currentPixelShader)->id;
@@ -78,7 +465,7 @@ namespace FrameAnnotations
 		{
 			func(shader, pass, renderFlags);
 
-			if (globals::state->frameAnnotations) {
+			if (globals::state->frameAnnotations && globals::state->IsPerfCaptureActive()) {
 				globals::state->EndDrawEvent();
 			}
 		}
@@ -91,11 +478,66 @@ namespace FrameAnnotations
 	{
 		static void thunk(void* imageSpaceShader, RE::BSTriShape* shape, RE::ImageSpaceEffectParam* param)
 		{
+			bool mapDisplayRoute = false;
+			bool ownsMapDisplayRoute = false;
+			bool logMapResolution = false;
+			uint32_t sourceRT = UINT32_MAX;
+			if constexpr (PerfModePolicy::IsMapCopyEffect(
+				EffectType == RE::ImageSpaceManager::ISCopy,
+				EffectType == RE::ImageSpaceManager::ISCopyCustomViewport,
+				EffectType == RE::ImageSpaceManager::ISCopyDynamicFetchDisabled)) {
+				if (globals::game::isVR && globals::state && globals::state->isMapMenuOpen) {
+					auto& perfMode = globals::features::upscaling.perfMode;
+					if constexpr (EffectType == RE::ImageSpaceManager::ISCopy)
+						logMapResolution = true;
+					const bool mapCopy = true;
+					const bool isVR = globals::game::isVR;
+					const bool mapOpen = globals::state->isMapMenuOpen;
+					const bool routeReady = perfMode.IsHookActive();
+					const bool routeCandidate = PerfModePolicy::ShouldRouteMapCopyAtDisplayResolution(
+						mapCopy, isVR, mapOpen, routeReady);
+					if (routeCandidate) {
+						mapDisplayRoute = perfMode.IsMapMenuDisplayResolutionActive();
+						if (!mapDisplayRoute) {
+							mapDisplayRoute = perfMode.BeginMapMenuDisplayResolution(&sourceRT);
+							ownsMapDisplayRoute = mapDisplayRoute;
+						}
+					}
+					if constexpr (EffectType == RE::ImageSpaceManager::ISCopy) {
+						if (!mapDisplayRoute && !mapRouteDenialLogged) {
+							mapRouteDenialLogged = true;
+							const bool settingEnabled = globals::features::upscaling.settings.vrMapMenuDisplayResolution;
+							const bool fakeDSV = perfMode.GetFakeDSV() != nullptr;
+							const bool renderer = globals::game::renderer != nullptr;
+							const bool shadowState = globals::game::shadowState != nullptr;
+							const bool stateUpdateFlags = globals::game::stateUpdateFlags != nullptr;
+							const bool resourcesReady = PerfModePolicy::AreMapRoutePrerequisitesReady(
+								perfMode.IsHookActive(), fakeDSV, renderer, shadowState, stateUpdateFlags);
+							const char* reason = !settingEnabled ? "setting-disabled" : !isVR ? "not-vr-game" :
+								!mapOpen ? "map-closed" : !routeReady ? "hook-inactive" :
+								!resourcesReady ? "resources-not-ready" : "begin-route-failed";
+							logger::info("[PerfMode][Map] first ISCopy route denied reason={} enabled={} isVR={} mapOpen={} hookActive={} fakeDSV={} renderer={} shadowState={} stateUpdateFlags={} resourcesReady={} menuPresentationIgnored=true",
+								reason, settingEnabled, isVR, mapOpen, perfMode.IsHookActive(), fakeDSV, renderer,
+								shadowState, stateUpdateFlags, resourcesReady);
+						}
+					}
+				}
+			}
+			if (globals::state && globals::state->isMapMenuOpen)
+				OnMapShaderDraw(static_cast<std::uint16_t>(EffectType), globals::state->frameCount, mapDisplayRoute);
 			const bool annotate = globals::state->frameAnnotations;
 			if (annotate)
 				globals::state->BeginPerfEvent("{} Draw", BuildEventName(EffectType));
 
 			func(imageSpaceShader, shape, param);
+
+			// The renderer binds the copy destination inside func(). Log after
+			// it returns so the size-chain samples the actual copy draw state.
+			if (logMapResolution)
+				LogMapResolutionOnce(mapDisplayRoute);
+
+			if (ownsMapDisplayRoute)
+				globals::features::upscaling.perfMode.EndMapMenuDisplayResolution();
 
 			if (annotate)
 				globals::state->EndPerfEvent();
@@ -404,6 +846,48 @@ namespace FrameAnnotations
 	void OnPostPostLoad()
 	{
 		stl::detour_thunk<BSShaderAccumulator_RenderEffects>(REL::RelocationID(99940, 106585));
+		bool isMapHookInstalled = false;
+		bool isWorldMapHookInstalled = false;
+		bool isWorldMapNoSkyBlurHookInstalled = false;
+		bool isCopyHookInstalled = false;
+		if (globals::game::isVR) {
+			// The map image is copied by ISCopy into kMENUBG. Keep this hook and
+			// the map census hooks available when Frame Annotations is disabled.
+			stl::write_vfunc<0x1, BSImagespaceShader_Render<RE::ImageSpaceManager::ISCopy>>(
+				RE::VTABLE_BSImagespaceShaderCopy[3]);
+			stl::write_vfunc<0x1, BSImagespaceShader_Render<RE::ImageSpaceManager::ISCopyDynamicFetchDisabled>>(
+				RE::VTABLE_BSImagespaceShaderCopyDynamicFetchDisabled[3]);
+			stl::write_vfunc<0x1, BSImagespaceShader_Render<RE::ImageSpaceManager::ISCopyCustomViewport>>(
+				RE::VTABLE_BSImagespaceShaderCopyCustomViewport[3]);
+			isCopyHookInstalled = true;
+			stl::write_vfunc<0x1, BSImagespaceShader_Render<RE::ImageSpaceManager::ISMap>>(
+				RE::VTABLE_BSImagespaceShaderMap[3]);
+			isMapHookInstalled = true;
+			stl::write_vfunc<0x1, BSImagespaceShader_Render<RE::ImageSpaceManager::ISWorldMap>>(
+				RE::VTABLE_BSImagespaceShaderWorldMap[3]);
+			isWorldMapHookInstalled = true;
+			stl::write_vfunc<0x1, BSImagespaceShader_Render<RE::ImageSpaceManager::ISWorldMapNoSkyBlur>>(
+				RE::VTABLE_BSImagespaceShaderWorldMapNoSkyBlur[3]);
+			isWorldMapNoSkyBlurHookInstalled = true;
+		}
+		const auto VfuncMatches = [](std::uintptr_t vtableAddress, std::size_t slot, std::uintptr_t expected) {
+			return *reinterpret_cast<const std::uintptr_t*>(vtableAddress + slot * sizeof(std::uintptr_t)) == expected;
+		};
+		isMapHookInstalled = isMapHookInstalled && VfuncMatches(RE::VTABLE_BSImagespaceShaderMap[3].address(), 1,
+			stl::unrestricted_cast<std::uintptr_t>(&BSImagespaceShader_Render<RE::ImageSpaceManager::ISMap>::thunk));
+		isWorldMapHookInstalled = isWorldMapHookInstalled && VfuncMatches(RE::VTABLE_BSImagespaceShaderWorldMap[3].address(), 1,
+			stl::unrestricted_cast<std::uintptr_t>(&BSImagespaceShader_Render<RE::ImageSpaceManager::ISWorldMap>::thunk));
+		isWorldMapNoSkyBlurHookInstalled = isWorldMapNoSkyBlurHookInstalled && VfuncMatches(
+			RE::VTABLE_BSImagespaceShaderWorldMapNoSkyBlur[3].address(), 1,
+			stl::unrestricted_cast<std::uintptr_t>(&BSImagespaceShader_Render<RE::ImageSpaceManager::ISWorldMapNoSkyBlur>::thunk));
+		isCopyHookInstalled = isCopyHookInstalled && VfuncMatches(RE::VTABLE_BSImagespaceShaderCopy[3].address(), 1,
+			stl::unrestricted_cast<std::uintptr_t>(&BSImagespaceShader_Render<RE::ImageSpaceManager::ISCopy>::thunk));
+		if (globals::features::upscaling.settings.mapProbeDiagnostics) {
+			logger::info("[MapProbe] hooks installed: ISCopy={} ISMap={} ISWorldMap={} ISWorldMapNoSkyBlur={} frameAnnotations={}",
+				isCopyHookInstalled, isMapHookInstalled, isWorldMapHookInstalled, isWorldMapNoSkyBlurHookInstalled,
+				globals::state->frameAnnotations);
+			FlushMapProbeLine();
+		}
 
 		if (!globals::state->frameAnnotations)
 			return;
@@ -450,15 +934,8 @@ namespace FrameAnnotations
 
 		stl::write_vfunc<0x1, BSImagespaceShader_Render<RE::ImageSpaceManager::ISFXAA>>(
 			RE::VTABLE_BSImagespaceShaderFXAA[3]);
-		stl::write_vfunc<0x1, BSImagespaceShader_Render<RE::ImageSpaceManager::ISCopy>>(
-			RE::VTABLE_BSImagespaceShaderCopy[3]);
-		stl::write_vfunc<0x1,
-			BSImagespaceShader_Render<RE::ImageSpaceManager::ISCopyDynamicFetchDisabled>>(
-			RE::VTABLE_BSImagespaceShaderCopyDynamicFetchDisabled[3]);
 		stl::write_vfunc<0x1, BSImagespaceShader_Render<RE::ImageSpaceManager::ISCopyScaleBias>>(
 			RE::VTABLE_BSImagespaceShaderCopyScaleBias[3]);
-		stl::write_vfunc<0x1, BSImagespaceShader_Render<RE::ImageSpaceManager::ISCopyCustomViewport>>(
-			RE::VTABLE_BSImagespaceShaderCopyCustomViewport[3]);
 		stl::write_vfunc<0x1, BSImagespaceShader_Render<RE::ImageSpaceManager::ISCopyGrayScale>>(
 			RE::VTABLE_BSImagespaceShaderGreyScale[3]);
 		stl::write_vfunc<0x1, BSImagespaceShader_Render<RE::ImageSpaceManager::ISRefraction>>(
@@ -467,12 +944,6 @@ namespace FrameAnnotations
 			RE::VTABLE_BSImagespaceShaderDoubleVision[3]);
 		stl::write_vfunc<0x1, BSImagespaceShader_Render<RE::ImageSpaceManager::ISCopyTextureMask>>(
 			RE::VTABLE_BSImagespaceShaderTextureMask[3]);
-		stl::write_vfunc<0x1, BSImagespaceShader_Render<RE::ImageSpaceManager::ISMap>>(
-			RE::VTABLE_BSImagespaceShaderMap[3]);
-		stl::write_vfunc<0x1, BSImagespaceShader_Render<RE::ImageSpaceManager::ISWorldMap>>(
-			RE::VTABLE_BSImagespaceShaderWorldMap[3]);
-		stl::write_vfunc<0x1, BSImagespaceShader_Render<RE::ImageSpaceManager::ISWorldMapNoSkyBlur>>(
-			RE::VTABLE_BSImagespaceShaderWorldMapNoSkyBlur[3]);
 		stl::write_vfunc<0x1, BSImagespaceShader_Render<RE::ImageSpaceManager::ISDepthOfField>>(
 			RE::VTABLE_BSImagespaceShaderDepthOfField[3]);
 		stl::write_vfunc<0x1, BSImagespaceShader_Render<RE::ImageSpaceManager::ISDepthOfFieldFogged>>(

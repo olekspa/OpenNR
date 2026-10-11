@@ -1,7 +1,7 @@
 [CmdletBinding()]
 param(
-    [string]$ProjectRoot = 'D:\.CODEX_Projects\DLSS_5_SKYRIM',
-    [string]$MgoRoot = 'E:\MGO-RC3-clean',
+    [string]$ProjectRoot = '<LEGACY_REPO>',
+    [string]$MgoRoot = '<MO2_INSTANCE>',
     [string]$ActiveProfile = 'Mad God Overhaul - NSFW',
     [string]$PrototypeProfile = 'DLSS5 SkyrimVR Prototype',
     [string]$PrototypeMod = 'DLSS5 SkyrimVR Experimental'

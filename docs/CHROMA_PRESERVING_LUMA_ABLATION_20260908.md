@@ -27,11 +27,11 @@ runtime change, or a Runpod rental.
 
 Authoritative run:
 
-`E:\OpenNR_Training\stable_unet_chroma_luma1200_20260908_retry7`
+`<DATA_ROOT>\OpenNR_Training\stable_unet_chroma_luma1200_20260908_retry7`
 
 Matched control:
 
-`E:\OpenNR_Training\stable_unet_joint_teacher_20260907`
+`<DATA_ROOT>\OpenNR_Training\stable_unet_joint_teacher_20260907`
 
 The arm retained the verified 38M stable U-Net and frozen causal parent. It
 copied the verified warm-start RGB-affine head and added one zero-initialized
@@ -76,7 +76,7 @@ The replay gate therefore keeps `5e-6` tolerances for MAE and temporal error
 and records an explicit `5e-4` PSNR-only tolerance for this luma arm. The
 recorded replay has no violations:
 
-[step-zero replay JSON](<E:/OpenNR_Training/stable_unet_chroma_luma1200_20260908_retry7/step_zero_replay.json>)
+[step-zero replay JSON](<<DATA_ROOT>/OpenNR_Training/stable_unet_chroma_luma1200_20260908_retry7/step_zero_replay.json>)
 
 This is a metric-stack compatibility note, not permission to ignore a real
 output mismatch.
@@ -171,13 +171,13 @@ Eye 0 and eye 1 sheets show the same conclusion; no unilateral stereo failure
 was introduced. The visual gap is consistent with the MAE result rather than a
 purely numerical artifact.
 
-- [Gallery index](<E:/OpenNR_Training/stable_unet_chroma_luma1200_20260908_retry7/final_gallery/index.html>)
-- [Prior eye 0](<E:/OpenNR_Training/stable_unet_chroma_luma1200_20260908_retry7/final_gallery/prior-seq-1788671399304-47-eye0.png>)
-- [Fresh one-pass eye 0](<E:/OpenNR_Training/stable_unet_chroma_luma1200_20260908_retry7/final_gallery/fresh_session-seq-1788829893113-17-eye0.png>)
-- [Two-pass eye 0](<E:/OpenNR_Training/stable_unet_chroma_luma1200_20260908_retry7/final_gallery/two_pass-seq-1788832836774-8-eye0.png>)
-- [Branch utilization JSON](<E:/OpenNR_Training/stable_unet_chroma_luma1200_20260908_retry7/luma_branch_diagnostic_final/result.json>)
-- [Full training-fit JSON](<E:/OpenNR_Training/stable_unet_chroma_luma1200_20260908_retry7/training_fit_final/result.json>)
-- [Final checkpoint verification](<E:/OpenNR_Training/stable_unet_chroma_luma1200_20260908_retry7/final_checkpoint_verification.json>)
+- [Gallery index](<<DATA_ROOT>/OpenNR_Training/stable_unet_chroma_luma1200_20260908_retry7/final_gallery/index.html>)
+- [Prior eye 0](<<DATA_ROOT>/OpenNR_Training/stable_unet_chroma_luma1200_20260908_retry7/final_gallery/prior-seq-1788671399304-47-eye0.png>)
+- [Fresh one-pass eye 0](<<DATA_ROOT>/OpenNR_Training/stable_unet_chroma_luma1200_20260908_retry7/final_gallery/fresh_session-seq-1788829893113-17-eye0.png>)
+- [Two-pass eye 0](<<DATA_ROOT>/OpenNR_Training/stable_unet_chroma_luma1200_20260908_retry7/final_gallery/two_pass-seq-1788832836774-8-eye0.png>)
+- [Branch utilization JSON](<<DATA_ROOT>/OpenNR_Training/stable_unet_chroma_luma1200_20260908_retry7/luma_branch_diagnostic_final/result.json>)
+- [Full training-fit JSON](<<DATA_ROOT>/OpenNR_Training/stable_unet_chroma_luma1200_20260908_retry7/training_fit_final/result.json>)
+- [Final checkpoint verification](<<DATA_ROOT>/OpenNR_Training/stable_unet_chroma_luma1200_20260908_retry7/final_checkpoint_verification.json>)
 
 ## Public findings relevant to this result
 
@@ -213,10 +213,10 @@ package, or SkyrimVR installation was changed.
 
 ## Reproducibility pointers
 
-- [Luma head](<D:/.CODEX_Projects/OpenNR-VR/tools/luma_tone_head.py>)
-- [Controlled trainer](<D:/.CODEX_Projects/OpenNR-VR/tools/train_renderer_conditioned_stable.py>)
-- [Luma branch probe](<D:/.CODEX_Projects/OpenNR-VR/tools/diagnose_luma_branch.py>)
-- [Independent verifier](<D:/.CODEX_Projects/OpenNR-VR/tools/verify_renderer_conditioned.py>)
-- [Training-fit evaluator](<D:/.CODEX_Projects/OpenNR-VR/tools/evaluate_renderer_conditioned_training_fit.py>)
-- [Fixed gallery renderer](<D:/.CODEX_Projects/OpenNR-VR/tools/render_renderer_conditioned_snapshot.py>)
+- [Luma head](<<REPO>/tools/luma_tone_head.py>)
+- [Controlled trainer](<<REPO>/tools/train_renderer_conditioned_stable.py>)
+- [Luma branch probe](<<REPO>/tools/diagnose_luma_branch.py>)
+- [Independent verifier](<<REPO>/tools/verify_renderer_conditioned.py>)
+- [Training-fit evaluator](<<REPO>/tools/evaluate_renderer_conditioned_training_fit.py>)
+- [Fixed gallery renderer](<<REPO>/tools/render_renderer_conditioned_snapshot.py>)
 

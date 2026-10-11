@@ -153,9 +153,9 @@
       "source": {
         "label": "Local OpenNR-GEN route records, reviews, audits, and scores",
         "files": [
-          "C:\\OpenNR_GEN_Static_20260910",
-          "D:\\.CODEX_Projects\\OpenNR-VR\\tools\\opennr_gen\\generate_sdxl_targets.py",
-          "D:\\.CODEX_Projects\\OpenNR-VR\\tools\\opennr_gen\\audit_static_targets.py"
+          "<DATA_ROOT>\\OpenNR_GEN_Static_20260910",
+          "<REPO>\\tools\\opennr_gen\\generate_sdxl_targets.py",
+          "<REPO>\\tools\\opennr_gen\\audit_static_targets.py"
         ],
         "filters": [
           "OpenNR-GEN static evidence available on 2026-09-10",
@@ -232,9 +232,9 @@
       "source": {
         "label": "Matched full-face scene-019-eye0 probes",
         "files": [
-          "C:\\OpenNR_GEN_Static_20260910\\sdxl_raw_input_face_probe_v1\\scores.json",
-          "C:\\OpenNR_GEN_Static_20260910\\sdxl_raw_input_strength060_face_probe_v1\\scores.json",
-          "C:\\OpenNR_GEN_Static_20260910\\sdxl_strength008_face_probe_v1\\scores.json"
+          "<DATA_ROOT>\\OpenNR_GEN_Static_20260910\\sdxl_raw_input_face_probe_v1\\scores.json",
+          "<DATA_ROOT>\\OpenNR_GEN_Static_20260910\\sdxl_raw_input_strength060_face_probe_v1\\scores.json",
+          "<DATA_ROOT>\\OpenNR_GEN_Static_20260910\\sdxl_strength008_face_probe_v1\\scores.json"
         ],
         "filters": [
           "Same scene-019-eye0 raw input and DLSS5 teacher reference",
@@ -316,9 +316,9 @@
       "source": {
         "label": "Manifest, target-audit, and target-record gate state",
         "files": [
-          "C:\\OpenNR_GEN_Static_20260910\\pilot_v1\\manifest.json",
-          "C:\\OpenNR_GEN_Static_20260910\\pilot_v1\\target_audit_lower_smoke_reviewed.json",
-          "D:\\.CODEX_Projects\\OpenNR-VR\\tools\\opennr_gen\\audit_static_targets.py"
+          "<DATA_ROOT>\\OpenNR_GEN_Static_20260910\\pilot_v1\\manifest.json",
+          "<DATA_ROOT>\\OpenNR_GEN_Static_20260910\\pilot_v1\\target_audit_lower_smoke_reviewed.json",
+          "<REPO>\\tools\\opennr_gen\\audit_static_targets.py"
         ],
         "evidenceFlow": [
           {
@@ -343,49 +343,49 @@
       "rows": [
         {
           "artifact": "Source cache",
-          "path": "C:\\OpenNR_Cache_StrictAllCohortsVariedHighEffect_0.5.5_20260907",
+          "path": "<DATA_ROOT>\\OpenNR_Cache_StrictAllCohortsVariedHighEffect_0.5.5_20260907",
           "disposition": "kept",
           "reason": "Read-only source of raw/pre-NR and DLSS5 teacher pairs; not deleted."
         },
         {
           "artifact": "Correct raw-input face gallery",
-          "path": "C:\\OpenNR_GEN_Static_20260910\\sdxl_raw_input_face_probe_v1\\full_face_ordered_gallery.png",
+          "path": "<DATA_ROOT>\\OpenNR_GEN_Static_20260910\\sdxl_raw_input_face_probe_v1\\full_face_ordered_gallery.png",
           "disposition": "kept",
           "reason": "Vanilla -> SDXL from vanilla -> teacher reference; direct evidence of the deployable-path result."
         },
         {
           "artifact": "Raw-input maximum-strength gallery",
-          "path": "C:\\OpenNR_GEN_Static_20260910\\sdxl_raw_input_strength060_face_probe_v1\\full_face_ordered_gallery.png",
+          "path": "<DATA_ROOT>\\OpenNR_GEN_Static_20260910\\sdxl_raw_input_strength060_face_probe_v1\\full_face_ordered_gallery.png",
           "disposition": "kept",
           "reason": "Shows the strength ceiling failure and why more diffusion was not a solution."
         },
         {
           "artifact": "Teacher-conditioned pleasing face gallery",
-          "path": "C:\\OpenNR_GEN_Static_20260910\\sdxl_strength008_face_probe_v1\\full_face_ordered_gallery.png",
+          "path": "<DATA_ROOT>\\OpenNR_GEN_Static_20260910\\sdxl_strength008_face_probe_v1\\full_face_ordered_gallery.png",
           "disposition": "kept-invalid-for-training",
           "reason": "Useful visual control/offline result; enhancer input was the DLSS5 teacher."
         },
         {
           "artifact": "Interrupted full teacher-conditioned route",
-          "path": "C:\\OpenNR_GEN_Static_20260910\\sdxl_strength008_full_v1",
+          "path": "<DATA_ROOT>\\OpenNR_GEN_Static_20260910\\sdxl_strength008_full_v1",
           "disposition": "kept-invalid-for-training",
           "reason": "12 generated eyes preserved for provenance; metadata is now stopped with the correction reason."
         },
         {
           "artifact": "Broken stale clone",
-          "path": "C:\\OpenNR_GEN_Static_20260910\\sdxl_strength008_probe_v1",
+          "path": "<DATA_ROOT>\\OpenNR_GEN_Static_20260910\\sdxl_strength008_probe_v1",
           "disposition": "kept-superseded",
           "reason": "Zero generated eyes; its wrong-root paths document the route preparation error."
         },
         {
           "artifact": "Project generator and tests",
-          "path": "D:\\.CODEX_Projects\\OpenNR-VR\\tools\\opennr_gen",
+          "path": "<REPO>\\tools\\opennr_gen",
           "disposition": "kept",
           "reason": "Isolated reproducibility tools, including explicit input-role selection and gallery rendering."
         },
         {
           "artifact": "Final project report",
-          "path": "D:\\.CODEX_Projects\\OpenNR-VR\\docs\\OPENNR_GEN_FINAL_REPORT_20260910.md",
+          "path": "<REPO>\\docs\\OPENNR_GEN_FINAL_REPORT_20260910.md",
           "disposition": "created",
           "reason": "Single source of truth for findings, evidence scope, route decisions, and next gate."
         }
@@ -393,8 +393,8 @@
       "source": {
         "label": "OpenNR-GEN artifact disposition index",
         "files": [
-          "C:\\OpenNR_GEN_Static_20260910",
-          "D:\\.CODEX_Projects\\OpenNR-VR\\docs\\OPENNR_GEN_FINAL_REPORT_20260910.md"
+          "<DATA_ROOT>\\OpenNR_GEN_Static_20260910",
+          "<REPO>\\docs\\OPENNR_GEN_FINAL_REPORT_20260910.md"
         ],
         "evidenceFlow": [
           {

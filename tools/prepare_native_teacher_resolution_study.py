@@ -24,7 +24,7 @@ FULL_HEIGHT = 2688
 GUIDE_WIDTH = 1664
 GUIDE_HEIGHT = 1792
 SEQUENCE = Path(
-    "C:/OpenNR_Captures_FullEyeTemporalStateTranche_20260910/"
+    "<DATA_ROOT>/OpenNR_Captures_FullEyeTemporalStateTranche_20260910/"
     "seq-1789063628889-1"
 )
 FRAME = SEQUENCE / "frames/frame_00000001"
@@ -84,7 +84,7 @@ def main() -> None:
     frame = args.sequence / "frames/frame_00000001"
     args.output_root.mkdir(parents=True, exist_ok=True)
     dll = Path(
-        "E:/MGO-RC3-fresh/mods/Open Shaders DLSSNR VR 0.5.7 OpenNR/"
+        "<MO2_INSTANCE>/mods/Open Shaders DLSSNR VR 0.5.7 OpenNR/"
         "Shaders/Upscaling/Streamline/nvngx_dlssnr.dll"
     )
     core_candidates = list(Path("C:/Windows/System32/DriverStore/FileRepository").glob("nv_dispi.inf_amd64_*/_nvngx.dll"))

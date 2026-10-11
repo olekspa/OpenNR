@@ -35,7 +35,7 @@ The supplied development is
 checked locally at commit `a47d9fb000e247df35f992b18f1020e24097ea2e` in:
 
 ```text
-C:\OpenNR\research\optimizer-fps-dlss5_20260911
+<OPENNR_DATA>\research\optimizer-fps-dlss5_20260911
 ```
 
 The checkout contains an MIT license for its own code. NVIDIA binaries,
@@ -100,10 +100,10 @@ OpenNR teacher-capture path.
 
 The source locations inspected were:
 
-- `D:\.CODEX_Projects\DLSS_5_SKYRIM\vendor\open-shaders-dlssnr-vr-091bfb4d\src\Features\Upscaling\NeuralRendering\Renderer.cpp`
-- `D:\.CODEX_Projects\DLSS_5_SKYRIM\vendor\open-shaders-dlssnr-vr-091bfb4d\src\Features\Upscaling\NeuralRendering\Runtime.h`
-- `D:\.CODEX_Projects\DLSS_5_SKYRIM\vendor\open-shaders-dlssnr-vr-091bfb4d\src\Features\Upscaling\FoveatedRender\Modes.cpp`
-- `D:\.CODEX_Projects\DLSS_5_SKYRIM\vendor\open-shaders-dlssnr-vr-091bfb4d\src\Features\Upscaling\FoveatedRender\Core.h`
+- `<LEGACY_REPO>\vendor\open-shaders-dlssnr-vr-091bfb4d\src\Features\Upscaling\NeuralRendering\Renderer.cpp`
+- `<LEGACY_REPO>\vendor\open-shaders-dlssnr-vr-091bfb4d\src\Features\Upscaling\NeuralRendering\Runtime.h`
+- `<LEGACY_REPO>\vendor\open-shaders-dlssnr-vr-091bfb4d\src\Features\Upscaling\FoveatedRender\Modes.cpp`
+- `<LEGACY_REPO>\vendor\open-shaders-dlssnr-vr-091bfb4d\src\Features\Upscaling\FoveatedRender\Core.h`
 
 The new project's correct pipeline position is “pack inputs, run the renderer
 at work resolution, then unpack before the native consumer.” That is not a
@@ -192,7 +192,7 @@ This is a runtime probe, not a promotion. Verification on 2026-09-11 was:
 Input cache:
 
 ```text
-C:\OpenNR\TrainingCache\crop_temporal_every_frame_20260909_all18
+<OPENNR_DATA>\TrainingCache\crop_temporal_every_frame_20260909_all18
 split: test
 4 sequences, 64 frames per sequence, both eyes
 RGB: 512x512; guides: 128x128
@@ -218,14 +218,14 @@ the public project's own limitations identify ghosting, disocclusion errors,
 cadence shimmer, tone lag, and aged residuals as remaining risks.
 
 The exact output is
-[`optimizer_temporal_reuse_eval_20260911_test.json`](C:\OpenNR\Training\optimizer_temporal_reuse_eval_20260911_test.json).
+[`optimizer_temporal_reuse_eval_20260911_test.json`](<OPENNR_DATA>\Training\optimizer_temporal_reuse_eval_20260911_test.json).
 
 ### Held-out newer state-aware tranche, N=2
 
 Input cache:
 
 ```text
-C:\OpenNR\TrainingCache\full_eye_temporal_state_tranche_20260910_v1
+<OPENNR_DATA>\TrainingCache\full_eye_temporal_state_tranche_20260910_v1
 split: test
 2 sequences, 16 frames per sequence, both eyes
 RGB: 512x512; guides: 128x128
@@ -246,7 +246,7 @@ two 16-frame held-out sequences and still only a 512x512 crop. It is not a
 replacement for the missing full-eye 64-frame temporal validation.
 
 The exact output is
-[`optimizer_temporal_reuse_eval_20260911_state_test.json`](C:\OpenNR\Training\optimizer_temporal_reuse_eval_20260911_state_test.json).
+[`optimizer_temporal_reuse_eval_20260911_state_test.json`](<OPENNR_DATA>\Training\optimizer_temporal_reuse_eval_20260911_state_test.json).
 
 ### Cadence sweep on the four-sequence held-out crop tranche
 
@@ -294,15 +294,15 @@ not certify the skipped-frame artefact profile.
 Use the existing training environment:
 
 ```powershell
-& 'C:\OpenNR\Tools\OpenNRTrainVenv\Scripts\python.exe' `
-  'D:\.CODEX_Projects\OpenNR-VR\tools\evaluate_optimizer_temporal_reuse.py' `
+& '<OPENNR_DATA>\Tools\OpenNRTrainVenv\Scripts\python.exe' `
+  '<REPO>\tools\evaluate_optimizer_temporal_reuse.py' `
   --self-test
 
-& 'C:\OpenNR\Tools\OpenNRTrainVenv\Scripts\python.exe' `
-  'D:\.CODEX_Projects\OpenNR-VR\tools\evaluate_optimizer_temporal_reuse.py' `
-  --cache 'C:\OpenNR\TrainingCache\crop_temporal_every_frame_20260909_all18' `
+& '<OPENNR_DATA>\Tools\OpenNRTrainVenv\Scripts\python.exe' `
+  '<REPO>\tools\evaluate_optimizer_temporal_reuse.py' `
+  --cache '<OPENNR_DATA>\TrainingCache\crop_temporal_every_frame_20260909_all18' `
   --split test --cadence 2 --device cuda --resample bilinear `
-  --output 'C:\OpenNR\Training\optimizer_temporal_reuse_eval_20260911_test.json'
+  --output '<OPENNR_DATA>\Training\optimizer_temporal_reuse_eval_20260911_test.json'
 ```
 
 The self-test passed on CUDA. The two N=2 evaluations and the N=3/N=4 sweep

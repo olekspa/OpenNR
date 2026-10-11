@@ -16,5 +16,5 @@ Verification so far:
 - No packages created, no installed mod/profile files changed, no game launched.
 - In-game SE/VR devbench and headset acceptance remain unverified.
 
-Backup: D:\.CODEX_Projects\DLSS_5_SKYRIM\backups\nasal70-before-0.5.3-20260905-110840
+Backup: <LEGACY_REPO>\backups\nasal70-before-0.5.3-20260905-110840
 Build log: vendor/open-shaders-dlssnr-vr-091bfb4d/build/build-0.5.3-lan.log

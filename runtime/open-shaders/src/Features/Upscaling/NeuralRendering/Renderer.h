@@ -51,6 +51,9 @@ namespace NeuralRendering
 			};
 
 		static Renderer& Instance();
+		// Owns independent temporal histories while sharing Runtime's disjoint
+		// periphery feature-slot bank and the process-wide NGX runtime.
+		static Renderer& PeripheryInstance();
 		~Renderer();
 
 		Renderer(const Renderer&) = delete;
@@ -71,7 +74,16 @@ namespace NeuralRendering
 				ID3D11Resource* destination = nullptr,
 				ID3D11UnorderedAccessView* destinationUAV = nullptr,
 				bool blendSubrect = false,
-				const StereoResourceEnvelope& resourceEnvelope = {});
+				const StereoResourceEnvelope& resourceEnvelope = {}, bool peripheryContext = false,
+				ID3D11UnorderedAccessView* lowResolutionResidualUAV = nullptr,
+				bool parallelEyeQueueEnabled = false, bool flushAfterSignal = false);
+		/** @brief Initializes the render-thread D3D12/NGX objects without creating features. */
+		bool PreparePrewarm(ID3D11Device* device, ID3D11DeviceContext* context, bool peripheryContext = false);
+		/** @brief Creates one eye's exact tier/pass Feature 18 slots without evaluating them. */
+		bool PrewarmStereoEye(ID3D11Device* device, ID3D11DeviceContext* context,
+			std::uint32_t guideWidth, std::uint32_t guideHeight,
+			std::uint32_t colorWidth, std::uint32_t colorHeight, std::uint32_t eyeIndex, const Tuning& tuning,
+			bool peripheryContext = false);
 		/** @brief Drops cached standalone neural-rendering shaders so they recompile on the next frame. */
 		void ClearShaderCache();
 		/** @brief Resets the native renderer; false means the GPU fence could not be drained safely. */
@@ -80,6 +92,7 @@ namespace NeuralRendering
 
 		[[nodiscard]] bool IsFailureLatched() const;
 		[[nodiscard]] bool IsFailureRecoverable() const;
+		[[nodiscard]] bool WasLastApplyTransientSkip() const;
 		/** @brief Holds adaptive upshifts after the session's bounded recovery attempt. */
 		[[nodiscard]] bool IsRecoveryLimited() const;
 		/**

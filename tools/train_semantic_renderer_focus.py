@@ -151,7 +151,7 @@ def main() -> None:
             "freeze_parent": bool(args.freeze_parent),
             "schedule_sha256": schedule_sha,
             "schedule_metadata": schedule_meta,
-            "comparison_control": "C:\\OpenNR\\Training\\semantic_recovery_from_finetune1600_20260910_retry1\\control",
+            "comparison_control": "<OPENNR_DATA>\\Training\\semantic_recovery_from_finetune1600_20260910_retry1\\control",
             "source_sha256": {
                 "train_semantic_renderer_focus.py": sha(Path(__file__)),
                 "train_semantic_recovery_pair.py": sha(Path(__file__).with_name("train_semantic_recovery_pair.py")),

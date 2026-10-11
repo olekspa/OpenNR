@@ -12,7 +12,7 @@ but neither controlled adaptation probe improved the inherited v65 model. Both
 probes were early-stopped at their first meaningful regression/flatness gate.
 The current promoted offline candidate therefore remains:
 
-`E:\OpenNR_Training\fullres_aux_oversample_v65_probe_0.5.5_20260906\best_mae.pt`
+`<DATA_ROOT>\OpenNR_Training\fullres_aux_oversample_v65_probe_0.5.5_20260906\best_mae.pt`
 
 The requested MAE `0.011` target remains open. On the previous apples-to-apples
 streaming baseline over the new cache test split, v65 measured MAE
@@ -23,7 +23,7 @@ streaming baseline over the new cache test split, v65 measured MAE
 
 The fresh source root is:
 
-`E:\OpenNR_Captures_StrictTemporal_0.5.5_20260906`
+`<DATA_ROOT>\OpenNR_Captures_StrictTemporal_0.5.5_20260906`
 
 The full-root structural audit currently contains 359 sequences, of which 354
 are temporal-ready; the five rejected sequences remain preserved. The newly
@@ -87,7 +87,7 @@ evaluator.
 
 The broad A/B gallery is preserved at:
 
-`D:\.CODEX_Projects\OpenNR-VR\out\fresh_new_v65_v66_gallery_20260906`
+`<REPO>\out\fresh_new_v65_v66_gallery_20260906`
 
 Representative files:
 

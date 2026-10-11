@@ -6,11 +6,11 @@ gates may be followed by the larger collection.
 
 ## Active profile
 
-- MO2 instance: `E:\MGO-RC3-fresh`
-- active MO2 profile: `MGO NSFW - 4.0 BETA`
+- MO2 instance: `<MO2_INSTANCE>`
+- active MO2 profile: `<MO2_PROFILE>`
 - Skyrim VR: `E:\Games\Steam\steamapps\common\SkyrimVR`
-- live settings: `E:\MGO-RC3-fresh\overwrite\SKSE\Plugins\CommunityShaders\SettingsUser.json`
-- output root: `C:\OpenNR_Captures_FullEyeTemporalStateTranche_20260910`
+- live settings: `<MO2_INSTANCE>\overwrite\SKSE\Plugins\CommunityShaders\SettingsUser.json`
+- output root: `<DATA_ROOT>\OpenNR_Captures_FullEyeTemporalStateTranche_20260910`
 - burst key: `\\` / `VK_OEM_5` / `220`
 
 The fresh output root did not exist when the profile was prepared. The game and
@@ -112,11 +112,11 @@ The goal is clean information, not a large rejected archive.
 
 ## Acceptance commands
 
-From `D:\.CODEX_Projects\OpenNR-VR`:
+From `<REPO>`:
 
 ```powershell
-python tools/validate_capture.py C:\OpenNR_Captures_FullEyeTemporalStateTranche_20260910
-python tools/validate_temporal_capture.py C:\OpenNR_Captures_FullEyeTemporalStateTranche_20260910 `
+python tools/validate_capture.py <DATA_ROOT>\OpenNR_Captures_FullEyeTemporalStateTranche_20260910
+python tools/validate_temporal_capture.py <DATA_ROOT>\OpenNR_Captures_FullEyeTemporalStateTranche_20260910 `
   --mode master --expected-pass-count 1 `
   --output out\full_eye_temporal_state_tranche_audit_20260910.json
 ```
@@ -142,7 +142,7 @@ promotion; those remain separate visual and model-evaluation gates.
 
 The pre-edit profile is preserved at:
 
-`E:\MGO-RC3-fresh\_OpenNR_Pilot_Backups\pre-full-eye-state-tranche-20260910\SettingsUser.before.json`
+`<MO2_INSTANCE>\_OpenNR_Pilot_Backups\pre-full-eye-state-tranche-20260910\SettingsUser.before.json`
 
 - pre-edit SHA-256: `FDBB44A7F3EE2B5C795697407CFFD812121CFF2CDC0B0C2067280D5C39768314`
 - applied SHA-256: `3CBA0117B4F2A136010E8519460B349E0ECCB586243DBE99CBD03FE98A567EFE`

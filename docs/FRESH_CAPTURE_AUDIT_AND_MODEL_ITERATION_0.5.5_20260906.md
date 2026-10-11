@@ -44,7 +44,7 @@ details and hashes are recorded in
 
 The source root was audited at:
 
-`E:\OpenNR_Captures_StrictTemporal_0.5.5_20260906`
+`<DATA_ROOT>\OpenNR_Captures_StrictTemporal_0.5.5_20260906`
 
 The raw validator reported 213 sequence directories. A stricter selection
 layer then required all of the following:
@@ -69,9 +69,9 @@ preserved; they were not silently deleted.
 
 The authoritative audit artifacts are:
 
-- `D:\.CODEX_Projects\OpenNR-VR\out\temporal_audit_strict_new_20260906.json`
-- `D:\.CODEX_Projects\OpenNR-VR\out\strict_temporal_candidate_manifest_fresh_clean_0.5.5_20260906.json`
-- `D:\.CODEX_Projects\OpenNR-VR\out\fresh_raw_crop_content_audit_0.5.5_20260906.json`
+- `<REPO>\out\temporal_audit_strict_new_20260906.json`
+- `<REPO>\out\strict_temporal_candidate_manifest_fresh_clean_0.5.5_20260906.json`
+- `<REPO>\out\fresh_raw_crop_content_audit_0.5.5_20260906.json`
 
 ### Content audit
 
@@ -104,7 +104,7 @@ data, but their motion must not be taught as if it were valid.
 
 The clean fresh temporal cache is:
 
-`G:\OpenNR_ColdStorage\OpenNR_RawCropCache_FreshTemporalClean_0.5.5_20260906`
+`<DATA_ROOT>\OpenNR_ColdStorage\OpenNR_RawCropCache_FreshTemporalClean_0.5.5_20260906`
 
 This historical derived cache was moved to G: cold storage after full
 verification. It remains provenance/recovery data, not a new capture. The
@@ -118,7 +118,7 @@ is 80 train / 20 validation / 26 test, with row identity SHA-256:
 The five quarantined content cases that were not admitted to temporal training
 are retained as spatial-only auxiliary sequences. That cache is:
 
-`E:\OpenNR_SpatialAux_ContentExcluded_0.5.5_20260906`
+`<DATA_ROOT>\OpenNR_SpatialAux_ContentExcluded_0.5.5_20260906`
 
 It contains 5 sequences, 320 frames, and 640 eye rows, and is explicitly marked
 `training_role=spatial_only_auxiliary` and
@@ -126,7 +126,7 @@ It contains 5 sequences, 320 frames, and 640 eye rows, and is explicitly marked
 
 The combined strict cache is:
 
-`E:\OpenNR_RawCropCache_StrictCombinedFresh_0.5.5_20260906`
+`<DATA_ROOT>\OpenNR_RawCropCache_StrictCombinedFresh_0.5.5_20260906`
 
 It combines the historical 73 clean strict sequences with the 126 clean fresh
 sequences: 199 sequences, 12,736 frames, and 25,472 eye rows. The preserved
@@ -228,13 +228,13 @@ class GPU, and was interrupted before it could establish a useful training
 trajectory. Its shape-expanded initialization also skipped incompatible
 learned capacity tensors, so its step-0 score is not a reproduction of v53 and
 is not included in the ranking. Its preserved status is
-`E:\OpenNR_Training\fresh_combined_wide_final_gate_v54_all_nontest_0.5.5_20260906\status.json`.
+`<DATA_ROOT>\OpenNR_Training\fresh_combined_wide_final_gate_v54_all_nontest_0.5.5_20260906\status.json`.
 
 ### Selected checkpoint
 
 The current all-usable-data/fresh-data-weighted offline checkpoint is:
 
-`E:\OpenNR_Training\fresh_combined_adapted_base_v61_all_nontest_0.5.5_20260906\last.pt`
+`<DATA_ROOT>\OpenNR_Training\fresh_combined_adapted_base_v61_all_nontest_0.5.5_20260906\last.pt`
 
 Checkpoint SHA-256:
 
@@ -253,25 +253,25 @@ at threshold `0.01`, and learning rates `1e-7 / 1e-6 / 2.5e-6` for base /
 temporal / capacity groups.
 
 The historical-leaning v60 fallback is
-`E:\OpenNR_Training\fresh_combined_power4_v60_all_nontest_0.5.5_20260906\last.pt`
+`<DATA_ROOT>\OpenNR_Training\fresh_combined_power4_v60_all_nontest_0.5.5_20260906\last.pt`
 with SHA-256
 `5d20b04e9a92c3ef8e712c39dcb34aa7776ebd5bafafd8afcfe05b71cf341401`.
 The fresh-specialist v62 is
-`E:\OpenNR_Training\fresh_combined_micro2_v62_all_nontest_0.5.5_20260906\last.pt`
+`<DATA_ROOT>\OpenNR_Training\fresh_combined_micro2_v62_all_nontest_0.5.5_20260906\last.pt`
 with SHA-256
 `84df990fa045d1f7911877b37f56a6afc833224e28b0f9f425650b8a2a44dab8`.
 The post-gate historical-test anchor v56 is
-`E:\OpenNR_Training\fresh_combined_power_effect_strong_v56_all_nontest_0.5.5_20260906\last.pt`
+`<DATA_ROOT>\OpenNR_Training\fresh_combined_power_effect_strong_v56_all_nontest_0.5.5_20260906\last.pt`
 with SHA-256
 `6b4799e2b982fbedd590282b044481546817910c961881e668f6df8832ea1ab7`.
 
 The earlier v49 validation-selected/fresh-cohort fallback is
-`E:\OpenNR_Training\fresh_combined_identity_selective_v49_probe_0.5.5_20260906\best_mae.pt`
+`<DATA_ROOT>\OpenNR_Training\fresh_combined_identity_selective_v49_probe_0.5.5_20260906\best_mae.pt`
 with SHA-256
 `d22d7caa53988082b6af2b3b2e7ecae3d61c2dcdca2fb24366aa424c711babb3`.
 The v49 run completed at step 750 in 442.95 seconds with no non-finite loss or
 gradient. The v50 balanced fallback is
-`E:\OpenNR_Training\fresh_combined_identity_balanced_v50_probe_0.5.5_20260906\best_mae.pt`
+`<DATA_ROOT>\OpenNR_Training\fresh_combined_identity_balanced_v50_probe_0.5.5_20260906\best_mae.pt`
 with SHA-256
 `82e193bb8ec3114c2492a9614754062aabc031787c67eb1078788b89d48f4181`.
 
@@ -280,57 +280,57 @@ with SHA-256
 The v45-v62 parity evaluations are saved separately so the ranking can be
 reproduced without relying on console output:
 
-- v45 fresh test: `D:\.CODEX_Projects\OpenNR-VR\out\v45_fresh_test_best_mae_0.5.5_20260906\result.json`
-- v45 historical test: `D:\.CODEX_Projects\OpenNR-VR\out\v45_historical_test_best_mae_0.5.5_20260906\result.json`
-- v46 fresh test: `D:\.CODEX_Projects\OpenNR-VR\out\v46_fresh_test_best_mae_0.5.5_20260906\result.json`
-- v46 historical test: `D:\.CODEX_Projects\OpenNR-VR\out\v46_historical_test_best_mae_0.5.5_20260906\result.json`
-- v47 fresh test: `D:\.CODEX_Projects\OpenNR-VR\out\v47_fresh_test_best_mae_0.5.5_20260906\result.json`
-- v47 historical test: `D:\.CODEX_Projects\OpenNR-VR\out\v47_historical_test_best_mae_0.5.5_20260906\result.json`
-- v49 fresh test: `D:\.CODEX_Projects\OpenNR-VR\out\v49_fresh_test_best_mae_0.5.5_20260906\result.json`
-- v49 historical test: `D:\.CODEX_Projects\OpenNR-VR\out\v49_historical_test_best_mae_0.5.5_20260906\result.json`
-- v50 fresh test: `D:\.CODEX_Projects\OpenNR-VR\out\v50_fresh_test_best_mae_0.5.5_20260906\result.json`
-- v50 historical test: `D:\.CODEX_Projects\OpenNR-VR\out\v50_historical_test_best_mae_0.5.5_20260906\result.json`
-- v51 fresh test: `D:\.CODEX_Projects\OpenNR-VR\out\v51_fresh_test_last_0.5.5_20260906\result.json`
-- v51 historical test: `D:\.CODEX_Projects\OpenNR-VR\out\v51_historical_test_last_0.5.5_20260906\result.json`
-- v52 fresh test: `D:\.CODEX_Projects\OpenNR-VR\out\v52_fresh_test_last_0.5.5_20260906\result.json`
-- v52 historical test: `D:\.CODEX_Projects\OpenNR-VR\out\v52_historical_test_last_0.5.5_20260906\result.json`
-- v53 fresh test: `D:\.CODEX_Projects\OpenNR-VR\out\v53_fresh_test_last_0.5.5_20260906\result.json`
-- v53 historical test: `D:\.CODEX_Projects\OpenNR-VR\out\v53_historical_test_last_0.5.5_20260906\result.json`
-- v55 fresh test: `D:\.CODEX_Projects\OpenNR-VR\out\v55_fresh_test_last_0.5.5_20260906\result.json`
-- v55 historical test: `D:\.CODEX_Projects\OpenNR-VR\out\v55_historical_test_last_0.5.5_20260906\result.json`
-- v56 fresh test: `D:\.CODEX_Projects\OpenNR-VR\out\v56_fresh_test_last_0.5.5_20260906\result.json`
-- v56 historical test: `D:\.CODEX_Projects\OpenNR-VR\out\v56_historical_test_last_0.5.5_20260906\result.json`
-- v57 fresh test: `D:\.CODEX_Projects\OpenNR-VR\out\v57_fresh_test_last_0.5.5_20260906\result.json`
-- v57 historical test: `D:\.CODEX_Projects\OpenNR-VR\out\v57_historical_test_last_0.5.5_20260906\result.json`
-- v58 fresh test: `D:\.CODEX_Projects\OpenNR-VR\out\v58_fresh_test_last_0.5.5_20260906\result.json`
-- v58 historical test: `D:\.CODEX_Projects\OpenNR-VR\out\v58_historical_test_last_0.5.5_20260906\result.json`
-- v59 fresh test: `D:\.CODEX_Projects\OpenNR-VR\out\v59_fresh_test_last_0.5.5_20260906\result.json`
-- v59 historical test: `D:\.CODEX_Projects\OpenNR-VR\out\v59_historical_test_last_0.5.5_20260906\result.json`
-- v60 fresh test: `D:\.CODEX_Projects\OpenNR-VR\out\v60_fresh_test_last_0.5.5_20260906\result.json`
-- v60 historical test: `D:\.CODEX_Projects\OpenNR-VR\out\v60_historical_test_last_0.5.5_20260906\result.json`
-- v61 fresh test: `D:\.CODEX_Projects\OpenNR-VR\out\v61_fresh_test_last_0.5.5_20260906\result.json`
-- v61 historical test: `D:\.CODEX_Projects\OpenNR-VR\out\v61_historical_test_last_0.5.5_20260906\result.json`
-- v62 fresh test: `D:\.CODEX_Projects\OpenNR-VR\out\v62_fresh_test_last_0.5.5_20260906\result.json`
-- v62 historical test: `D:\.CODEX_Projects\OpenNR-VR\out\v62_historical_test_last_0.5.5_20260906\result.json`
-- v61 direct combined test: `D:\.CODEX_Projects\OpenNR-VR\out\v61_combined_test_last_0.5.5_20260906\result.json`
+- v45 fresh test: `<REPO>\out\v45_fresh_test_best_mae_0.5.5_20260906\result.json`
+- v45 historical test: `<REPO>\out\v45_historical_test_best_mae_0.5.5_20260906\result.json`
+- v46 fresh test: `<REPO>\out\v46_fresh_test_best_mae_0.5.5_20260906\result.json`
+- v46 historical test: `<REPO>\out\v46_historical_test_best_mae_0.5.5_20260906\result.json`
+- v47 fresh test: `<REPO>\out\v47_fresh_test_best_mae_0.5.5_20260906\result.json`
+- v47 historical test: `<REPO>\out\v47_historical_test_best_mae_0.5.5_20260906\result.json`
+- v49 fresh test: `<REPO>\out\v49_fresh_test_best_mae_0.5.5_20260906\result.json`
+- v49 historical test: `<REPO>\out\v49_historical_test_best_mae_0.5.5_20260906\result.json`
+- v50 fresh test: `<REPO>\out\v50_fresh_test_best_mae_0.5.5_20260906\result.json`
+- v50 historical test: `<REPO>\out\v50_historical_test_best_mae_0.5.5_20260906\result.json`
+- v51 fresh test: `<REPO>\out\v51_fresh_test_last_0.5.5_20260906\result.json`
+- v51 historical test: `<REPO>\out\v51_historical_test_last_0.5.5_20260906\result.json`
+- v52 fresh test: `<REPO>\out\v52_fresh_test_last_0.5.5_20260906\result.json`
+- v52 historical test: `<REPO>\out\v52_historical_test_last_0.5.5_20260906\result.json`
+- v53 fresh test: `<REPO>\out\v53_fresh_test_last_0.5.5_20260906\result.json`
+- v53 historical test: `<REPO>\out\v53_historical_test_last_0.5.5_20260906\result.json`
+- v55 fresh test: `<REPO>\out\v55_fresh_test_last_0.5.5_20260906\result.json`
+- v55 historical test: `<REPO>\out\v55_historical_test_last_0.5.5_20260906\result.json`
+- v56 fresh test: `<REPO>\out\v56_fresh_test_last_0.5.5_20260906\result.json`
+- v56 historical test: `<REPO>\out\v56_historical_test_last_0.5.5_20260906\result.json`
+- v57 fresh test: `<REPO>\out\v57_fresh_test_last_0.5.5_20260906\result.json`
+- v57 historical test: `<REPO>\out\v57_historical_test_last_0.5.5_20260906\result.json`
+- v58 fresh test: `<REPO>\out\v58_fresh_test_last_0.5.5_20260906\result.json`
+- v58 historical test: `<REPO>\out\v58_historical_test_last_0.5.5_20260906\result.json`
+- v59 fresh test: `<REPO>\out\v59_fresh_test_last_0.5.5_20260906\result.json`
+- v59 historical test: `<REPO>\out\v59_historical_test_last_0.5.5_20260906\result.json`
+- v60 fresh test: `<REPO>\out\v60_fresh_test_last_0.5.5_20260906\result.json`
+- v60 historical test: `<REPO>\out\v60_historical_test_last_0.5.5_20260906\result.json`
+- v61 fresh test: `<REPO>\out\v61_fresh_test_last_0.5.5_20260906\result.json`
+- v61 historical test: `<REPO>\out\v61_historical_test_last_0.5.5_20260906\result.json`
+- v62 fresh test: `<REPO>\out\v62_fresh_test_last_0.5.5_20260906\result.json`
+- v62 historical test: `<REPO>\out\v62_historical_test_last_0.5.5_20260906\result.json`
+- v61 direct combined test: `<REPO>\out\v61_combined_test_last_0.5.5_20260906\result.json`
 
 The effect-band evaluator is a read-only diagnostic at
-`D:\.CODEX_Projects\OpenNR-VR\out\v47_fresh_test_effect_bins_0.5.5_20260906`,
-`D:\.CODEX_Projects\OpenNR-VR\out\v47_historical_test_effect_bins_0.5.5_20260906`,
-`D:\.CODEX_Projects\OpenNR-VR\out\v49_fresh_test_effect_bins_0.5.5_20260906`,
-`D:\.CODEX_Projects\OpenNR-VR\out\v49_historical_test_effect_bins_0.5.5_20260906`,
-`D:\.CODEX_Projects\OpenNR-VR\out\v51_fresh_test_effect_bins_0.5.5_20260906`,
-`D:\.CODEX_Projects\OpenNR-VR\out\v51_historical_test_effect_bins_0.5.5_20260906`,
-and `D:\.CODEX_Projects\OpenNR-VR\out\v47_combined_validation_effect_bins_0.5.5_20260906`.
+`<REPO>\out\v47_fresh_test_effect_bins_0.5.5_20260906`,
+`<REPO>\out\v47_historical_test_effect_bins_0.5.5_20260906`,
+`<REPO>\out\v49_fresh_test_effect_bins_0.5.5_20260906`,
+`<REPO>\out\v49_historical_test_effect_bins_0.5.5_20260906`,
+`<REPO>\out\v51_fresh_test_effect_bins_0.5.5_20260906`,
+`<REPO>\out\v51_historical_test_effect_bins_0.5.5_20260906`,
+and `<REPO>\out\v47_combined_validation_effect_bins_0.5.5_20260906`.
 It confirms that the `0.0-0.025` teacher-effect range is the dominant
 overcorrection region, while `>=0.025` is where the student earns most of its
 teacher-match gain.
 
 The latest effect-band artifacts are:
 
-- v59 combined test: `D:\.CODEX_Projects\OpenNR-VR\out\v59_effect_bins_test_0.5.5_20260906\result.json`
-- v60 combined test: `D:\.CODEX_Projects\OpenNR-VR\out\v60_effect_bins_test_0.5.5_20260906\result.json`
-- v61 combined test: `D:\.CODEX_Projects\OpenNR-VR\out\v61_effect_bins_test_0.5.5_20260906\result.json`
+- v59 combined test: `<REPO>\out\v59_effect_bins_test_0.5.5_20260906\result.json`
+- v60 combined test: `<REPO>\out\v60_effect_bins_test_0.5.5_20260906\result.json`
+- v61 combined test: `<REPO>\out\v61_effect_bins_test_0.5.5_20260906\result.json`
 - v62 was not promoted to an effect-band run because its historical-test MAE
   already rejected it as an all-data candidate.
 
@@ -378,35 +378,35 @@ frame-time acceptance result.
 The matched sequential sheets are preserved in:
 
 - v45 versus v46, fresh validation:
-  `D:\.CODEX_Projects\OpenNR-VR\out\fresh_validation_v45_v46_gallery_0.5.5_20260906`
+  `<REPO>\out\fresh_validation_v45_v46_gallery_0.5.5_20260906`
 - v45 versus v46, fresh test:
-  `D:\.CODEX_Projects\OpenNR-VR\out\fresh_test_v45_v46_gallery_0.5.5_20260906`
+  `<REPO>\out\fresh_test_v45_v46_gallery_0.5.5_20260906`
 - v46 versus v47, fresh validation:
-  `D:\.CODEX_Projects\OpenNR-VR\out\fresh_validation_v46_v47_gallery_0.5.5_20260906`
+  `<REPO>\out\fresh_validation_v46_v47_gallery_0.5.5_20260906`
 - v46 versus v47, fresh test:
-  `D:\.CODEX_Projects\OpenNR-VR\out\fresh_test_v46_v47_gallery_0.5.5_20260906`
+  `<REPO>\out\fresh_test_v46_v47_gallery_0.5.5_20260906`
 - v47 versus v49, fresh validation:
-  `D:\.CODEX_Projects\OpenNR-VR\out\fresh_validation_v47_v49_gallery_0.5.5_20260906`
+  `<REPO>\out\fresh_validation_v47_v49_gallery_0.5.5_20260906`
 - v47 versus v49, fresh test:
-  `D:\.CODEX_Projects\OpenNR-VR\out\fresh_test_v47_v49_gallery_0.5.5_20260906`
+  `<REPO>\out\fresh_test_v47_v49_gallery_0.5.5_20260906`
 - v49 versus v50, fresh validation:
-  `D:\.CODEX_Projects\OpenNR-VR\out\fresh_validation_v49_v50_gallery_0.5.5_20260906`
+  `<REPO>\out\fresh_validation_v49_v50_gallery_0.5.5_20260906`
 - v49 versus v50, fresh test:
-  `D:\.CODEX_Projects\OpenNR-VR\out\fresh_test_v49_v50_gallery_0.5.5_20260906`
+  `<REPO>\out\fresh_test_v49_v50_gallery_0.5.5_20260906`
 - v49 versus v51, fresh validation:
-  `D:\.CODEX_Projects\OpenNR-VR\out\fresh_validation_v49_v51_gallery_0.5.5_20260906`
+  `<REPO>\out\fresh_validation_v49_v51_gallery_0.5.5_20260906`
 - v49 versus v51, fresh test:
-  `D:\.CODEX_Projects\OpenNR-VR\out\fresh_test_v49_v51_gallery_0.5.5_20260906`
+  `<REPO>\out\fresh_test_v49_v51_gallery_0.5.5_20260906`
 - v51 versus v58, fresh test:
-  `D:\.CODEX_Projects\OpenNR-VR\out\fresh_test_v51_v58_gallery_0.5.5_20260906`
+  `<REPO>\out\fresh_test_v51_v58_gallery_0.5.5_20260906`
 - v51 versus v59, fresh test:
-  `D:\.CODEX_Projects\OpenNR-VR\out\fresh_test_v51_v59_gallery_0.5.5_20260906`
+  `<REPO>\out\fresh_test_v51_v59_gallery_0.5.5_20260906`
 - v59 versus v60, fresh test:
-  `D:\.CODEX_Projects\OpenNR-VR\out\fresh_test_v59_v60_gallery_0.5.5_20260906`
+  `<REPO>\out\fresh_test_v59_v60_gallery_0.5.5_20260906`
 - v60 versus v61, fresh test:
-  `D:\.CODEX_Projects\OpenNR-VR\out\fresh_test_v60_v61_gallery_0.5.5_20260906`
+  `<REPO>\out\fresh_test_v60_v61_gallery_0.5.5_20260906`
 - v60 versus v61, historical test:
-  `D:\.CODEX_Projects\OpenNR-VR\out\historical_test_v60_v61_gallery_0.5.5_20260906`
+  `<REPO>\out\historical_test_v60_v61_gallery_0.5.5_20260906`
 
 The sheets show Input, the prior student, the candidate, and the Feature 18
 teacher at frames 1, 32, and 64 for both eyes. In the sampled dark and
@@ -485,7 +485,7 @@ there is no public teacher checkpoint or training recipe to substitute for the
 captured teacher path.
 
 The v48 negative-control run is preserved at
-`E:\OpenNR_Training\fresh_combined_identity_cooldown_v48_probe_0.5.5_20260906`;
+`<DATA_ROOT>\OpenNR_Training\fresh_combined_identity_cooldown_v48_probe_0.5.5_20260906`;
 its status is `early_stopped`, and its best checkpoint is the unchanged v47
 initialization at step 0.
 
@@ -506,7 +506,7 @@ best v65 parent measured `0.021573284` on the merged 60-sequence held-out test;
 the completed all-non-test v71 fit measured `0.021731749`, so it was rejected.
 The new-grid test specifically measured `0.027438652` for v65 and
 `0.027926762` for v71. The detailed cache, hash, visual, and early-stop record
-is now [NEXT_GRID_TRAINING_RESULT_0.5.5_20260906.md](D:/.CODEX_Projects/OpenNR-VR/docs/NEXT_GRID_TRAINING_RESULT_0.5.5_20260906.md).
+is now [NEXT_GRID_TRAINING_RESULT_0.5.5_20260906.md](<REPO>/docs/NEXT_GRID_TRAINING_RESULT_0.5.5_20260906.md).
 
 This result changes the next priority from same-recipe training to a
 conditioning/target iteration: preserve the exact native guide contract,
@@ -536,7 +536,7 @@ Arm C starting point. A third probe that held the recipe fixed but halved all
 learning rates likewise kept step 0 as its best checkpoint; its final
 step-400 values were `0.0197196` prior and `0.0193749` new. The complete
 evidence and paths are recorded in
-[RUNPOD_LATEST_CACHE_WIDTH_ABLATION_0.5.5_20260907.md](D:/.CODEX_Projects/OpenNR-VR/docs/RUNPOD_LATEST_CACHE_WIDTH_ABLATION_0.5.5_20260907.md).
+[RUNPOD_LATEST_CACHE_WIDTH_ABLATION_0.5.5_20260907.md](<REPO>/docs/RUNPOD_LATEST_CACHE_WIDTH_ABLATION_0.5.5_20260907.md).
 
 The pre-registered different-seed confirmation then ran on a secure RTX 5090
 with the immutable old, new, and spatial caches. After exact byte/hash
@@ -549,7 +549,7 @@ remains selected and no additional capacity-only cloud run is justified.
 The low-effect identity regression persists (`0.007083` / `0.007556` student
 MAE versus `0.004619` / `0.004720` identity MAE in prior/new cohorts). The
 seed-338 artifacts and matched visual sheet are retained in
-`E:\OpenNR_Training\runpod_arm_C_seed338_confirmation_0.5.5_20260907`; the
+`<DATA_ROOT>\OpenNR_Training\runpod_arm_C_seed338_confirmation_0.5.5_20260907`; the
 temporary Pod was deleted after SHA-256-verified recovery and no test data was
 read for selection.
 

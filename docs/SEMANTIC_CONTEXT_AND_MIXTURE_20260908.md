@@ -9,7 +9,7 @@ documented in the [full-eye temporal pilot report](FULL_EYE_TEMPORAL_PILOT_SETUP
 ## Hard-cohort mixture continuation
 
 The paired arms started from the independently verified seed812 joint-parent
-checkpoint at absolute update 1,200 (`C:/OpenNR/Training/semantic_parent_seed812_joint1200_20260908/last.pt`, SHA-256
+checkpoint at absolute update 1,200 (`<OPENNR_DATA>/Training/semantic_parent_seed812_joint1200_20260908/last.pt`, SHA-256
 `fa8a2497e0f89c25dada3d1007fbbf7981fe1c9a2fe2f8fb6c5200ec3ab75bb9`). Both arms
 restored optimizer and RNG state and first reproduced the update-1,600
 predecessor. The original arm kept cohort probabilities
@@ -38,12 +38,12 @@ The rebalanced endpoint is still well above the `0.011` target on every cohort.
 Its prior and fresh-session temporal deltas are higher than their common-start
 values by about `0.0000032` and `0.0000259`; the other four improve. The endpoint
 and paired histories are preserved under
-`C:/OpenNR/Training/semantic_mixture_rebalanced_pair_20260908`.
+`<OPENNR_DATA>/Training/semantic_mixture_rebalanced_pair_20260908`.
 
 ## Existing full-eye context evidence
 
 The current crop caches contain crop-derived RGB context. The audited spatial
-masters under `C:/OpenNR/TrainingCache/student_v1` retain true whole-eye RGB
+masters under `<OPENNR_DATA>/TrainingCache/student_v1` retain true whole-eye RGB
 thumbnails, aligned guides, input crops and teacher crops. I ran two controlled
 studies without reading the test split:
 
@@ -74,9 +74,9 @@ C: reached about 1 GiB free while the continuation and runtime export were activ
 I removed only two unreferenced derived caches after checking the active training
 inputs and preserving their metadata:
 
-- `C:/OpenNR/TrainingCache/dynamic_guides_v1` — 3.77 GiB, superseded by the
+- `<OPENNR_DATA>/TrainingCache/dynamic_guides_v1` — 3.77 GiB, superseded by the
   audited `student_v1` cache;
-- `C:/OpenNR/TrainingCache/RendererPairsAligned_20260908` — 5.54 GiB, an
+- `<OPENNR_DATA>/TrainingCache/RendererPairsAligned_20260908` — 5.54 GiB, an
   aligned duplicate whose active strict training input is
   `RendererPairsStrict_20260908`.
 

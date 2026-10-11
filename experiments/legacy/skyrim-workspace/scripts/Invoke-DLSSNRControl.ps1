@@ -17,8 +17,8 @@ param(
     [string]$UICorrection = 'leave',
     [ValidateSet('leave', 'on', 'off')]
     [string]$DeveloperMode = 'leave',
-    [string]$SettingsPath = 'E:\MGO-RC3-clean\overwrite\SKSE\Plugins\CommunityShaders\SettingsUser.json',
-    [string]$ProjectRoot = 'D:\.CODEX_Projects\DLSS_5_SKYRIM',
+    [string]$SettingsPath = '<MO2_INSTANCE>\overwrite\SKSE\Plugins\CommunityShaders\SettingsUser.json',
+    [string]$ProjectRoot = '<LEGACY_REPO>',
     [switch]$AllowRunningGame
 )
 

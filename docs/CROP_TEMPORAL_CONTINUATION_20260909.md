@@ -24,7 +24,7 @@ renderer-pilot value remains 0.013283715, leaving a gap of approximately
 
 The authoritative raw root is:
 
-C:\OpenNR_Captures_TemporalCrops_EveryFrame_20260909
+<DATA_ROOT>\OpenNR_Captures_TemporalCrops_EveryFrame_20260909
 
 The 18 captured sequence IDs are:
 
@@ -59,7 +59,7 @@ out/crop_temporal_every_frame_20260909/conditioning_content_audit_all18.json/aud
 
 The materialized cache is:
 
-C:\OpenNR\TrainingCache\crop_temporal_every_frame_20260909_all18
+<OPENNR_DATA>\TrainingCache\crop_temporal_every_frame_20260909_all18
 
 It is schema 2 and hash-bound to the all-18 candidate manifest:
 
@@ -93,7 +93,7 @@ new all-18 cache at the stated probability.
 
 The protected baseline is:
 
-C:\OpenNR\Training\semantic_pixel_l1_pair_20260909\joint\best_all_cohorts.pt
+<OPENNR_DATA>\Training\semantic_pixel_l1_pair_20260909\joint\best_all_cohorts.pt
 
 SHA-256:
 
@@ -109,7 +109,7 @@ SHA-256:
 
 The 15% arm checkpoint is retained at:
 
-C:\OpenNR\Training\semantic_crop_temporal_continuation_20260909\arm\checkpoint_1600.pt
+<OPENNR_DATA>\Training\semantic_crop_temporal_continuation_20260909\arm\checkpoint_1600.pt
 
 SHA-256:
 
@@ -117,7 +117,7 @@ SHA-256:
 
 The 5% arm checkpoint is retained at:
 
-C:\OpenNR\Training\semantic_crop_temporal_conservative_20260909\arm\checkpoint_1200.pt
+<OPENNR_DATA>\Training\semantic_crop_temporal_conservative_20260909\arm\checkpoint_1200.pt
 
 SHA-256:
 

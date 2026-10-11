@@ -281,9 +281,9 @@ remains available as a fallback; this controls revision is staged as a new MO2
 mod so it inherits the existing OpenNR runtime/model files instead of replacing
 the known-good runtime payload:
 
-* Live-tested fallback profile: `MGO NSFW - Adaptive NR 80Hz FIXED 2.14.8 20260913`
+* Live-tested fallback profile: `<MO2_PROFILE>`
 * Live-tested fallback mod: `OpenNR EXP FIXED - Adaptive NR + Crop Handoff 2.14.8 20260913`
-* Controls revision profile: `MGO NSFW - Adaptive NR 80Hz CONTROLS 2.14.8 20260913`
+* Controls revision profile: `<MO2_PROFILE>`
 * Controls revision mod: `OpenNR EXP CONTROLS - Adaptive NR + Crop Handoff 2.14.8 20260913`
 * Defaults: adaptive enabled, 80 Hz, 70% minimum NR tier, 50% minimum adaptive
   crop, four-frame NR downshift, twelve-frame NR upshift, thirty-frame NR dwell,

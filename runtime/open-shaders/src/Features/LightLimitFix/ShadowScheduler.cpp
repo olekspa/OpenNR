@@ -3,6 +3,7 @@
 
 #include <bit>
 #include <cassert>
+#include <chrono>
 #include <cmath>
 
 #include "../../Deferred.h"
@@ -19,6 +20,8 @@
 #include "../VR.h"
 #include "I18n/I18n.h"
 #include "ShadowCasterInternal.h"
+#include "SceneHistoryResetPolicy.h"
+#include "ShadowRadiusAnchorPolicy.h"
 
 #include <Windows.h>  // SEH (__try) for the shadow-light usability backstop
 
@@ -26,19 +29,114 @@
 
 namespace ShadowCasterManager
 {
+	namespace
+	{
+		std::atomic<uint32_t> s_dungeonPendingSinceFrame{ UINT32_MAX };
+		std::atomic<uint32_t> s_dungeonSkipGate{}, s_dungeonSkipVr{}, s_dungeonSkipScene{}, s_dungeonSkipPortal{};
+		std::atomic<uint64_t> s_dungeonRenderSkips[kRenderSkipReasonCount]{};
+		std::chrono::steady_clock::time_point s_lastDungeonDiag = std::chrono::steady_clock::now();
+
+		void EmitDungeonShadowDiagnostics()
+		{
+			if (!s_shadowDemand.instrumentation)
+				return;
+			if (!globals::game::tes || !globals::game::tes->interiorCell)
+				return;
+			const auto now = std::chrono::steady_clock::now();
+			if (now - s_lastDungeonDiag < std::chrono::seconds(1))
+				return;
+			const auto pending = s_pendingSessionReset.load(std::memory_order_relaxed);
+			const auto since = s_dungeonPendingSinceFrame.load(std::memory_order_relaxed);
+			const auto frame = globals::state ? globals::state->frameCount : 0;
+			const auto gate = s_dungeonSkipGate.exchange(0, std::memory_order_relaxed);
+			const auto vr = s_dungeonSkipVr.exchange(0, std::memory_order_relaxed);
+			const auto scene = s_dungeonSkipScene.exchange(0, std::memory_order_relaxed);
+			const auto portal = s_dungeonSkipPortal.exchange(0, std::memory_order_relaxed);
+			uint64_t render[kRenderSkipReasonCount]{};
+			bool nonZero = pending || gate || vr || scene || portal;
+			for (size_t i = 0; i < kRenderSkipReasonCount; ++i) {
+				render[i] = s_dungeonRenderSkips[i].exchange(0, std::memory_order_relaxed);
+				nonZero = nonZero || render[i] != 0;
+			}
+			if (!nonZero)
+				return;
+			s_lastDungeonDiag = now;
+			const uint32_t age = pending && since != UINT32_MAX ? frame - since : 0;
+			logger::info("[SCM-Dungeon] pending={} ageFrames={} skips(gate={},vr={},scene={},portal={}) render(session={},portal={},gate={},race={}) gateClosing={} readers={}",
+				pending, age, gate, vr, scene, portal, render[0], render[1], render[2], render[3],
+				s_shadowWorkGate.IsClosing(), s_shadowWorkGate.ReaderCount());
+		}
+	}
+
+	DungeonShadowDiagnostics GetDungeonShadowDiagnostics()
+	{
+		const auto frame = globals::state ? globals::state->frameCount : 0;
+		const auto since = s_dungeonPendingSinceFrame.load(std::memory_order_relaxed);
+		return {
+			s_pendingSessionReset.load(std::memory_order_relaxed),
+			since == UINT32_MAX ? 0 : frame - since,
+			s_dungeonSkipGate.load(std::memory_order_relaxed),
+			s_dungeonSkipVr.load(std::memory_order_relaxed),
+			s_dungeonSkipScene.load(std::memory_order_relaxed),
+			s_dungeonSkipPortal.load(std::memory_order_relaxed),
+			s_dungeonRenderSkips[0].load(std::memory_order_relaxed),
+			s_dungeonRenderSkips[1].load(std::memory_order_relaxed),
+			s_dungeonRenderSkips[2].load(std::memory_order_relaxed),
+			s_dungeonRenderSkips[3].load(std::memory_order_relaxed),
+			s_shadowWorkGate.IsClosing(),
+			static_cast<uint32_t>(s_shadowWorkGate.ReaderCount())
+		};
+	}
+
 	// Shadow map content hash for cached-shadow-map detection.
 
-	/// EMA-anchored per-light radius, shared by the redraw and static-cache
-	/// hashes so flicker-jitter alone can't defeat either.
+	/// Preserve the 2.20.5 per-read EMA for shadow hashes when the new toggle is off.
 	static std::unordered_map<const RE::NiLight*, float> s_hashRadiusAnchor;
+	/// Shared per-frame EMA for all shadow decision consumers when enabled.
+	static std::unordered_map<const RE::NiLight*, RadiusAnchorPolicy::Anchor> s_decisionRadiusAnchor;
 
-	static float AnchoredRadiusForHash(const RE::NiLight* ni, float liveRadius)
+	static float LegacyAnchoredRadiusForHash(const RE::NiLight* ni, float liveRadius)
 	{
+		if (!ni)
+			return liveRadius;
 		PruneIfOversized(s_hashRadiusAnchor, 1024);
 		auto [it, isNew] = s_hashRadiusAnchor.try_emplace(ni, liveRadius);
 		if (!isNew)
 			it->second += 0.15f * (liveRadius - it->second);
 		return it->second;
+	}
+
+	static void AdvanceRadiusAnchor(const RE::NiLight* ni, float liveRadius)
+	{
+		if (!ni)
+			return;
+		PruneIfOversized(s_decisionRadiusAnchor, 1024);
+		const int32_t now = *globals::game::frameCounter;
+		auto [it, isNew] = s_decisionRadiusAnchor.try_emplace(ni, RadiusAnchorPolicy::Anchor{ liveRadius, now });
+		if (!isNew)
+			RadiusAnchorPolicy::Advance(it->second, liveRadius, now);
+	}
+
+	float AnchoredRadius(const RE::NiLight* ni, float liveRadius)
+	{
+		if (!ni)
+			return liveRadius;
+		const auto it = s_decisionRadiusAnchor.find(ni);
+		return it == s_decisionRadiusAnchor.end() ? liveRadius : it->second.radius;
+	}
+
+	float ShadowDecisionRadius(const RE::NiLight* ni, float liveRadius)
+	{
+		return RadiusAnchorPolicy::Select(s_settings.AnchorLightRadiusForShadowDecisions, liveRadius,
+			AnchoredRadius(ni, liveRadius));
+	}
+
+	/// The toggle's off path retains the original 2.20.5 hash EMA exactly.
+	static float AnchoredRadiusForHash(const RE::NiLight* ni, float liveRadius)
+	{
+		return s_settings.AnchorLightRadiusForShadowDecisions ?
+			       AnchoredRadius(ni, liveRadius) :
+			       LegacyAnchoredRadiusForHash(ni, liveRadius);
 	}
 
 	/// Shared by the redraw hash and static-cache hash so both agree on what
@@ -119,7 +217,7 @@ namespace ShadowCasterManager
 		auto* plr = globals::game::player;
 		if (!plr || !ni)
 			return false;
-		const float r = ni->GetLightRuntimeData().radius.x;
+		const float r = ShadowDecisionRadius(ni, ni->GetLightRuntimeData().radius.x);
 		return ni->world.translate.GetSquaredDistance(plr->GetPosition()) < r * r;
 	}
 
@@ -244,7 +342,7 @@ namespace ShadowCasterManager
 			if (s_staleAccumulateTotal.fetch_add(1, std::memory_order_relaxed) < 8)
 				logger::warn("[SCM] Light {} (promoted={}, demoted={}) was accumulated in frame {} and not rendered by frame {} (afterSkippedRender={}, skipReason={}, slot={}, sessionReset={}, teardownWaiting={})",
 					(void*)light, promoted, demoted, accum.frame, now, afterSkippedRender, s_lastRenderSkipReason.load(std::memory_order_relaxed), accum.slot, s_pendingSessionReset.load(std::memory_order_relaxed),
-					s_teardownWaiting.load(std::memory_order_relaxed));
+					s_shadowWorkGate.IsClosing());
 		}
 		PruneIfOversized(s_seen, 512);
 	}
@@ -492,8 +590,8 @@ namespace ShadowCasterManager
 				// only point a finished occlusion event's duration is observable.
 				s_demandAuditWindow.resetHistogram[DemandStreakBucket(e.untouchedSamples)]++;
 				e.untouchedSamples = 0;
-			}
 		}
+	}
 	}
 
 	/// Accumulates this frame's audit counters and, on the log cadence, emits a
@@ -591,6 +689,8 @@ namespace ShadowCasterManager
 	/// Tests whether a cached bake uses this light's current transform and radius.
 	static bool SplitPoseMatches(RE::BSShadowLight* light, const SplitState& st)
 	{
+		// Keep this bake-validation radius live: an anchor could certify a static bake
+		// whose extent the current dynamic-light pass no longer covers.
 		const auto* ni = light->light.get();
 		return ni && st.bakePoseValid &&
 		       ni->GetLightRuntimeData().radius.x == st.bakeRadius &&
@@ -792,6 +892,8 @@ namespace ShadowCasterManager
 		}
 
 		GameEnableLight(ssn, light);
+		if (s_pendingSessionReset.load(std::memory_order_acquire))
+			return;
 		GameSetShadowCasterSlot(ssn, light, *GetAccumLightSlot(), 1);
 
 		{
@@ -1214,6 +1316,8 @@ namespace ShadowCasterManager
 		__try {
 			e.Light->UpdateCamera(a_camera);
 			EnableLight(e.Light, a_camera, a_ssn, a_slot);
+			if (s_pendingSessionReset.load(std::memory_order_acquire))
+				return false;
 			return e.Light && a_isUsable(e.Light);
 		} __except (GetExceptionCode() == EXCEPTION_ACCESS_VIOLATION ? EXCEPTION_EXECUTE_HANDLER : EXCEPTION_CONTINUE_SEARCH) {
 			LogShadowSehCatch(e.Light);
@@ -1291,6 +1395,11 @@ namespace ShadowCasterManager
 				auto* l = sp.get();
 				if (!l || l == sunLight)
 					continue;
+				// Seed/advance once before score, formula and geometry consumers read it.
+				if (s_settings.AnchorLightRadiusForShadowDecisions) {
+					if (auto* ni = l->light.get())
+						AdvanceRadiusAnchor(ni, ni->GetLightRuntimeData().radius.x);
+				}
 				// Promoted lights are allocated non-zeroed; their descriptor pool-slots stay
 				// garbage until init. EnableLight only inits lights that win a render slot, so
 				// init here (once) -- this is the type-safe BSShadowLight source -- to cover a
@@ -1673,6 +1782,7 @@ namespace ShadowCasterManager
 				if (auto* ni = cp->light->light.get()) {
 					ResetScoreAnchor(ni);
 					s_hashRadiusAnchor.erase(ni);
+					s_decisionRadiusAnchor.erase(ni);
 				}
 				s_lights.Lights[idx].Light = cp->light;
 			}
@@ -1940,7 +2050,7 @@ namespace ShadowCasterManager
 
 				// Deadzone sub-texel motion: idle-jitter wobble under a texel previously
 				// read as "displacement" every frame, showing as flicker on torches/braziers.
-				const float radius = nilight->GetLightRuntimeData().radius.x;
+				const float radius = ShadowDecisionRadius(nilight, nilight->GetLightRuntimeData().radius.x);
 				if (radius > 0.0f) {
 					const float approxPosStep = radius /
 					                            std::max(baseTileTexels * std::max(e->pendingScale, kTileScaleFloor), 1.0f);
@@ -2057,7 +2167,7 @@ namespace ShadowCasterManager
 			float posStep = 1.0f;
 			if (auto* ni2 = e->Light->light.get()) {
 				const float texels = baseTileTexels * std::max(e->pendingScale, kTileScaleFloor);
-				posStep = ni2->GetLightRuntimeData().radius.x / std::max(texels, 1.0f);
+				posStep = ShadowDecisionRadius(ni2, ni2->GetLightRuntimeData().radius.x) / std::max(texels, 1.0f);
 			}
 			// ComputeShadowGeomHash's full geomList walk measured ~17us/light; reuse
 			// the cached hash until the caster count changes or this many frames pass.
@@ -2609,6 +2719,8 @@ namespace ShadowCasterManager
 				return false;
 			ZoneNamedN(zoneAtomic, "SCM::AtomicMutationLoop", true);
 			for (auto& c : candidates) {
+				if (s_pendingSessionReset.load(std::memory_order_acquire))
+					return false;
 				if (c.invalid) {
 					// isUsableLight is the same gate the excess branch uses. Both
 					// ConvertLight and DisableLight fan into virtually-dispatched
@@ -2619,7 +2731,10 @@ namespace ShadowCasterManager
 					// allowConvert=c.invalidCamera so portal-occluded omnis fall to
 					// Disable (cluster lighting has no portal-graph awareness).
 					ZoneNamedN(zCvt, "SCM::Engine::convertOrDisable(invalid)", true);
-					if (convertOrDisable(c.light, /*allowConvert=*/c.invalidCamera)) {
+					const bool converted = convertOrDisable(c.light, /*allowConvert=*/c.invalidCamera);
+					if (s_pendingSessionReset.load(std::memory_order_acquire))
+						return false;
+					if (converted) {
 						s_schedDiag.converted_invalid++;
 						// Re-validate first: a concurrent free could recycle c.light, and a
 						// lodDimmer store would corrupt the new occupant's vtable -> CTD.
@@ -2660,8 +2775,11 @@ namespace ShadowCasterManager
 							s_cpuEnableUs.fetch_add(TimeUs([&] { stillUsable = SafeEnableAndValidate(e, camera, ssn, slot, isUsableLight); }), std::memory_order_relaxed);
 							s_cpuEnableN.fetch_add(1, std::memory_order_relaxed);
 						}
-						if (!stillUsable)
+						if (!stillUsable) {
+							if (s_pendingSessionReset.load(std::memory_order_acquire))
+								return false;
 							continue;
+						}
 						s_budget.EndLight(lightSnapshot, 0);
 
 						if (auto* nilight = e.Light->light.get())
@@ -2688,6 +2806,8 @@ namespace ShadowCasterManager
 						s_schedDiag.converted_excess++;
 					else
 						s_schedDiag.disabled_excess++;
+					if (s_pendingSessionReset.load(std::memory_order_acquire))
+						return false;
 					continue;
 				}
 			}
@@ -3043,8 +3163,13 @@ namespace ShadowCasterManager
 	void ScheduleShadowCasters()
 	{
 		ZoneScopedN("SCM::ScheduleShadowCasters");
-		// Per-frame diagnostic counters; emitted via TracyPlot at function exit.
-		s_schedDiag = SchedDiagCounters{};
+		const uint32_t currentFrame = globals::state ? globals::state->frameCount : 0;
+		if (s_pendingSessionReset.load(std::memory_order_acquire)) {
+			uint32_t unset = UINT32_MAX;
+			s_dungeonPendingSinceFrame.compare_exchange_strong(unset, currentFrame, std::memory_order_relaxed);
+		} else {
+			s_dungeonPendingSinceFrame.store(UINT32_MAX, std::memory_order_relaxed);
+		}
 		// VR calls CalculateAndDrawShadowCasterLights twice per frame (once per
 		// eye). Block the second call: s_lights isn't reentrancy-safe.
 		static std::atomic<bool> s_inSchedule{ false };
@@ -3054,6 +3179,22 @@ namespace ShadowCasterManager
 		{
 			~Guard() { s_inSchedule.store(false, std::memory_order_release); }
 		} guard;
+		if (!TryEnterShadowWork()) {
+			s_dungeonSkipGate.fetch_add(1, std::memory_order_relaxed);
+			EmitDungeonShadowDiagnostics();
+			return;
+		}
+		struct ShadowWorkGuard
+		{
+			~ShadowWorkGuard() { LeaveShadowWork(); }
+		} shadowWorkGuard;
+		if (s_pendingSessionReset.load(std::memory_order_acquire)) {
+			uint32_t unset = UINT32_MAX;
+			s_dungeonPendingSinceFrame.compare_exchange_strong(unset, currentFrame, std::memory_order_relaxed);
+		}
+		EmitDungeonShadowDiagnostics();
+		// Per-frame diagnostic counters; emitted via TracyPlot at function exit.
+		s_schedDiag = SchedDiagCounters{};
 
 		// Marks a genuine attempt, ahead of every early return below -- an early
 		// return leaves s_cameraHoldGeneration behind, correctly marking the hold
@@ -3069,18 +3210,48 @@ namespace ShadowCasterManager
 			PruneIfOversized(s_splitState, 512);
 		}
 
-		// VR display guard: skip scheduling when the HMD display is not active.
-		if (globals::game::isVR && !GetVRDrawShadows())
-			return;
+		RE::ShadowSceneNode* ssn = nullptr;
+		RE::NiCamera* camera = nullptr;
+		if (s_settings.BoundedSessionResetDrain) {
+			ssn = GetShadowSceneNode();
+			camera = GetWorldCamera();
+			const bool portalTransitioning = IsPortalGraphTransitioning();
+			if (LightLimitFixPolicy::ShouldDrainPendingResetBeforeVR(true,
+				s_pendingSessionReset.load(std::memory_order_acquire), ssn != nullptr, camera != nullptr, portalTransitioning)) {
+				std::shared_lock resetPoolLock(s_lightsPoolMutex);
+				if (s_pendingSessionReset.exchange(false, std::memory_order_acquire)) {
+					const uint32_t since = s_dungeonPendingSinceFrame.exchange(UINT32_MAX, std::memory_order_relaxed);
+					const uint32_t age = since == UINT32_MAX ? 0 : currentFrame - since;
+					s_everHadShadow.clear();
+					ResetSession();
+					if (s_shadowDemand.instrumentation)
+						logger::info("[SCM-Dungeon] reset consumed ageFrames={} boundary=scene-ready+portal-stable", age);
+					return;
+				}
+			}
+		}
 
-		auto* ssn = GetShadowSceneNode();
-		auto* camera = GetWorldCamera();
-		if (!ssn || !camera)
+		// VR display guard: normal scheduling always retains the 2.20.4 HMD guard.
+		if (globals::game::isVR && !GetVRDrawShadows()) {
+			s_dungeonSkipVr.fetch_add(1, std::memory_order_relaxed);
+			EmitDungeonShadowDiagnostics();
 			return;
+		}
+
+		if (!ssn) ssn = GetShadowSceneNode();
+		if (!camera) camera = GetWorldCamera();
+		if (!ssn || !camera) {
+			s_dungeonSkipScene.fetch_add(1, std::memory_order_relaxed);
+			EmitDungeonShadowDiagnostics();
+			return;
+		}
 
 		// Pause while the interior portal graph is mid-rebuild (cell transition).
-		if (IsPortalGraphTransitioning())
+		if (IsPortalGraphTransitioning()) {
+			s_dungeonSkipPortal.fetch_add(1, std::memory_order_relaxed);
+			EmitDungeonShadowDiagnostics();
 			return;
+		}
 
 		// Exclusive against ShadowCasterManager::Update's pool resize (a settings
 		// change can delete[]/new[] s_lights.Lights concurrently); held for the whole
@@ -3091,11 +3262,14 @@ namespace ShadowCasterManager
 		// ClearLightArrays frees the lights but doesn't shrink activeShadowLights, so
 		// scoring it now touches freed memory. Load-bearing: don't remove this return.
 		if (s_pendingSessionReset.exchange(false, std::memory_order_acquire)) {
+			const uint32_t since = s_dungeonPendingSinceFrame.exchange(UINT32_MAX, std::memory_order_relaxed);
+			const uint32_t age = since == UINT32_MAX ? 0 : currentFrame - since;
 			s_everHadShadow.clear();
 			ResetSession();
+			if (s_shadowDemand.instrumentation)
+				logger::info("[SCM-Dungeon] reset consumed ageFrames={} boundary=scene-ready+portal-stable", age);
 			return;
 		}
-
 		// Drain a pending cell-grid shift. Slots stay owned (unlike the session reset
 		// above), so this doesn't skip the pass -- it only drops caches keyed on
 		// caster geometry identity, which a cell swap can silently recycle.
@@ -3182,6 +3356,17 @@ namespace ShadowCasterManager
 
 	void RenderScheduledShadowLights()
 	{
+		if (!TryEnterShadowWork()) {
+			NoteRenderSkipped(RenderSkipReason::TeardownWaiting);
+			s_dungeonRenderSkips[static_cast<size_t>(RenderSkipReason::TeardownWaiting)].fetch_add(1, std::memory_order_relaxed);
+			EmitDungeonShadowDiagnostics();
+			return;
+		}
+		struct ShadowWorkGuard
+		{
+			~ShadowWorkGuard() { LeaveShadowWork(); }
+		} shadowWorkGuard;
+
 		AuditStaleAccumulates();
 
 		// A teardown landing between schedule and this pass would flush a freed
@@ -3189,6 +3374,8 @@ namespace ShadowCasterManager
 		// LOAD here, never exchange, or s_lights would never reset (ScheduleShadowCasters owns the drain).
 		if (s_pendingSessionReset.load(std::memory_order_acquire)) {
 			NoteRenderSkipped(RenderSkipReason::SessionReset);
+			s_dungeonRenderSkips[static_cast<size_t>(RenderSkipReason::SessionReset)].fetch_add(1, std::memory_order_relaxed);
+			EmitDungeonShadowDiagnostics();
 			return;
 		}
 
@@ -3196,29 +3383,14 @@ namespace ShadowCasterManager
 		// culling that derefs ssn->portalGraph.
 		if (IsPortalGraphTransitioning()) {
 			NoteRenderSkipped(RenderSkipReason::PortalTransition);
+			s_dungeonRenderSkips[static_cast<size_t>(RenderSkipReason::PortalTransition)].fetch_add(1, std::memory_order_relaxed);
+			EmitDungeonShadowDiagnostics();
 			return;
 		}
 
 		// Exclusive against ShadowCasterManager::Update's pool resize; see the matching
 		// lock in ScheduleShadowCasters for why it must cover the whole pass.
 		std::shared_lock poolLock(s_lightsPoolMutex);
-
-		// Reader side of the teardown serialization: ClearLightArrays must not free
-		// lights/passes while this pass iterates them. Counter (not a shared_mutex)
-		// so nested engine re-entry on this thread stays defined.
-		if (s_teardownWaiting.load(std::memory_order_acquire)) {
-			NoteRenderSkipped(RenderSkipReason::TeardownWaiting);
-			return;
-		}
-		s_shadowFlushReaders.fetch_add(1, std::memory_order_acq_rel);
-		struct FlushReaderGuard
-		{
-			~FlushReaderGuard() { s_shadowFlushReaders.fetch_sub(1, std::memory_order_acq_rel); }
-		} flushReaderGuard;
-		if (s_teardownWaiting.load(std::memory_order_acquire)) {
-			NoteRenderSkipped(RenderSkipReason::TeardownRace);
-			return;  // teardown won the race between our check and increment
-		}
 
 		// Atlas resource creation happens here at the pass boundary so
 		// readiness cannot flip between draws of the same frame.
@@ -3325,6 +3497,8 @@ namespace ShadowCasterManager
 						s_cpuSubmitUs.fetch_add(TimeUs([&] { RenderLightGuarded(e.Light, tmp); }), std::memory_order_relaxed);
 						s_cpuSubmitN.fetch_add(1, std::memory_order_relaxed);
 						s_budget.EndLight(e.Light, 1);
+						if (s_pendingSessionReset.load(std::memory_order_acquire))
+							break;
 						// This frame bailed before running the bake EnableLight already
 						// armed -- restore bakeQueued so it retries instead of being lost.
 						if (auto it = s_splitState.find(e.Light); it != s_splitState.end() && it->second.bakeThisFrame)
@@ -3345,6 +3519,10 @@ namespace ShadowCasterManager
 							s_cpuSubmitUs.fetch_add(TimeUs([&] { rendered = RenderLightGuarded(e.Light, tmp); }), std::memory_order_relaxed);
 							s_cpuSubmitN.fetch_add(1, std::memory_order_relaxed);
 							s_staticPassActive.store(false, std::memory_order_relaxed);
+							if (s_pendingSessionReset.load(std::memory_order_acquire)) {
+								s_budget.EndLight(e.Light, 1);
+								break;
+							}
 							// A skipped bake leaves the static tile blank: drop the slot's static cache and re-arm.
 							if (rendered)
 								MarkSlotStaticRendered(i, st.pendingHash, st.bakeSawStatic);  // atlas slot = source of truth
@@ -3366,6 +3544,8 @@ namespace ShadowCasterManager
 							if (!liveHasContent && st.bakeSawStatic)
 								CopyStaticTileToLive(i);
 							s_budget.EndLight(e.Light, 1);
+							if (s_pendingSessionReset.load(std::memory_order_acquire))
+								break;
 							if (liveHasContent || st.bakeSawStatic) {
 								e.renderedScale = e.pendingScale;
 								// Live content unchanged this frame: never swap a staged promotion in on a bake.
@@ -3427,6 +3607,8 @@ namespace ShadowCasterManager
 				s_cpuSubmitUs.fetch_add(TimeUs([&] { rendered = RenderLightGuarded(e.Light, tmp); }), std::memory_order_relaxed);
 				s_cpuSubmitN.fetch_add(1, std::memory_order_relaxed);
 				s_budget.EndLight(e.Light, 1);
+				if (s_pendingSessionReset.load(std::memory_order_acquire))
+					break;
 				if (!rendered && !keepPriorContent)
 					InvalidateSlotTileContent(i);
 				// Commit the content scale only after the raster actually ran: a skipped

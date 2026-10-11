@@ -45,3 +45,22 @@ Desktop.ini
 node_modules/
 .pytest_cache/
 .venv/
+
+# Local-only files
+/AGENTS.md
+/CLAUDE.md
+/.claude/
+/.venv*/
+/NUL
+/nul*
+/vlc-help.txt
+
+# Third-party binaries (never commit)
+# See docs/THIRD_PARTY_BINARIES.md. Local copies are restored by tools/stage_local_thirdparty.ps1.
+*.dll
+*.pdb
+*.exe
+*.lib
+*.exp
+*.obj
+runtime/open-shaders/features/Terrain Helper/TerrainHelper.esp

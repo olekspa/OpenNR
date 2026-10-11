@@ -5,6 +5,7 @@
 #include "Upscaling/FidelityFX.h"
 #include "Upscaling/FoveatedRender.h"
 #include "Upscaling/PerfMode.h"
+#include "Upscaling/PerfMode/MapQualityPolicy.h"
 #include "Upscaling/RCAS/RCAS.h"
 #include "Upscaling/Streamline.h"
 #include "Utils/BootSnapshot.h"
@@ -107,6 +108,14 @@ public:
 		// resolution to bank VRAM/bandwidth. Boot-locked (changing it re-allocates RTs at world load).
 		// Engages only when ShouldEngagePerfMode() holds; a no-op otherwise (see GetUpscaleMethod area).
 		bool renderAtUpscaleRes = true;
+		// VR map-menu workaround: route map imagespace passes to the display-
+		// resolution menu surface only while MapMenu is open. Runtime toggle.
+		bool vrMapMenuDisplayResolution = true;
+		float vrMapSymbolSupersample = 2.0f;
+		uint32_t vrMapDlssPreset = 0;  // 0=unchanged, 1=J, 2=K, 3=L, 4=M
+		float vrMapSharpness = 0.0f;  // map-only RCAS; 0=off
+		float vrMapMipBiasOffset = 0.0f;  // map-only additive SharedData mip bias; 0=off
+		bool mapProbeDiagnostics = false;
 
 		// Explicit per-eye fraction of native HMD size (0 = Auto: preset-derived).
 		// Boot-locked; the preset is inert while set. DLSS clamps into NGX range.
@@ -254,15 +263,7 @@ public:
 	/// upscaler panel and the Performance hub. Meaningful on Flat and VR alike;
 	/// gates on the active upscale method instead (DLSS/FSR only).
 	void DrawPerfModeToggle();
-	/// @brief Renders the Foveated DLSS enable + tuning tree. Shared by the upscaler
-	/// panel and the Performance hub. VR-only; self-gates via IsRuntimeSupported()
-	/// (shown disabled off-VR rather than hidden).
-	void DrawFoveationControls(bool showTuning = true, bool showSharedPanelNote = true,
-		bool tuningDefaultOpen = false, bool showNeuralRenderingStatusButton = true);
-	/// @brief Draws the method, preset, sharpening and DLSS model controls shared by
-/// Upscaling and the dedicated Neural Rendering page.
-	void DrawDLSSNRSharedControls();
-/// @brief Renders the dedicated Neural Rendering page, including shared upscaler controls.
+	/// @brief Renders the dedicated Neural Rendering page.
 	void DrawDLSSNRPage();
 	const char* GetQualityModeName(uint qualityMode) const;
 	virtual void SaveSettings(json& o_json) override;
@@ -315,8 +316,11 @@ public:
 	void DestroyUpscalingTextureResources(UpscaleMethod a_upscalemethod);
 
 	Util::LazyShader<ID3D11ComputeShader> encodeTexturesCS[5];          // One for each UpscaleMethod
-	Util::LazyShader<ID3D11ComputeShader> encodeTexturesCSDepthOutput;  // FSR: converts R24G8_TYPELESS depth to R32_FLOAT
+	Util::LazyShader<ID3D11ComputeShader> encodeTexturesCSDepthOutput[5];  // One typed-depth variant per UpscaleMethod
 	ID3D11ComputeShader* GetEncodeTexturesCS();
+	ID3D11ComputeShader* GetEncodeTexturesCS(UpscaleMethod a_method, bool a_typedDepth);
+	/// @brief Returns whether this runtime and upscaler need typed depth output.
+	bool NeedsTypedDepth(UpscaleMethod a_method) const;
 
 	Util::LazyShader<ID3D11PixelShader> depthRefractionUpscalePS;
 	ID3D11PixelShader* GetDepthRefractionUpscalePS();
@@ -343,7 +347,7 @@ public:
 	winrt::com_ptr<ID3D11RasterizerState> upscaleRasterizerState;
 
 	// Shared VR HMD Mask Clearing
-	winrt::com_ptr<ID3D11ComputeShader> vrClearHMDMaskCS;
+	Util::LazyShader<ID3D11ComputeShader> vrClearHMDMaskCS;
 	winrt::com_ptr<ID3D11Buffer> vrClearHMDMaskCB;
 	// Helper to dispatch mask clearing for a single eye region
 	void ClearHMDMask(ID3D11UnorderedAccessView* colorUAV, ID3D11ShaderResourceView* depthSRV,
@@ -353,8 +357,7 @@ public:
 	// Owned here so both Streamline (DLSS) and FidelityFX (FSR) can use them.
 	eastl::unique_ptr<Texture2D> vrIntermediateColorIn[2];           // per-eye render resolution
 	eastl::unique_ptr<Texture2D> vrIntermediateColorOut[2];          // per-eye output resolution
-	eastl::unique_ptr<Texture2D> vrIntermediateDepth;                // right-eye render resolution (R24G8_TYPELESS, DLSS only)
-	eastl::unique_ptr<Texture2D> vrIntermediateLinearDepth[2];       // per-eye render resolution (R32_FLOAT, for FSR)
+	eastl::unique_ptr<Texture2D> vrIntermediateLinearDepth[2];       // per-eye render resolution (R32_FLOAT, for FSR and VR DLSS)
 	eastl::unique_ptr<Texture2D> vrIntermediateMotionVectors[2];     // per-eye render resolution
 	eastl::unique_ptr<Texture2D> vrIntermediateReactiveMask[2];      // per-eye render resolution
 	eastl::unique_ptr<Texture2D> vrIntermediateTransparencyMask[2];  // per-eye render resolution
@@ -453,10 +456,16 @@ public:
 
 	bool IsPerfModeSharpenRedirectActive() const
 	{
+		const bool mapSharpness = globals::game::isVR && globals::state &&
+			globals::state->isMapMenuOpen && globals::state->IsStaticMenuBackdropOpen(globals::game::ui) &&
+			PerfModePolicy::ClampMapSharpness(settings.vrMapSharpness) > 0.0f;
 		return perfMode.IsHookActive() && perfMode.GetTestTexture() && perfMode.GetTestTextureUAV() &&
 		       perfMode.GetRefraTempTex() && perfMode.GetRefraTempSRV() && perfMode.GetRefraTempUAV() &&
-		       IsDlssSharpeningEnabled();
+		       (IsDlssSharpeningEnabled() || mapSharpness) && GetUpscaleMethod() == UpscaleMethod::kDLSS;
 	}
+
+	/** Applies the map-only RCAS setting to the PerfMode display output. */
+	bool ApplyMapMenuSharpening();
 
 	static void TimerSleepQPC(int64_t targetQPC);
 

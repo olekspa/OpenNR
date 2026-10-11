@@ -14,7 +14,7 @@ still not a temporal, live-VR, or teacher-equivalence acceptance result.
 
 | Item | Value |
 | --- | --- |
-| Merged cache | `E:\OpenNR_MergedSpatialCache_20260905` |
+| Merged cache | `<DATA_ROOT>\OpenNR_MergedSpatialCache_20260905` |
 | Cache schema | 3 (`merged_compatible_spatial_caches`) |
 | Cache rows fingerprint | `d1a699d0b6b1efad97f3b04d58775ddfe22fc9ffbe306f0caa5dc8816b9d8cca` |
 | Patches / eye rows | 16,878 patches / 8,408 eye rows |
@@ -22,7 +22,7 @@ still not a temporal, live-VR, or teacher-equivalence acceptance result.
 | Source A | `fullres_20260904`: 10,008 patches, 1,538 rows; 7,712 / 352 / 1,944 patches |
 | Source B | `raw_crops_0.5.3_20260905`: 6,870 patches, 6,870 rows; 4,396 / 1,108 / 1,366 patches |
 | Architecture | `context_v3`, width 64, 3 blocks, scale 4 |
-| Initialization | `E:\OpenNR_Training\context_raw_crop_v1_20260905\best_feature.pt`, cache rebound at initialization only |
+| Initialization | `<DATA_ROOT>\OpenNR_Training\context_raw_crop_v1_20260905\best_feature.pt`, cache rebound at initialization only |
 | Schedule | 20,000 steps, batch 4, initial LR `1e-5`, feature weight `0.05`, VGG weight `0.05`, workers 0 |
 | Runtime | RTX 5070 Ti, CUDA BF16 autocast, 2,891.15 seconds (48.19 minutes) |
 | Test tuning | `false` |
@@ -90,7 +90,7 @@ domain gap remains visible and needs visual/native validation.
 
 The best-feature test gallery is at:
 
-`E:\OpenNR_Training\context_merged_v2_20260905\visual_evaluation\best_feature_gallery`
+`<DATA_ROOT>\OpenNR_Training\context_merged_v2_20260905\visual_evaluation\best_feature_gallery`
 
 The reviewed samples show the student preserving the teacher's broad scene
 layout, face/clothing structure, and tone direction. It still differs in
@@ -103,19 +103,19 @@ must be checked before any runtime promotion.
 
 | Artifact | SHA-256 |
 | --- | --- |
-| `E:\OpenNR_Training\context_merged_v2_20260905\best_mae.pt` | `0B20B91141FA455F87BDAF0673FDCE194CD164F6DE89413F55F1EFEA9ABBB26E` |
-| `E:\OpenNR_Training\context_merged_v2_20260905\best_feature.pt` | `085B4BD8305B69AEF8067333E250C7A6A160AE03F628202A9E1F99943BECFEFF` |
-| `E:\OpenNR_Training\context_merged_v2_20260905\last.pt` | `6D2273EAE71DCB07A466E1F7DB90C6561B1D49887D5FA784EFD7EC2AB11A8008` |
+| `<DATA_ROOT>\OpenNR_Training\context_merged_v2_20260905\best_mae.pt` | `0B20B91141FA455F87BDAF0673FDCE194CD164F6DE89413F55F1EFEA9ABBB26E` |
+| `<DATA_ROOT>\OpenNR_Training\context_merged_v2_20260905\best_feature.pt` | `085B4BD8305B69AEF8067333E250C7A6A160AE03F628202A9E1F99943BECFEFF` |
+| `<DATA_ROOT>\OpenNR_Training\context_merged_v2_20260905\last.pt` | `6D2273EAE71DCB07A466E1F7DB90C6561B1D49887D5FA784EFD7EC2AB11A8008` |
 
 The frozen test result is:
 
-`E:\OpenNR_Training\context_merged_v2_20260905\test_evaluation\result.json`
+`<DATA_ROOT>\OpenNR_Training\context_merged_v2_20260905\test_evaluation\result.json`
 
 The completion metadata is:
 
-- `E:\OpenNR_Training\context_merged_v2_20260905\status.json`
-- `E:\OpenNR_Training\context_merged_v2_20260905\run.json`
-- `E:\OpenNR_Training\context_merged_v2_20260905\history.jsonl`
+- `<DATA_ROOT>\OpenNR_Training\context_merged_v2_20260905\status.json`
+- `<DATA_ROOT>\OpenNR_Training\context_merged_v2_20260905\run.json`
+- `<DATA_ROOT>\OpenNR_Training\context_merged_v2_20260905\history.jsonl`
 
 ## Runtime evidence
 
@@ -130,8 +130,8 @@ engine launch, compositor, display submission, and headset frame budget.
 
 Benchmark JSON files:
 
-- `E:\OpenNR_Training\context_merged_v2_20260905\benchmark_best_mae_test.json`
-- `E:\OpenNR_Training\context_merged_v2_20260905\benchmark_best_feature_test.json`
+- `<DATA_ROOT>\OpenNR_Training\context_merged_v2_20260905\benchmark_best_mae_test.json`
+- `<DATA_ROOT>\OpenNR_Training\context_merged_v2_20260905\benchmark_best_feature_test.json`
 
 These timings are far above a usable live stereo-VR budget in their current
 form. They are useful for tracking the cost of this larger context model, not
@@ -181,14 +181,14 @@ and motion for both eyes) and the exact output byte check passed.
 
 Results are in:
 
-- `E:\OpenNR_Training\context_merged_v2_20260905\native_replay_best_feature\result.json`
-- `E:\OpenNR_Training\context_merged_v2_20260905\native_replay_best_mae\result.json`
+- `<DATA_ROOT>\OpenNR_Training\context_merged_v2_20260905\native_replay_best_feature\result.json`
+- `<DATA_ROOT>\OpenNR_Training\context_merged_v2_20260905\native_replay_best_mae\result.json`
 
 The four-way native replay sheets (recorded input, student via D3D12, native
 NVIDIA replay, and captured teacher) are in each candidate's `visual` folder.
 For example:
 
-`E:\OpenNR_Training\context_merged_v2_20260905\native_replay_best_feature\visual\replay_detail_eye0.jpg`
+`<DATA_ROOT>\OpenNR_Training\context_merged_v2_20260905\native_replay_best_feature\visual\replay_detail_eye0.jpg`
 
 This validates the offline resource bridge and its data movement, not live
 SkyrimVR scheduling, headset delivery, reprojection, temporal history, or

@@ -68,7 +68,7 @@ The compound objective was isolated from ordinary MAE by adding a
 The paired run started from the independently verified stable-U-Net warm head
 at:
 
-`E:\OpenNR_Training\stable_unet_broad_20260907\best_all_cohorts.pt`
+`<DATA_ROOT>\OpenNR_Training\stable_unet_broad_20260907\best_all_cohorts.pt`
 
 Warm-start SHA-256:
 
@@ -82,10 +82,10 @@ it does not alter the existing runtime path.
 
 Outputs:
 
-- Control: `C:\OpenNR\Training\semantic_pixel_l1_pair_20260909\control`
-- Joint: `C:\OpenNR\Training\semantic_pixel_l1_pair_20260909\joint`
+- Control: `<OPENNR_DATA>\Training\semantic_pixel_l1_pair_20260909\control`
+- Joint: `<OPENNR_DATA>\Training\semantic_pixel_l1_pair_20260909\joint`
 - Independent joint replay and fixed sheets:
-  `C:\OpenNR\Training\semantic_pixel_l1_pair_20260909\joint_independent_replay`
+  `<OPENNR_DATA>\Training\semantic_pixel_l1_pair_20260909\joint_independent_replay`
 
 ### Control result
 
@@ -124,7 +124,7 @@ retained rather than hidden.
 
 Joint checkpoint:
 
-`C:\OpenNR\Training\semantic_pixel_l1_pair_20260909\joint\best_all_cohorts.pt`
+`<OPENNR_DATA>\Training\semantic_pixel_l1_pair_20260909\joint\best_all_cohorts.pt`
 
 SHA-256:
 
@@ -156,7 +156,7 @@ left unchanged.
 
 Output:
 
-`C:\OpenNR\Training\semantic_detail_ablation_20260909`
+`<OPENNR_DATA>\Training\semantic_detail_ablation_20260909`
 
 | Step | Prior | High-effect | Renderer pilot | Fresh | Renderer state | New pairs | Gate |
 | ---: | ---: | ---: | ---: | ---: | ---: | ---: | --- |
@@ -181,7 +181,7 @@ MAEs, PSNR values, and temporal deltas exactly.
 
 Output:
 
-`C:\OpenNR\Training\semantic_pixel_l1_pair_20260909\continuation_800_1600`
+`<OPENNR_DATA>\Training\semantic_pixel_l1_pair_20260909\continuation_800_1600`
 
 | Absolute step | Prior | High-effect | Renderer pilot | Fresh | Renderer state | New pairs | Gate vs step 800 |
 | ---: | ---: | ---: | ---: | ---: | ---: | ---: | --- |
@@ -258,12 +258,12 @@ A separate disabled-by-default example is now prepared at
 The live `SettingsUser.json` now requests one 64-sample sequence at an 80 Hz eligibility cadence, full-frame
 artifacts on every accepted sample, both eyes, one center crop, raw Feature 18
 depth and motion, raw teacher, and all six renderer conditionings. It writes
-to the new root `C:\OpenNR_Captures_FullEyeTemporalEveryFrame_20260909` and
+to the new root `<DATA_ROOT>\OpenNR_Captures_FullEyeTemporalEveryFrame_20260909` and
 uses `capture_full_frame_sequence=true` and `full_frame_every_samples=0`.
 The edited live profile SHA-256 is
 `ccde5515081396076715fba06ff66430456adf50a4995ef273ba77de76762dd0`.
 The byte-identical pre-edit backup is
-`E:\MGO-RC3-fresh\_OpenNR_Pilot_Backups\pre-full-eye-every-frame-20260909\SettingsUser.before.json`,
+`<MO2_INSTANCE>\_OpenNR_Pilot_Backups\pre-full-eye-every-frame-20260909\SettingsUser.before.json`,
 with SHA-256
 `260c185ade91e832c408852e2ed87cb7047d46ddb7d3c74b2d78a21815cd19a9`.
 `Rollback.ps1` is beside that backup.
@@ -305,7 +305,7 @@ do not directly contain.
 The new overlay was built without changing the raw capture or the source
 strict cache:
 
-- Overlay: `C:\OpenNR\TrainingCache\full_eye_renderer_conditioning_strict_20260909_retry2`
+- Overlay: `<OPENNR_DATA>\TrainingCache\full_eye_renderer_conditioning_strict_20260909_retry2`
 - Schema: `opennr-full-eye-renderer-conditioning-v1`
 - Shape: `1408 x 17 x 128 x 128`, float16
 - Split: 6 train / 2 validation / 3 test sequences; 768 / 256 / 384 eye rows
@@ -377,11 +377,11 @@ conditioning path on this small session.
 
 The arm endpoint was independently replayed with exact metrics:
 
-- Checkpoint: `C:\OpenNR\Training\semantic_renderer_conditioned_pair_20260909\arm\last.pt`
+- Checkpoint: `<OPENNR_DATA>\Training\semantic_renderer_conditioned_pair_20260909\arm\last.pt`
 - Checkpoint SHA-256:
   `ba98700b0d28fd518f03679aa8e43b8a7c2a6617adcfc12e085d1fa0e5a13263`
 - Independent verifier result:
-  `C:\OpenNR\Training\semantic_renderer_conditioned_pair_20260909\arm_independent_replay\result.json`
+  `<OPENNR_DATA>\Training\semantic_renderer_conditioned_pair_20260909\arm_independent_replay\result.json`
 - Independent `max_difference`: `0.0`
 - Control endpoint SHA-256:
   `536e104382dd4a64b59a01411888c3e61102d95f3350120c6c67f95cdbf479ef`
@@ -411,7 +411,7 @@ still had approximately `300.3 GiB` free at the end of the run; D:, E:, and
 G: remained approximately `37.9`, `31.1`, and `18.9 GiB` free respectively.
 No raw capture, accepted cache, checkpoint, or provenance directory was
 deleted. The first failed overlay preflight left an incomplete scratch
-directory at `C:\OpenNR\TrainingCache\full_eye_renderer_conditioning_strict_20260909`;
+directory at `<OPENNR_DATA>\TrainingCache\full_eye_renderer_conditioning_strict_20260909`;
 it was not used, and it was retained rather than risking an unverified cleanup.
 
 The local RTX 5070 Ti completed both matched arms and the independent replay
@@ -459,12 +459,12 @@ eyes, one 512-pixel center crop, 80 Hz, raw pre/post input and teacher, native
 depth/motion, and all six renderer-conditioning crops, but sets
 `capture_full_frame=false`, `capture_full_frame_sequence=false`, and
 `queue_capacity=32`. The new output root is
-`C:\OpenNR_Captures_TemporalCrops_EveryFrame_20260909`.
+`<DATA_ROOT>\OpenNR_Captures_TemporalCrops_EveryFrame_20260909`.
 
 The live profile validates with no errors or warnings and has SHA-256
 `6e770b9b9a193bd959b7bc404e4583ddd1472ede7c9dd00c1034ce3f97193c6d`.
 Its byte-identical pre-edit backup is
-`E:\MGO-RC3-fresh\_OpenNR_Pilot_Backups\pre-crop-temporal-20260909\SettingsUser.before.json`
+`<MO2_INSTANCE>\_OpenNR_Pilot_Backups\pre-crop-temporal-20260909\SettingsUser.before.json`
 with SHA-256
 `ccde5515081396076715fba06ff66430456adf50a4995ef273ba77de76762dd0`.
 The disabled template is
@@ -475,7 +475,7 @@ before it is used for temporal training.
 ## Superseding crop-temporal capture acceptance — 2026-09-09
 
 The lower-I/O crop-temporal contract produced two complete user-launched
-sequences under C:\OpenNR_Captures_TemporalCrops_EveryFrame_20260909:
+sequences under <DATA_ROOT>\OpenNR_Captures_TemporalCrops_EveryFrame_20260909:
 
 | Sequence | Frames | Measured size | Strict crop-temporal state |
 | --- | ---: | ---: | --- |
@@ -505,7 +505,7 @@ The earlier two-sequence section above is historical. The user finished the
 capture session, and the authoritative root now contains 18 complete
 crop-temporal sequences:
 
-C:\OpenNR_Captures_TemporalCrops_EveryFrame_20260909
+<DATA_ROOT>\OpenNR_Captures_TemporalCrops_EveryFrame_20260909
 
 The strict crop validator accepted 18/18 sequences and 1,152/1,152 frames.
 Every sequence has the required initial [true, true] reset, no mid-sequence
@@ -519,7 +519,7 @@ nonfinite values and one localized eight-record gbuffer_specular outlier.
 
 The all-18 cache is complete and hash-bound at:
 
-C:\OpenNR\TrainingCache\crop_temporal_every_frame_20260909_all18
+<OPENNR_DATA>\TrainingCache\crop_temporal_every_frame_20260909_all18
 
 It is schema 2, has RGB shape [2304, 2, 3, 512, 512], guide shape
 [2304, 5, 128, 128], context shape [2304, 8, 96, 96], and a sequence-disjoint
@@ -561,7 +561,7 @@ unusable full-eye-every-frame I/O pattern. The current profile is documented in
 the [sparse full-eye anchor capture record](SPARSE_FULL_EYE_ANCHOR_CAPTURE_20260909.md)
 and writes to:
 
-`C:\OpenNR_Captures_TemporalCrops_SparseFullEye_20260909`
+`<DATA_ROOT>\OpenNR_Captures_TemporalCrops_SparseFullEye_20260909`
 
 The tranche contains 8 complete 64-frame sequences (512 frames, 1,024 eye
 rows, approximately 11.03 GiB). Crop mode accepted all 8 sequences with the
@@ -573,8 +573,8 @@ audit found 7 invalid motion eye rows and 1,550,054 invalid motion pixels.
 It remains preserved as diagnostic/test-side material. The remaining clean-7
 manifest and raw-crop cache are:
 
-- `C:\OpenNR\Training\sparse_full_eye_anchor_candidate_manifest_clean7_20260909.json`
-- `C:\OpenNR\TrainingCache\sparse_full_eye_anchor_crop_clean7_20260909`
+- `<OPENNR_DATA>\Training\sparse_full_eye_anchor_candidate_manifest_clean7_20260909.json`
+- `<OPENNR_DATA>\TrainingCache\sparse_full_eye_anchor_crop_clean7_20260909`
 
 The clean-7 cache has 7 sequence-disjoint sequences, 448 frames, 896 eye rows,
 and train/validation/test eye-row counts of 512/128/256. Invalid depth and
@@ -603,11 +603,11 @@ and fresh-session are also worse, and the prior/new-pairs tradeoff is not
 uniform. The control also improved renderer-pilot, so the renderer-pilot gain
 cannot be attributed to the new tranche. Neither checkpoint was promoted; the
 protected best remains immutable at
-`C:\OpenNR\Training\semantic_pixel_l1_pair_20260909\joint\best_all_cohorts.pt`.
+`<OPENNR_DATA>\Training\semantic_pixel_l1_pair_20260909\joint\best_all_cohorts.pt`.
 
 Run artifacts and hashes are retained under:
 
-`C:\OpenNR\Training\semantic_sparse_full_eye_anchor_clean7_pair_20260909`
+`<OPENNR_DATA>\Training\semantic_sparse_full_eye_anchor_clean7_pair_20260909`
 
 - control step-1,600 checkpoint SHA-256:
   `9B7AFD23CF9E91D3F21B03614F20D9AB327105D64FBA248228317B6344BC71C8`
@@ -664,7 +664,7 @@ against an unmonitored 50,000-step fit on this small tranche.
 
 The exact continuation artifacts are retained under:
 
-`C:\OpenNR\Training\semantic_sparse_full_eye_anchor_clean7_long_pair_20260909`
+`<OPENNR_DATA>\Training\semantic_sparse_full_eye_anchor_clean7_long_pair_20260909`
 
 - control step-2,400 checkpoint SHA-256:
   `E45F61D934744ACB987D5FB3107FFED37C71946DA432C01142E1F485829FB3EB`

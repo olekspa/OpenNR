@@ -16,19 +16,19 @@ into SkyrimVR and does not close the requested MAE `0.011` target.
 ## Exact experiment
 
 - Parent checkpoint:
-  `E:\OpenNR_Training\fresh_combined_adapted_base_v61_all_nontest_0.5.5_20260906\last.pt`
+  `<DATA_ROOT>\OpenNR_Training\fresh_combined_adapted_base_v61_all_nontest_0.5.5_20260906\last.pt`
 - Parent SHA-256:
   `2fa1c311a88ffecf4c3d7bab51b4ac225cdb32a4a052607c335268b755816067`
 - Output:
-  `E:\OpenNR_Training\fullres_aux_oversample_v65_probe_0.5.5_20260906`
+  `<DATA_ROOT>\OpenNR_Training\fullres_aux_oversample_v65_probe_0.5.5_20260906`
 - Selected checkpoint:
-  `E:\OpenNR_Training\fullres_aux_oversample_v65_probe_0.5.5_20260906\best_mae.pt`
+  `<DATA_ROOT>\OpenNR_Training\fullres_aux_oversample_v65_probe_0.5.5_20260906\best_mae.pt`
 - Selected checkpoint SHA-256:
   `5672252b438669169d8b2fed9ffb16f20768270f01d79dc924f32b9318fbc3e3`
 - Strict training cache:
-  `E:\OpenNR_RawCropCache_StrictCombinedFresh_0.5.5_20260906`
+  `<DATA_ROOT>\OpenNR_RawCropCache_StrictCombinedFresh_0.5.5_20260906`
 - Spatial source used by the probe:
-  `E:\OpenNR_FullResMasterSpatialAux_0.5.5_20260906`
+  `<DATA_ROOT>\OpenNR_FullResMasterSpatialAux_0.5.5_20260906`
 - Training steps: 500; selected step: 200
 - Window/burn-in/batch: 8 / 2 / 2
 - Full-resolution spatial probability: 0.50
@@ -71,10 +71,10 @@ The combined change is a 0.137 percent relative improvement. The historical
 cohort is effectively unchanged, so the result is retained but does not justify
 promoting v65 as a qualitatively different model. The direct evidence is in:
 
-- `D:\.CODEX_Projects\OpenNR-VR\out\v65_fullres_aux_combined_test_best_mae_0.5.5_20260906\result.json`
-- `D:\.CODEX_Projects\OpenNR-VR\out\v65_fullres_aux_fresh_test_best_mae_0.5.5_20260906\result.json`
-- `D:\.CODEX_Projects\OpenNR-VR\out\v65_fullres_aux_historical_test_best_mae_0.5.5_20260906\result.json`
-- `D:\.CODEX_Projects\OpenNR-VR\out\fresh_test_v61_v65_fullres_gallery_0.5.5_20260906\gallery.json`
+- `<REPO>\out\v65_fullres_aux_combined_test_best_mae_0.5.5_20260906\result.json`
+- `<REPO>\out\v65_fullres_aux_fresh_test_best_mae_0.5.5_20260906\result.json`
+- `<REPO>\out\v65_fullres_aux_historical_test_best_mae_0.5.5_20260906\result.json`
+- `<REPO>\out\fresh_test_v61_v65_fullres_gallery_0.5.5_20260906\gallery.json`
 
 The visual gallery shows v61 and v65 are nearly indistinguishable. Both retain
 the character and scene structure, but both remain less warm/dark in local

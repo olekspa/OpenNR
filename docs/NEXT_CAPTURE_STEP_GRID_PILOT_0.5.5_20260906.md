@@ -4,10 +4,10 @@ Date: 2026-09-06
 Purpose: expand spatial coverage while preserving the native Feature 18 temporal contract.
 
 Execution record: this pilot was collected successfully at
-`C:\OpenNR_Captures_NextGridPilot_0.5.5_20260906`. The resulting 105-sequence
+`<DATA_ROOT>\OpenNR_Captures_NextGridPilot_0.5.5_20260906`. The resulting 105-sequence
 audit, 92-sequence clean temporal cache, four-crop spatial cache, and training
 outcome are recorded in
-[NEXT_GRID_TRAINING_RESULT_0.5.5_20260906.md](D:/.CODEX_Projects/OpenNR-VR/docs/NEXT_GRID_TRAINING_RESULT_0.5.5_20260906.md).
+[NEXT_GRID_TRAINING_RESULT_0.5.5_20260906.md](<REPO>/docs/NEXT_GRID_TRAINING_RESULT_0.5.5_20260906.md).
 The profile below is therefore historical preparation, not an instruction to
 recollect the same pilot without a new coverage goal.
 
@@ -16,25 +16,25 @@ recollect the same pilot without a new coverage goal.
 Primary pilot:
 
 ```text
-D:\.CODEX_Projects\OpenNR-VR\config\opennr_capture_next_temporal_grid_pilot.example.json
+<REPO>\config\opennr_capture_next_temporal_grid_pilot.example.json
 ```
 
 Output root:
 
 ```text
-C:\OpenNR_Captures_NextGridPilot_0.5.5_20260906
+<DATA_ROOT>\OpenNR_Captures_NextGridPilot_0.5.5_20260906
 ```
 
 Optional later full-resolution master pilot:
 
 ```text
-D:\.CODEX_Projects\OpenNR-VR\config\opennr_capture_next_fullres_master_pilot.example.json
+<REPO>\config\opennr_capture_next_fullres_master_pilot.example.json
 ```
 
 Output root:
 
 ```text
-C:\OpenNR_Captures_NextFullResMasterPilot_0.5.5_20260906
+<DATA_ROOT>\OpenNR_Captures_NextFullResMasterPilot_0.5.5_20260906
 ```
 
 Both files are examples with `enable_capture: false`. Neither file changes the live profile by itself.
@@ -98,7 +98,7 @@ Backpressure is recorded as a warning by the current validator, but the preferre
 After collecting the first burst, send only the capture-root path, for example:
 
 ```text
-C:\OpenNR_Captures_NextGridPilot_0.5.5_20260906
+<DATA_ROOT>\OpenNR_Captures_NextGridPilot_0.5.5_20260906
 ```
 
 Do not build a cache, move files, or delete anything first. I will validate the manifests, raw artifacts, crop alignment, native MV metadata, effect distribution, storage cost, and representative A/B samples. If the first burst is healthy, I will tell you to continue with the remaining five conditions; otherwise I will adjust the profile before you spend more storage.

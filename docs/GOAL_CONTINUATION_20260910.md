@@ -21,7 +21,7 @@ The evidence now points away from more blind steps or another width increase. Th
 
 The protected production control is unchanged:
 
-- Checkpoint: `C:\OpenNR\Training\semantic_pixel_l1_pair_20260909\joint\best_all_cohorts.pt`
+- Checkpoint: `<OPENNR_DATA>\Training\semantic_pixel_l1_pair_20260909\joint\best_all_cohorts.pt`
 - SHA-256: `40C214A9C0BC214C6E1366872E6D9270BFE7C00D63797AEFB6B3896865C15756`
 - Parent checkpoint SHA-256: `2024593e3ebacb576c2848d0176bc0d8a16bbc35e1250f0dda519937778c5f60`
 - Protected ordinary renderer-pilot validation MAE: `0.013283985`
@@ -30,7 +30,7 @@ The six older cohorts, clean7 cache, 18-sequence cache, and all existing checkpo
 
 ## Experiment 1 — scratch versus finetune
 
-Full report: [SCRATCH_VS_FINETUNE_RESULT_20260910.md](D:/\.CODEX_Projects/OpenNR-VR/docs/SCRATCH_VS_FINETUNE_RESULT_20260910.md)
+Full report: [SCRATCH_VS_FINETUNE_RESULT_20260910.md](<REPO>/docs/SCRATCH_VS_FINETUNE_RESULT_20260910.md)
 
 Starting from the protected best, the finetune arm loaded the learned parent/head weights with fresh AdamW state. The scratch arm initialized the trainable parent and semantic/tone head anew while retaining only the frozen pretrained DINOv2 encoder. Both arms used the same exact graph, seven-cohort corpus, sequence-disjoint splits, seed `909`, window `8`, burn-in `2`, batch `1`, pixel-only L1 objective, learning rates `1e-4`/`1e-5`, and 1600 steps.
 
@@ -50,7 +50,7 @@ The independent replay of both final checkpoints reproduced recorded validation 
 
 The recovery pair started both arms from the finetune step-1600 checkpoint:
 
-`C:\OpenNR\Training\semantic_scratch_vs_finetune_20260910\finetune\checkpoint_1600.pt`
+`<OPENNR_DATA>\Training\semantic_scratch_vs_finetune_20260910\finetune\checkpoint_1600.pt`
 
 SHA-256: `F1DDABE27DE2BDE99CDD876535575B7B19A0BF3259443C2F3B2F19CBA27DB53C`
 
@@ -66,12 +66,12 @@ At the final checkpoint the arm was 0.92% worse than control on renderer-pilot a
 
 Recovery artifacts:
 
-- Root: `C:\OpenNR\Training\semantic_recovery_from_finetune1600_20260910_retry1`
+- Root: `<OPENNR_DATA>\Training\semantic_recovery_from_finetune1600_20260910_retry1`
 - Control checkpoint SHA-256: `0E67E0BBBC4247DC7CABF1966FE5ACC23CD19184567B99D2EA77494FFE6C5493`
 - Arm checkpoint SHA-256: `DA0AA3E2ADD076BADC287ABBB5447F3F959F9C0A3CBDA2CC79FF0B69EDFD94D1`
 - Independent replay: both checkpoints `replay_match = true`, `max_abs_difference = 0.0`
 
-The first recovery launch stopped before training because the original provenance loader saw the post-run bookkeeping patch as a source change. That stopped attempt is retained separately at `C:\OpenNR\Training\semantic_recovery_from_finetune1600_20260910`; the successful retry used a strict compatibility loader that allowed only that known reporting-file hash delta and continued to enforce parent, data, encoder, and model-source hashes.
+The first recovery launch stopped before training because the original provenance loader saw the post-run bookkeeping patch as a source change. That stopped attempt is retained separately at `<OPENNR_DATA>\Training\semantic_recovery_from_finetune1600_20260910`; the successful retry used a strict compatibility loader that allowed only that known reporting-file hash delta and continued to enforce parent, data, encoder, and model-source hashes.
 
 ## Experiment 3 — renderer-pilot-focused exposure
 
@@ -113,12 +113,12 @@ production candidate.
 
 Focus artifacts:
 
-- Root: `C:\OpenNR\Training\semantic_renderer_focus_from_finetune1600_20260910`
-- Final checkpoint: `C:\OpenNR\Training\semantic_renderer_focus_from_finetune1600_20260910\focus\checkpoint_800.pt`
+- Root: `<OPENNR_DATA>\Training\semantic_renderer_focus_from_finetune1600_20260910`
+- Final checkpoint: `<OPENNR_DATA>\Training\semantic_renderer_focus_from_finetune1600_20260910\focus\checkpoint_800.pt`
 - SHA-256: `0E909606F5B3EB5F0890F08326B78E5E8AB66AC35678BDF58A9D307784088FC4`
 - Schedule SHA-256: `9DCDD4A001E9F8FA3CC2F1BA5F2AEF2D4C09DEDACB70A1D8C59D5EA87B8F5DE7`
 
-The independent focus replay was briefly deferred while the concurrent GEN task used the RTX, then completed with batch `1` once the device yielded. It passed exactly: `replay_match = true`, `max_abs_difference = 0.0`. Replay artifact: `C:\OpenNR\Training\semantic_renderer_focus_from_finetune1600_20260910\replay\focus_checkpoint_800_replay.json`; artifact SHA-256: `8459B66E50015B60E57D173418E981973D8212E73030C260D54712C1CE3B384A`. The focus checkpoint and recorded validation remain immutable.
+The independent focus replay was briefly deferred while the concurrent GEN task used the RTX, then completed with batch `1` once the device yielded. It passed exactly: `replay_match = true`, `max_abs_difference = 0.0`. Replay artifact: `<OPENNR_DATA>\Training\semantic_renderer_focus_from_finetune1600_20260910\replay\focus_checkpoint_800_replay.json`; artifact SHA-256: `8459B66E50015B60E57D173418E981973D8212E73030C260D54712C1CE3B384A`. The focus checkpoint and recorded validation remain immutable.
 
 ## Experiment 4 — parent-frozen renderer focus
 
@@ -132,7 +132,7 @@ This arm used the same starting finetune checkpoint, 25% renderer-pilot sampling
 
 The parent-frozen arm did not reproduce the unfrozen focus gain (`0.011838914`) and still failed broad MAE and temporal preservation. Its final cohort values were prior `0.018037405`, high_effect `0.015022496`, renderer_pilot `0.012463567`, fresh_session `0.014069522`, renderer_state `0.020345155`, new_pairs `0.026817460`, and full_eye/clean7 validation `0.014159395`. Its renderer temporal delta MAE was `0.009472996` and renderer-state temporal delta MAE was `0.007398317`.
 
-The final checkpoint is `C:\OpenNR\Training\semantic_renderer_head_focus_from_finetune1600_20260910\focus\checkpoint_800.pt`, SHA-256 `23A2C2A23F56721E533A78E2B6C75223D887D55B833888374BDFA95967B7BB19`. Independent replay passed exactly with `replay_match = true` and `max_abs_difference = 0.0`; replay artifact SHA-256 is `5B8BA741E60521888F7F9B11D0F24B26D807987365AEC1EF317628CD71C93F2E`.
+The final checkpoint is `<OPENNR_DATA>\Training\semantic_renderer_head_focus_from_finetune1600_20260910\focus\checkpoint_800.pt`, SHA-256 `23A2C2A23F56721E533A78E2B6C75223D887D55B833888374BDFA95967B7BB19`. Independent replay passed exactly with `replay_match = true` and `max_abs_difference = 0.0`; replay artifact SHA-256 is `5B8BA741E60521888F7F9B11D0F24B26D807987365AEC1EF317628CD71C93F2E`.
 
 ## Target status and interpretation
 
@@ -229,13 +229,13 @@ point, so retention did not create a Pareto improvement. Both final checkpoints
 independently replayed with `replay_match = true`, `max_abs_difference = 0.0`,
 and `test_used = false`.
 
-Full report: [RETENTION_RENDERER_FOCUS_RESULT_20260910.md](D:/\.CODEX_Projects/OpenNR-VR/docs/RETENTION_RENDERER_FOCUS_RESULT_20260910.md).
+Full report: [RETENTION_RENDERER_FOCUS_RESULT_20260910.md](<REPO>/docs/RETENTION_RENDERER_FOCUS_RESULT_20260910.md).
 
 Primary root:
-`C:\OpenNR\Training\semantic_retention_renderer_pair_20260910`
+`<OPENNR_DATA>\Training\semantic_retention_renderer_pair_20260910`
 
 Independent replay root:
-`C:\OpenNR\Training\semantic_retention_renderer_pair_20260910_replay`
+`<OPENNR_DATA>\Training\semantic_retention_renderer_pair_20260910_replay`
 
 Decision update: stop same-corpus optimization at this evidence boundary. The
 current best ordinary value remains the finetune-v2 step-2,400 value

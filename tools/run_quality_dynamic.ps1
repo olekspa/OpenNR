@@ -1,6 +1,6 @@
 param([int]$ContextProcessId = 6984)
 $ErrorActionPreference = 'Stop'
-Set-Location -LiteralPath 'D:\.CODEX_Projects\OpenNR-VR'
+Set-Location -LiteralPath '<REPO>'
 $statePath = 'out/quality_phase_20260905/dynamic_queue.json'
 $runStatus = Get-Content -Raw -LiteralPath 'out/quality_phase_20260905/context_continuation/status.json' | ConvertFrom-Json
 if ($runStatus.pid -ne $ContextProcessId) { throw 'Context process identity mismatch' }
@@ -16,7 +16,7 @@ $smokeStatus = Get-Content -Raw -LiteralPath 'out/quality_phase_20260905/dynamic
 $dataTest = Get-Content -Raw -LiteralPath 'out/dynamic_patch_validation.json' | ConvertFrom-Json
 if ($smokeStatus.state -ne 'completed' -or $dataTest.state -ne 'passed') { throw 'Dynamic loader checks did not pass' }
 @{ state='starting_dynamic'; queue_pid=$PID; steps=20000; initialization='out/student_v2_20260904/perceptual/best.pt' } | ConvertTo-Json | Set-Content -LiteralPath $statePath
-& 'E:\OpenNR-VR-Poc-Venv\Scripts\python.exe' tools/train_long_student.py --cache C:/OpenNR/TrainingCache/student_v1 --output out/quality_phase_20260905/dynamic_continuation --initialize out/student_v2_20260904/perceptual/best.pt --dynamic-guides C:/OpenNR/TrainingCache/dynamic_guides_v1 --steps 20000 --eval-every 1000 *> out/quality_dynamic_continuation.log
+& '<POC_VENV>\Scripts\python.exe' tools/train_long_student.py --cache <OPENNR_DATA>/TrainingCache/student_v1 --output out/quality_phase_20260905/dynamic_continuation --initialize out/student_v2_20260904/perceptual/best.pt --dynamic-guides <OPENNR_DATA>/TrainingCache/dynamic_guides_v1 --steps 20000 --eval-every 1000 *> out/quality_dynamic_continuation.log
 if ($LASTEXITCODE -ne 0) {
     @{ state='failed'; queue_pid=$PID; exit_code=$LASTEXITCODE } | ConvertTo-Json | Set-Content -LiteralPath $statePath
     throw 'Dynamic-crop experiment failed; inspect its log'

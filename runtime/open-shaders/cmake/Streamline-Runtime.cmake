@@ -146,7 +146,9 @@ set(OPENNR_DLSSNR_RUNTIME_SOURCE
 if(NOT EXISTS "${OPENNR_DLSSNR_RUNTIME_SOURCE}")
     message(FATAL_ERROR
         "OpenNR Feature 18 carrier is missing: ${OPENNR_DLSSNR_RUNTIME_SOURCE}. "
-        "Supply the validated nvngx_dlssnr.dll before packaging."
+        "Supply the validated nvngx_dlssnr.dll before packaging (it is never committed or "
+        "redistributed by OpenNR; see docs/THIRD_PARTY_BINARIES.md and set "
+        "-DOPENNR_DLSSNR_RUNTIME_SOURCE=<path>)."
     )
 endif()
 file(SIZE "${OPENNR_DLSSNR_RUNTIME_SOURCE}" _opennr_dlssnr_runtime_size)

@@ -19,7 +19,7 @@ same RGB/depth/native-motion recipe.
 
 Source root:
 
-`C:\OpenNR_Captures_VariedHighEffect_0.5.5_20260907`
+`<DATA_ROOT>\OpenNR_Captures_VariedHighEffect_0.5.5_20260907`
 
 The root contains 32 exact 64-frame sequences: 2,048 complete frames and
 65,536 crop-eye-stage artifacts. The raw tree is approximately 68.75 billion
@@ -33,14 +33,14 @@ The byte-level validator returned success with:
 - zero validator errors and zero warnings.
 
 The compact byte-audit authority is
-`D:\.CODEX_Projects\OpenNR-VR\out\varied_high_effect_20260907_byte_audit_summary.json`.
+`<REPO>\out\varied_high_effect_20260907_byte_audit_summary.json`.
 The full validator is `tools\validate_capture.py`.
 
 The temporal audit passed all 32 sequences. Every sequence had 64 contiguous
 frames, contiguous sample/host order, one initial `[true, true]` reset, no
 mid-clip reset, no backpressure, no dropped frame, and `temporal_ready=true`.
 Its authority file is
-`D:\.CODEX_Projects\OpenNR-VR\out\varied_high_effect_20260907_temporal_audit.json`.
+`<REPO>\out\varied_high_effect_20260907_temporal_audit.json`.
 
 The all-crop content audit covered 16,384 eye/crop rows. It found:
 
@@ -59,9 +59,9 @@ conservative native-guide quarantine, not a deletion or claim that the four
 captures are visually useless.
 
 The content-audit authority is
-`D:\.CODEX_Projects\OpenNR-VR\out\varied_high_effect_20260907_content_audit.json`.
+`<REPO>\out\varied_high_effect_20260907_content_audit.json`.
 The exact clean candidate manifest is
-`D:\.CODEX_Projects\OpenNR-VR\out\varied_high_effect_20260907_candidate_manifest_clean.json`.
+`<REPO>\out\varied_high_effect_20260907_candidate_manifest_clean.json`.
 
 Every promoted frame retains the established capture contract: stereo Feature
 18 route, 100% single pass, both eyes, pre-NR input, teacher output, raw native
@@ -95,14 +95,14 @@ reshuffling:
   `8363da3e04b58f66cd4acadb8e60648f593aacaad51945ad9cea0d59a8871e18`.
 
 The active combined cache is
-`C:\OpenNR_Cache_StrictAllCohortsVariedHighEffect_0.5.5_20260907`.
+`<DATA_ROOT>\OpenNR_Cache_StrictAllCohortsVariedHighEffect_0.5.5_20260907`.
 Its cache helper test passes. The new center-crop temporal cache is
-`E:\OpenNR_RawCropCache_VariedHighEffectTemporalClean_0.5.5_20260907` and its
+`<DATA_ROOT>\OpenNR_RawCropCache_VariedHighEffectTemporalClean_0.5.5_20260907` and its
 cache helper test also passes.
 
 All 32 fresh sequences, including the four temporal quarantine sequences, are
 represented in the separate all-crop spatial cache
-`C:\OpenNR_Cache_VariedHighEffectSpatialAllCrops_0.5.5_20260907`.
+`<DATA_ROOT>\OpenNR_Cache_VariedHighEffectSpatialAllCrops_0.5.5_20260907`.
 It is explicitly spatial-only and passes the cache helper test. The four
 sequences are therefore still available for appearance coverage and future
 row-level investigation without contaminating the recurrent stream.
@@ -110,7 +110,7 @@ row-level investigation without contaminating the recurrent stream.
 ## Storage organization
 
 The 65.50 GiB prior merged parent was copied from E: to
-`G:\OpenNR_ColdStorage\OpenNR_RawCropCache_StrictAllCohortsNextGrid_0.5.5_20260906`.
+`<DATA_ROOT>\OpenNR_ColdStorage\OpenNR_RawCropCache_StrictAllCohortsNextGrid_0.5.5_20260906`.
 It was tested and all 8 files passed exact SHA-256 verification before the E:
 source was released. The combined cache was then built from this verified G:
 parent and the new E: temporal cache; it is self-contained on C:.
@@ -118,7 +118,7 @@ parent and the new E: temporal cache; it is self-contained on C:.
 Three older derived caches were also copied, tested, and verified file by file
 before their E: copies were released:
 
-`G:\OpenNR_ColdStorage\OpenNR_Archive_DerivedCaches_20260907`
+`<DATA_ROOT>\OpenNR_ColdStorage\OpenNR_Archive_DerivedCaches_20260907`
 
 - `OpenNR_RawCropCache_StrictCombinedFresh_0.5.5_20260906` — 44.79 GiB;
 - `OpenNR_RawCropCache_NextGridTemporalClean_0.5.5_20260906` — 20.71 GiB;
@@ -142,7 +142,7 @@ the final audit.
 
 Parent checkpoint:
 
-`E:\OpenNR_Training\fullres_aux_oversample_v65_probe_0.5.5_20260906\best_mae.pt`
+`<DATA_ROOT>\OpenNR_Training\fullres_aux_oversample_v65_probe_0.5.5_20260906\best_mae.pt`
 
 The parent SHA-256 is
 `5672252b438669169d8b2fed9ffb16f20768270f01d79dc924f32b9318fbc3e3`.
@@ -154,7 +154,7 @@ sources, with spatial probability 0.25.
 
 Output:
 
-`E:\OpenNR_Training\varied_high_effect_allcohort_v72_probe_0.5.5_20260907`
+`<DATA_ROOT>\OpenNR_Training\varied_high_effect_allcohort_v72_probe_0.5.5_20260907`
 
 The validation history was:
 
@@ -184,11 +184,11 @@ result are identical because step 0 is the inherited function.
 
 The frozen test result files are:
 
-- `D:\.CODEX_Projects\OpenNR-VR\out\varied_high_effect_v65_baseline_test_0.5.5_20260907\result.json`;
-- `D:\.CODEX_Projects\OpenNR-VR\out\varied_high_effect_v65_baseline_merged_test_0.5.5_20260907\result.json`;
-- `D:\.CODEX_Projects\OpenNR-VR\out\varied_high_effect_v72_step200_new_test_0.5.5_20260907\result.json`;
-- `D:\.CODEX_Projects\OpenNR-VR\out\varied_high_effect_v72_best_new_test_0.5.5_20260907\result.json`;
-- `D:\.CODEX_Projects\OpenNR-VR\out\varied_high_effect_v72_best_merged_test_0.5.5_20260907\result.json`.
+- `<REPO>\out\varied_high_effect_v65_baseline_test_0.5.5_20260907\result.json`;
+- `<REPO>\out\varied_high_effect_v65_baseline_merged_test_0.5.5_20260907\result.json`;
+- `<REPO>\out\varied_high_effect_v72_step200_new_test_0.5.5_20260907\result.json`;
+- `<REPO>\out\varied_high_effect_v72_best_new_test_0.5.5_20260907\result.json`;
+- `<REPO>\out\varied_high_effect_v72_best_merged_test_0.5.5_20260907\result.json`.
 
 Decision: do not promote v72 and do not install it. Keep v65 as the selected
 offline research candidate. The new cohort is still retained as part of the
@@ -198,12 +198,12 @@ future training corpus and as a high-effect held-out domain.
 
 The sequential visual A/B gallery is:
 
-`D:\.CODEX_Projects\OpenNR-VR\out\varied_high_effect_v65_v72_visual_gallery_0.5.5_20260907`
+`<REPO>\out\varied_high_effect_v65_v72_visual_gallery_0.5.5_20260907`
 
 Each sheet contains Input, v65 selected, v72 step-200 probe, and Feature 18
 teacher for one eye at frames 1, 32, or 64. Representative sample:
 
-`D:\.CODEX_Projects\OpenNR-VR\out\varied_high_effect_v65_v72_visual_gallery_0.5.5_20260907\seq-1788754788625-24_f32_e0.jpg`
+`<REPO>\out\varied_high_effect_v65_v72_visual_gallery_0.5.5_20260907\seq-1788754788625-24_f32_e0.jpg`
 
 The selected student and step-200 probe are visually near-identical in this
 sample, while the teacher has the expected stronger local tone, shadow, and
@@ -258,13 +258,13 @@ remain unavailable; reset metadata is already captured. The isolated build is
 now installed as the active MGO diagnostic DLL after a verified backup. Its
 SHA-256 is `A50B62C955ACE36AC52800921646F53B8500BE6CDBEB7028F6DFB3362EF4D817`.
 The previous active DLL is retained at
-`G:\OpenNR_Capture_Setup_Backups\active-renderer-conditioning-pilot-0.5.5-20260907-0210\CommunityShaders.dll`.
+`<DATA_ROOT>\OpenNR_Capture_Setup_Backups\active-renderer-conditioning-pilot-0.5.5-20260907-0210\CommunityShaders.dll`.
 
 The old-domain temporal cache was staged from the verified G: archive to
-`E:\OpenNR_TrainingInputs\OpenNR_RawCropCache_StrictAllCohortsNextGrid_0.5.5_20260906`
+`<DATA_ROOT>\OpenNR_TrainingInputs\OpenNR_RawCropCache_StrictAllCohortsNextGrid_0.5.5_20260906`
 for faster reads. All 8 files / 65.500 GiB passed size and SHA-256 verification;
 the G: archive remains intact. The new-domain cache remains at
-`E:\OpenNR_RawCropCache_VariedHighEffectTemporalClean_0.5.5_20260907`.
+`<DATA_ROOT>\OpenNR_RawCropCache_VariedHighEffectTemporalClean_0.5.5_20260907`.
 
 The capacity trainer is prepared for a 0.35 new-domain temporal sampling
 probability plus 0.25 spatial sampling probability, with old/new/merged
@@ -277,7 +277,7 @@ update.
 ## 2026-09-07 active MGO conditioning-pilot preparation
 
 At the user's request, the active profile
-`E:\MGO-RC3-fresh` / `MGO NSFW - 4.0 BETA` is now configured for the bounded
+`<MO2_INSTANCE>` / `<MO2_PROFILE>` is now configured for the bounded
 renderer-conditioning pilot. SkyrimVR, MO2, SteamVR, `vrserver`, and
 `vrcompositor` were closed before the change.
 
@@ -290,7 +290,7 @@ The active `OpenNR Capture` values are now:
 - raw tensors only (`write_color_previews=false`), no full-frame copies;
 - `queue_capacity=16`, `max_samples=8`, `capture_rate_fps=90`;
 - output:
-  `C:\OpenNR_Captures_RendererConditioningPilot_0.5.5_20260907`;
+  `<DATA_ROOT>\OpenNR_Captures_RendererConditioningPilot_0.5.5_20260907`;
 - existing hotkeys retained: `[` = 219, `]` = 221, `\` = 220.
 
 The newly built probe DLL is the sole active `CommunityShaders.dll` owner and
@@ -301,7 +301,7 @@ The resulting active `SettingsUser.json` SHA-256 is
 The former active DLL
 `751401C26DF6B9FCD7F6F3DD906EE6D57ED69D6F3C6EE6305D1C445C49E3FFD4` and the
 pre-edit `SettingsUser.json` are preserved and hash-verified under
-`G:\OpenNR_Capture_Setup_Backups\active-renderer-conditioning-pilot-0.5.5-20260907-0210`.
+`<DATA_ROOT>\OpenNR_Capture_Setup_Backups\active-renderer-conditioning-pilot-0.5.5-20260907-0210`.
 
 This is a build/configuration acceptance state, not live Feature 18 acceptance.
 When the user wakes, the next action is to launch the selected MGO profile,
@@ -327,7 +327,7 @@ splits untouched.
 
 Output:
 
-`E:\OpenNR_Training\high_effect_adapter_v73_local_0.5.5_20260907`
+`<DATA_ROOT>\OpenNR_Training\high_effect_adapter_v73_local_0.5.5_20260907`
 
 The probe changed the extra branch width from the v65 value of 64 to 96. The
 initializer only copies shape-compatible tensors, so the inherited v65 extra
@@ -338,7 +338,7 @@ comparison.
 
 Its best checkpoint was step 300:
 
-`E:\OpenNR_Training\high_effect_adapter_v73_local_0.5.5_20260907\best_mae.pt`
+`<DATA_ROOT>\OpenNR_Training\high_effect_adapter_v73_local_0.5.5_20260907\best_mae.pt`
 
 The checkpoint SHA-256 is
 `521a1527e9111fd2f2b6b7101984f8ef4a935b5cb00e2985fb6f213c47173f71`.
@@ -357,7 +357,7 @@ small-effect behavior that is relevant to the `0.011` target.
 
 Output:
 
-`E:\OpenNR_Training\high_effect_specialist_v74_parent_preserve_0.5.5_20260907`
+`<DATA_ROOT>\OpenNR_Training\high_effect_specialist_v74_parent_preserve_0.5.5_20260907`
 
 This was the corrected parent-preserving test. It retained the v65 architecture
 and the existing 64-wide extra branch, froze every inherited branch, and trained
@@ -375,7 +375,7 @@ steadily upward:
 | 1,200 | `0.0200346887` | regression |
 
 The saved best checkpoint is
-`E:\OpenNR_Training\high_effect_specialist_v74_parent_preserve_0.5.5_20260907\best_mae.pt`
+`<DATA_ROOT>\OpenNR_Training\high_effect_specialist_v74_parent_preserve_0.5.5_20260907\best_mae.pt`
 with SHA-256
 `41ff437bf4222ad9d257bdb35c3111efd4cf774d058a3a0fb79614c565abb2e7`.
 Its independent evaluations are:
@@ -430,7 +430,7 @@ an offline validation gain toward MAE `0.011`.
 
 The preceding width conclusion predates the dedicated latest-cache three-arm
 run. That run is documented in
-`D:\.CODEX_Projects\OpenNR-VR\docs\RUNPOD_LATEST_CACHE_WIDTH_ABLATION_0.5.5_20260907.md`.
+`<REPO>\docs\RUNPOD_LATEST_CACHE_WIDTH_ABLATION_0.5.5_20260907.md`.
 It used the immutable prior cache, the new clean temporal cache, and the new
 spatial-only auxiliary cache on one secure L40S Pod in `US-NC-1`. The Pod was
 deleted only after all 32 recovered artifacts were SHA-256-verified against
@@ -465,7 +465,7 @@ a stability tradeoff. Arm C is now the selected offline research candidate;
 it has not been installed into SkyrimVR/MO2 and is not live VR acceptance.
 
 The recovered evidence and matched visual sheets are under
-`E:\OpenNR_Training\runpod_latest_cache_width_ablation_0.5.5_20260907`.
+`<DATA_ROOT>\OpenNR_Training\runpod_latest_cache_width_ablation_0.5.5_20260907`.
 Runpod's post-deletion billing snapshot attributes approximately `$0.9541`
 to the experiment Pod and reports zero active Pods. A local 5070 Ti pilot is
 testing the existing high-frequency effect loss from Arm C at zero cloud cost;
@@ -487,7 +487,7 @@ frozen train-fit alpha. The new cohort was `0.019369241` uncalibrated,
 frozen train-fit alpha. Because the cohort optima point in opposite
 directions, the global calibration fails the two-cohort rule and is rejected.
 The result is retained at
-`E:\OpenNR_Training\arm_C_effect_calibration_0.5.5_20260907\result.json`;
+`<DATA_ROOT>\OpenNR_Training\arm_C_effect_calibration_0.5.5_20260907\result.json`;
 the frozen test split was not read.
 
 The next local experiment is a parent-preserving depth expansion of Arm C,
@@ -510,7 +510,7 @@ production/MO2 evaluation was made.
 
 The complete pre-registration and result are in
 `docs/LOCAL_ARM_C_DEPTH_EXPANSION_PILOT_0.5.5_20260907.md` and
-`E:\OpenNR_Training\local_arm_C_depth_expansion_0.5.5_20260907`. With scalar
+`<DATA_ROOT>\OpenNR_Training\local_arm_C_depth_expansion_0.5.5_20260907`. With scalar
 calibration, effect-frequency loss, identity weighting, style modulation, and
 depth expansion all failing the two-cohort gate, another blind Runpod
 capacity run is not justified. The pending renderer-conditioning capture is
@@ -522,7 +522,7 @@ The isolated Open Shaders profile has renderer-conditioned capture enabled:
 depth, motion vectors, raw teacher, pre-NR, post-NR, both eyes, eight-frame
 bursts, and one `512x512` crop. Full-frame capture remains disabled to limit
 transfer and storage. The intended output is
-`C:\OpenNR_Captures_RendererConditioningPilot_0.5.5_20260907`.
+`<DATA_ROOT>\OpenNR_Captures_RendererConditioningPilot_0.5.5_20260907`.
 
 The root was rechecked after the latest model pilots and still contained no
 capture data. The next action is user collection of the bounded interior,

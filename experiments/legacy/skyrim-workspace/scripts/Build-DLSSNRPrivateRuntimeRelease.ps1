@@ -1,8 +1,8 @@
 [CmdletBinding()]
 param(
-    [string]$RuntimeSource = 'E:\MGO-RC3-clean\mods\DLSS5 SkyrimVR Open Shaders DLSSNR\Shaders\Upscaling\Streamline',
-    [string]$NeuralRuntimePath = 'D:\.CODEX_Projects\DLSS_5_SKYRIM\nvngx_dlssnr.approx-fp16-sm_75-sm_86-sm_89-sm_120.dll',
-    [string]$OutputRoot = 'D:\.CODEX_Projects\DLSS_5_SKYRIM\dist',
+    [string]$RuntimeSource = '<MO2_INSTANCE>\mods\DLSS5 SkyrimVR Open Shaders DLSSNR\Shaders\Upscaling\Streamline',
+    [string]$NeuralRuntimePath = '<LEGACY_REPO>\nvngx_dlssnr.approx-fp16-sm_75-sm_86-sm_89-sm_120.dll',
+    [string]$OutputRoot = '<LEGACY_REPO>\dist',
     [string]$Version = '0.2.0-mgo-vr.1',
     [switch]$Force
 )

@@ -96,8 +96,8 @@ public:
 	void Debug();
 	/** @brief Per-frame reset: advances timer, caches menu state, resets descriptors and frame counters. */
 	void Reset();
-	/** @brief One-time post-D3D setup: creates resources, probes GPU caps, initializes features. */
-	void Setup();
+	/** @brief Renderer setup pass: creates resources, probes GPU caps, initializes features. */
+	void Setup(const char* a_caller, const char* a_reinitReason);
 
 	/** Identifies the feature that owns the HDR tonemap pass for the current frame. */
 	enum class TonemapOwner
@@ -261,6 +261,8 @@ public:
 	}
 	/** @brief Closes a BeginDrawEvent marker (RenderDoc/PIX only). */
 	void EndDrawEvent();
+	/** @brief Returns whether a GPU capture annotation interface is currently attached. */
+	bool IsPerfCaptureActive() const { return pPerf != nullptr; }
 	/** @brief Inserts a single-point GPU performance marker. */
 	void SetPerfMarker(std::string_view title);
 	/** @brief Formats the marker text into a reused buffer (no per-call heap
@@ -275,7 +277,7 @@ public:
 	}
 
 	/// RenderDoc/PIX annotation only - no Tracy CPU zone.
-	/// Used by ScopedGpuPass which manages its own Tracy CPU zone unconditionally.
+	/// Used by ScopedGpuPass while internal profiling capture is active.
 	void BeginAnnotation(std::string_view title);
 	void EndAnnotation();
 
@@ -372,6 +374,10 @@ public:
 	bool isMainMenuOpen = false;
 	bool isLoadingMenuOpen = false;
 	bool isMapMenuOpen = false;
+	// Diagnostics captured from the unmodified game bias and the map-only offset
+	// before SharedDataCB is uploaded. Recomputed each update; no persistent sampler state.
+	float lastGameMipBias = 0.0f;
+	float lastMapMipBiasOffsetApplied = 0.0f;
 	bool isStatsMenuOpen = false;
 	/** @brief Returns true if the cached main-menu or loading-menu state is open. */
 	bool IsMainOrLoadingMenuOpen() const { return isMainMenuOpen || isLoadingMenuOpen; }

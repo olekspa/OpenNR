@@ -9,7 +9,9 @@ target_include_directories(dlssg-repro PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/../..
 target_link_libraries(dlssg-repro PRIVATE d3d11 d3d12 dxgi d3dcompiler user32)
 target_compile_definitions(dlssg-repro PRIVATE UNICODE _UNICODE NOMINMAX WIN32_LEAN_AND_MEAN)
 
-# Stage the Streamline runtime next to the exe (production v2.12.0 set vendored in the repo).
+# Stage the Streamline runtime next to the exe. The DLLs are NOT tracked in git; run
+# tools/stage_local_thirdparty.ps1 (repo root) or copy them from the official
+# Streamline SDK release into the directory below before building this tool.
 set(SL_DLL_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../../features/Upscaling/Shaders/Upscaling/StreamlineDX12)
 foreach(dll sl.interposer.dll sl.common.dll sl.dlss_g.dll sl.pcl.dll sl.reflex.dll nvngx_dlssg.dll)
     add_custom_command(TARGET dlssg-repro POST_BUILD

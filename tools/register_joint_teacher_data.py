@@ -41,7 +41,7 @@ def main():
         entries.append(dict(teacher_pass_count=mode,root=str(root.resolve()),complete_sha256=sha(root/'complete.json'),
                             rows=len(train.rows),split=complete['split'],excluded=complete['excluded']))
         print(json.dumps(dict(teacher_pass_count=mode,verified=True,rows=len(train.rows))),flush=True)
-    old_run=Path('E:/OpenNR_Training/stable_unet_broad_20260907/run.json')
+    old_run=Path('<DATA_ROOT>/OpenNR_Training/stable_unet_broad_20260907/run.json')
     old=json.loads(old_run.read_text())
     roots=old['cohorts']+[str(a.one_pass.resolve()),str(a.two_pass.resolve())]
     plan=dict(schema='opennr-joint-teacher-training-plan-v1',state='prepared_paused',training_authorized=False,
@@ -50,8 +50,8 @@ def main():
               teacher_pass_counts=[1,1,1,1,2],probabilities=[.30,.18,.12,.20,.20],seed=359,steps=1200,
               architecture='stable_unet_teacher_mode',initial_head_run=str(old_run.parent),
               cohort_complete_sha256=[sha(Path(r)/'complete.json') for r in roots],
-              parent_run='E:/OpenNR_Training/aligned_retention_20260907_seed352',
-              output='E:/OpenNR_Training/stable_unet_joint_teacher_20260907',
+              parent_run='<DATA_ROOT>/OpenNR_Training/aligned_retention_20260907_seed352',
+              output='<DATA_ROOT>/OpenNR_Training/stable_unet_joint_teacher_20260907',
               test_used_for_tuning=False,cross_new_cache_exact_input_holdout_check='passed',
               limitations=['Chronological holdouts are not independent scene/session proof',
                            'Build/session/scene differences confound causal pass-count comparisons',

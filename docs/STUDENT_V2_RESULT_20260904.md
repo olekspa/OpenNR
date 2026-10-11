@@ -58,15 +58,15 @@ An optional channels-last PyTorch path was implemented and benchmarked for the d
 
 ## Files and reproduction
 
-Use `E:/OpenNR-VR-Poc-Venv/Scripts/python.exe` from the project root:
+Use `<POC_VENV>/Scripts/python.exe` from the project root:
 
 ```powershell
 python tools/test_student_v2.py
-python tools/train_v2.py --cache C:/OpenNR/TrainingCache/student_v1 --output out/v2_new_detail --steps 6000
-python tools/train_v2.py --cache C:/OpenNR/TrainingCache/student_v1 --output out/v2_new_features --steps 6000 --perceptual 0.05
-python tools/compare_v2.py --cache C:/OpenNR/TrainingCache/student_v1 --output out/v2_new_comparison --models out/student_v1_20260904/OpenNR_Student_v1.pt out/v2_new_detail/best.pt out/v2_new_features/best.pt
-python tools/tensorrt_student.py --checkpoint out/v2_new_detail/best.pt --cache C:/OpenNR/TrainingCache/student_v1 --output out/v2_new_engine
-python tools/trt_inference.py --engine out/student_v2_20260904/runtime_v2_perceptual/student_fp16.engine --cache C:/OpenNR/TrainingCache/student_v1 --row 408 --output out/v2_engine_example.png
+python tools/train_v2.py --cache <OPENNR_DATA>/TrainingCache/student_v1 --output out/v2_new_detail --steps 6000
+python tools/train_v2.py --cache <OPENNR_DATA>/TrainingCache/student_v1 --output out/v2_new_features --steps 6000 --perceptual 0.05
+python tools/compare_v2.py --cache <OPENNR_DATA>/TrainingCache/student_v1 --output out/v2_new_comparison --models out/student_v1_20260904/OpenNR_Student_v1.pt out/v2_new_detail/best.pt out/v2_new_features/best.pt
+python tools/tensorrt_student.py --checkpoint out/v2_new_detail/best.pt --cache <OPENNR_DATA>/TrainingCache/student_v1 --output out/v2_new_engine
+python tools/trt_inference.py --engine out/student_v2_20260904/runtime_v2_perceptual/student_fp16.engine --cache <OPENNR_DATA>/TrainingCache/student_v1 --row 408 --output out/v2_engine_example.png
 ```
 
 Each candidate contains `best.pt`, `run.json`, `history.jsonl` and `status.json`; full console logs are under `out/v2_*.log`. V2 checkpoints contain inference weights, architecture/config, selected step and cache provenance. They do not contain optimizer state for exact resumption. Do not overwrite an experiment directory; the training command rejects existing run metadata. Source/checkpoint/feature-weight fingerprints are in `out/student_v2_20260904/provenance.json`.

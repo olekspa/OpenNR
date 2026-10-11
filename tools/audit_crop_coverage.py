@@ -4,8 +4,8 @@ from pathlib import Path
 import numpy as np
 from dynamic_patches import DynamicPatches
 
-root=Path('C:/OpenNR/TrainingCache/student_v1')
-d=DynamicPatches(root,'C:/OpenNR/TrainingCache/dynamic_guides_v1')
+root=Path('<OPENNR_DATA>/TrainingCache/student_v1')
+d=DynamicPatches(root,'<OPENNR_DATA>/TrainingCache/dynamic_guides_v1')
 plan=json.loads((root/'patches.json').read_text());fixed={}
 for p in plan:
     if p['split']=='train':fixed.setdefault(p['row'],[]).append(p['box'])

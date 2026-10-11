@@ -6,7 +6,7 @@ Both arms: seed356,1200 steps, width48, AdamW1e-4, mixture50/30/20, eight-frame 
 
 Local baseline prior/high-effect/latest:0.019445660 /0.017931557 /0.015411406. Step400:0.019403834 /0.017792115 /0.015370497. Step800:0.019468696 /0.017909225 /0.015331584 (prior regression). Step1200:0.019439945 /0.017918448 /0.015352941. Step400 remains best mean-relative all-cohort candidate: small gains, no visual acceptance yet.
 
-Local output E:/OpenNR_Training/spatial_tone_local_20260907 completed; global output E:/OpenNR_Training/spatial_tone_global_20260907 starts afterward in same live execution13102. No frozen tests, cloud spend or runtime changes. Next finish matched global control, reload selected heads, measure signed tone and show direct teacher comparisons; do not equate tiny MAE improvements with solved color/skin fidelity. Full0.011 goal remains active.
+Local output <DATA_ROOT>/OpenNR_Training/spatial_tone_local_20260907 completed; global output <DATA_ROOT>/OpenNR_Training/spatial_tone_global_20260907 starts afterward in same live execution13102. No frozen tests, cloud spend or runtime changes. Next finish matched global control, reload selected heads, measure signed tone and show direct teacher comparisons; do not equate tiny MAE improvements with solved color/skin fidelity. Full0.011 goal remains active.
 
 ## Both training arms completed
 
@@ -16,6 +16,6 @@ User additionally identifies nose/cheek highlights, mouth interior, under-eye/ho
 
 ## Verification and native-size gallery completed
 
-Verification session61500 exited zero; both heads reproduce all saved validation MAE/PSNR/temporal metrics. Gallery session73367 exited zero. Output E:/OpenNR_Training/verified_tone_gallery_20260907/index.html, with16 previously selected validation eye images (3prior+3high-effect+2latest sequences, both eyes), frame32 after causal history. Each column is native512 pixels; no exposure or color display changes. Model/checkpoint and selection hashes recorded. tone_metrics.json records signed metrics for these exact examples, not an all-validation aggregate.
+Verification session61500 exited zero; both heads reproduce all saved validation MAE/PSNR/temporal metrics. Gallery session73367 exited zero. Output <DATA_ROOT>/OpenNR_Training/verified_tone_gallery_20260907/index.html, with16 previously selected validation eye images (3prior+3high-effect+2latest sequences, both eyes), frame32 after causal history. Each column is native512 pixels; no exposure or color display changes. Model/checkpoint and selection hashes recorded. tone_metrics.json records signed metrics for these exact examples, not an all-validation aggregate.
 
 Inspected prior seq-1788671399304-47 eye0 and seq-1788705227244-60 eye1: local/global changes are subtle and teacher facial shading/skin texture remain visibly different. These examples do not establish complete coverage of hood shadows or mouth interiors. Do not promote the tone heads as solving user feedback. Next investigate finer content-dependent corrections and quantify specific facial regions, preserving the coarse-head comparison as a completed small-gain result.

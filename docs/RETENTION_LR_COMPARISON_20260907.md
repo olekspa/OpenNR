@@ -2,9 +2,9 @@
 
 Purpose: test whether stronger optimization can improve the replicated retention candidate on preserved validation cohorts. No frozen tests. This is motivated by the six-clip fit probe, not a claim that its confounded recipe established learning-rate causality.
 
-Both arms start from E:/OpenNR_Training/aligned_retention_20260907_seed352/best_all_cohorts.pt (verified step400). Fixed seed355,1200 steps, cohort mixture80/15/5, all3.481M weights, window8/burn-in2, batch1, existing L1+.12 temporal+.1 tone loss, augmentation and EMA unchanged. Only initial learning rate differs:1e-6 control versus5e-6 intervention, both cosine-decay to10% of initial rate. Evaluate at0/400/800/1200. Same original-input Arm-C selection baseline and exact split checks; also compare absolute metrics to the retained initialization, not only the older parent.
+Both arms start from <DATA_ROOT>/OpenNR_Training/aligned_retention_20260907_seed352/best_all_cohorts.pt (verified step400). Fixed seed355,1200 steps, cohort mixture80/15/5, all3.481M weights, window8/burn-in2, batch1, existing L1+.12 temporal+.1 tone loss, augmentation and EMA unchanged. Only initial learning rate differs:1e-6 control versus5e-6 intervention, both cosine-decay to10% of initial rate. Evaluate at0/400/800/1200. Same original-input Arm-C selection baseline and exact split checks; also compare absolute metrics to the retained initialization, not only the older parent.
 
-Outputs E:/OpenNR_Training/retention_lr_control_20260907_seed355 and retention_lr_higher_20260907_seed355. Sequential execution: intervention starts only if control exits successfully. Existing candidates, captures, and caches remain unchanged. No deployment or cloud spend. Full objective remains held-out improvement toward0.011; passing an original-parent gate alone does not establish improvement over retention.
+Outputs <DATA_ROOT>/OpenNR_Training/retention_lr_control_20260907_seed355 and retention_lr_higher_20260907_seed355. Sequential execution: intervention starts only if control exits successfully. Existing candidates, captures, and caches remain unchanged. No deployment or cloud spend. Full objective remains held-out improvement toward0.011; passing an original-parent gate alone does not establish improvement over retention.
 
 ## Control step400
 

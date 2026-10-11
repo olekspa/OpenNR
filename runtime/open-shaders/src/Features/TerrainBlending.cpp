@@ -1,6 +1,7 @@
 #include "TerrainBlending.h"
 
 #include "Deferred.h"
+#include "FrameAnnotations.h"
 #include "Globals.h"
 #include "GpuPass.h"
 #include "I18n/I18n.h"
@@ -964,6 +965,7 @@ void TerrainBlending::Hooks::BSGraphics_SetDirtyStates::thunk(bool isCompute)
 {
 	const auto callerRva = ToModuleRva(_ReturnAddress());
 	func(isCompute);
+	FrameAnnotations::OnMapRenderTargetBind();
 	globals::features::terrainBlending.OnSetDirtyStates(isCompute, callerRva);
 }
 

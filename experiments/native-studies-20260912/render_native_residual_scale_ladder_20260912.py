@@ -14,11 +14,11 @@ from PIL import Image, ImageDraw
 FULL_WIDTH = 2496
 FULL_HEIGHT = 2688
 FACE_CROP = (1250, 620, 2300, 1730)
-ROOT = Path(r"D:\.CODEX_Projects\OpenNR-VR\out\native_teacher_resolution_renderer_contract_20260912")
+ROOT = Path(r"<REPO>\out\native_teacher_resolution_renderer_contract_20260912")
 FRAME = Path(
-    r"C:\OpenNR_Captures_FullEyeTemporalStateTranche_20260910\seq-1789063628889-1\frames\frame_00000001"
+    r"<DATA_ROOT>\OpenNR_Captures_FullEyeTemporalStateTranche_20260910\seq-1789063628889-1\frames\frame_00000001"
 )
-OUTPUT = Path(r"C:\OpenNR\native_residual_scale_ladder_visual_20260912")
+OUTPUT = Path(r"<OPENNR_DATA>\native_residual_scale_ladder_visual_20260912")
 
 
 def read_rgba8(path: Path, width: int, height: int) -> torch.Tensor:

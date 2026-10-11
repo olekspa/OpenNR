@@ -1,4 +1,5 @@
 #include "../../../GpuPass.h"
+#include "../../../Menu.h"
 #include "../PerfMode.h"
 
 #include <algorithm>
@@ -208,11 +209,30 @@ void PerfMode::ISCopyRender_Hook::thunk(void* imageSpaceShader, RE::BSTriShape* 
 		return;
 	}
 
+	// The VR map in this runtime uses ISCopy into kMENUBG; the named ISMap
+	// shaders are not on that path. Route only this map-menu destination through
+	// the display-resolution color/depth and raster state before the engine draw.
+	const bool vrMapRouteEnabled = globals::game::isVR;
+	const bool routeWasActive = vrMapRouteEnabled && perfMode.IsMapMenuDisplayResolutionActive();
+	bool mapDisplayRoute = routeWasActive;
+	const bool mapCopyRouteCandidate = PerfModePolicy::ShouldRouteMapCopyAtDisplayResolution(
+		true, globals::game::isVR,
+		globals::state && globals::state->isMapMenuOpen, perfMode.IsHookActive());
+	if (!mapDisplayRoute && mapCopyRouteCandidate)
+		mapDisplayRoute = perfMode.BeginMapMenuDisplayResolution();
+
 	// Let the engine draw first. After func() returns the IS shader's PS, CB,
 	// sampler, IA layout, vertex/index buffers, and topology are all still
-	// bound on the context (sticky D3D11 state). We only need to override the
-	// viewport for the replay draw.
+	// bound on the context (sticky D3D11 state). Map draws enter with the
+	// display-sized viewport above; other large-destination copies can still
+	// use the replay fallback below.
 	func(imageSpaceShader, shape, param);
+
+	if (mapDisplayRoute) {
+		if (!routeWasActive)
+			perfMode.EndMapMenuDisplayResolution();
+		return;
+	}
 
 	auto* context = globals::d3d::context;
 

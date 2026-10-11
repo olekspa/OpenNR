@@ -201,8 +201,7 @@ namespace Util::IconLoader
 			}
 		}
 
-		std::string basePath = Util::PathHelpers::GetIconsPath().string() + "\\";
-		logger::info("InitializeMenuIcons: Loading icons from base path: {}", basePath);
+		logger::info("InitializeMenuIcons: Loading icons from {}", Util::PathHelpers::GetIconsPath().string());
 
 		auto iconDefs = GetIconDefinitions(menu);
 
@@ -223,30 +222,26 @@ namespace Util::IconLoader
 		int iconsLoaded = 0;
 
 		for (const auto& iconDef : iconDefs) {
-			std::string fullPath = basePath + iconDef.filename;
-			if (Util::LoadTextureFromFile(device, fullPath.c_str(), iconDef.texture, *iconDef.size, iconDef.alphaMask)) {
+			const bool isLogo = iconDef.filename.starts_with("OpenNR Logo\\");
+			const std::filesystem::path fullPath = (isLogo ? Util::PathHelpers::GetInterfacePath() : Util::PathHelpers::GetIconsPath()) /
+				std::filesystem::path(iconDef.filename);
+			const std::string fullPathString = fullPath.string();
+			if (Util::LoadTextureFromFile(device, fullPathString.c_str(), iconDef.texture, *iconDef.size, iconDef.alphaMask)) {
 				iconsLoaded++;
 				anyIconLoaded = true;
-			} else {
-				// If monochrome icon failed to load, try fallback to colored version
-				if (fullPath.find("Monochrome") != std::string::npos) {
-					std::string fallbackPath = fullPath;
-					size_t pos = fallbackPath.find("\\Monochrome");
-					if (pos != std::string::npos) {
-						fallbackPath.erase(pos, 11);  // Remove "\Monochrome"
-					}
-					if (Util::LoadTextureFromFile(device, fallbackPath.c_str(), iconDef.texture, *iconDef.size, iconDef.alphaMask)) {
-						iconsLoaded++;
-						anyIconLoaded = true;
-					} else {
-						logger::warn("InitializeMenuIcons: Failed to load icon from: {} (and fallback: {})", fullPath, fallbackPath);
-					}
+			} else if (iconDef.filename.find("\\Monochrome\\") != std::string::npos) {
+				const auto fallbackPath = fullPath.parent_path().parent_path() / fullPath.filename();
+				const std::string fallbackPathString = fallbackPath.string();
+				if (Util::LoadTextureFromFile(device, fallbackPathString.c_str(), iconDef.texture, *iconDef.size, iconDef.alphaMask)) {
+					iconsLoaded++;
+					anyIconLoaded = true;
 				} else {
-					logger::warn("InitializeMenuIcons: Failed to load icon from: {}", fullPath);
+					logger::warn("InitializeMenuIcons: Failed to load icon from: {} (and fallback: {})", fullPathString, fallbackPathString);
 				}
+			} else {
+				logger::warn("InitializeMenuIcons: Failed to load icon from: {}", fullPathString);
 			}
 		}
-
 		logger::info("InitializeMenuIcons: Loaded {}/{} icons successfully", iconsLoaded, iconDefs.size());
 
 		LoadThemeSpecificIcons(menu, device, iconDefs);

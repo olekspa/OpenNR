@@ -1,7 +1,7 @@
 [CmdletBinding()]
 param(
-    [string]$MgoRoot = 'E:\MGO-RC3-fresh',
-    [string]$Archive = 'D:\.CODEX_Projects\DLSS_5_SKYRIM\dist\DLSSNR-MGO-VR-0.4.3-mgo-vr.8-private-dev-PRIVATE-FULL-MO2.zip',
+    [string]$MgoRoot = '<MO2_INSTANCE>',
+    [string]$Archive = '<LEGACY_REPO>\dist\DLSSNR-MGO-VR-0.4.3-mgo-vr.8-private-dev-PRIVATE-FULL-MO2.zip',
     [string]$ProfileName = 'Mad God Overhaul - NSFW'
 )
 
@@ -32,7 +32,7 @@ $mo2IniPath = Get-FullPath (Join-Path $root 'ModOrganizer.ini')
 $archive = Get-FullPath $Archive
 $seven = 'C:\Program Files\7-Zip\7z.exe'
 
-if ($root -ne 'E:\MGO-RC3-fresh') {
+if ($root -ne '<MO2_INSTANCE>') {
     throw "Refusing an unexpected MGO root: $root"
 }
 if (-not (Test-ContainedPath $oldMod $modsRoot)) {

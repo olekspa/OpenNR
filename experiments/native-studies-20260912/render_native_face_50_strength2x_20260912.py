@@ -14,11 +14,11 @@ from PIL import Image, ImageDraw
 FULL_WIDTH = 2496
 FULL_HEIGHT = 2688
 FRAME = Path(
-    r"C:\OpenNR_Captures_FullEyeTemporalStateTranche_20260910"
+    r"<DATA_ROOT>\OpenNR_Captures_FullEyeTemporalStateTranche_20260910"
     r"\seq-1789064397821-5\frames\frame_00000008"
 )
-WORK_ROOT = Path(r"C:\OpenNR\NativeFaceResidualLadder_20260912\scale050")
-OUTPUT = Path(r"C:\OpenNR\NativeFaceResidual50Strength2x_20260912")
+WORK_ROOT = Path(r"<OPENNR_DATA>\NativeFaceResidualLadder_20260912\scale050")
+OUTPUT = Path(r"<OPENNR_DATA>\NativeFaceResidual50Strength2x_20260912")
 FACE_CROP = (1480, 700, 1980, 1300)
 PORTRAIT_CROP = (1250, 620, 2300, 1730)
 

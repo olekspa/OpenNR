@@ -6,7 +6,7 @@ from native_preprocess import NativePreprocessor
 from evaluate_student import load_eye
 from trt_inference import TensorRTStudent
 
-torch.set_num_threads(4);cache=Path('C:/OpenNR/TrainingCache/student_v1');rows=json.loads((cache/'rows.json').read_text());contexts=np.load(cache/'context.npy',mmap_mode='r');i=next(i for i,r in enumerate(rows) if r['split']=='validation');r=rows[i];w,h=r['color_size'];gw,gh=r['guide_size']
+torch.set_num_threads(4);cache=Path('<OPENNR_DATA>/TrainingCache/student_v1');rows=json.loads((cache/'rows.json').read_text());contexts=np.load(cache/'context.npy',mmap_mode='r');i=next(i for i,r in enumerate(rows) if r['split']=='validation');r=rows[i];w,h=r['color_size'];gw,gh=r['guide_size']
 color=torch.from_numpy(np.fromfile(Path(r['paths']['input']).with_suffix('.raw.bin'),dtype='u1').reshape(h,w,4)).cuda();depth=torch.from_numpy(np.fromfile(r['paths']['depth'],dtype='<f4').reshape(gh,gw)).cuda();motion=torch.from_numpy(np.fromfile(r['paths']['motion_vectors'],dtype='<f2').reshape(gh,gw,2)).cuda()
 prepare=NativePreprocessor(w,h,gw,gh);rgb,g,c=prepare(color,depth,motion,r['motion_scale']);reference,_,rg,rc=load_eye(r,contexts[i]);torch.cuda.synchronize()
 differences={name:dict(mean=(x-y).abs().mean().item(),maximum=(x-y).abs().max().item()) for name,x,y in [('rgb',rgb,reference),('guides',g,rg),('context',c,rc)]};print(json.dumps(differences),flush=True)

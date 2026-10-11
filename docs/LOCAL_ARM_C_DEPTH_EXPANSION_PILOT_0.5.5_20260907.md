@@ -19,7 +19,7 @@ is part of this pilot.
 
 Parent checkpoint:
 
-`E:\OpenNR_Training\runpod_latest_cache_width_ablation_0.5.5_20260907\arm_C\best_mae.pt`
+`<DATA_ROOT>\OpenNR_Training\runpod_latest_cache_width_ablation_0.5.5_20260907\arm_C\best_mae.pt`
 
 Parent architecture: `context_v7_capacity_temporal`, Arm C capacity
 `192/6 + 96/3`, 3,480,979 parameters. The proposed child is
@@ -32,11 +32,11 @@ probe.
 ## Fixed inputs and recipe
 
 - old strict cache:
-  `E:\OpenNR_TrainingInputs\OpenNR_RawCropCache_StrictAllCohortsNextGrid_0.5.5_20260906`
+  `<DATA_ROOT>\OpenNR_TrainingInputs\OpenNR_RawCropCache_StrictAllCohortsNextGrid_0.5.5_20260906`
 - new strict cache:
-  `E:\OpenNR_RawCropCache_VariedHighEffectTemporalClean_0.5.5_20260907`
+  `<DATA_ROOT>\OpenNR_RawCropCache_VariedHighEffectTemporalClean_0.5.5_20260907`
 - spatial auxiliary cache:
-  `C:\OpenNR_Cache_VariedHighEffectSpatialAllCrops_0.5.5_20260907`
+  `<DATA_ROOT>\OpenNR_Cache_VariedHighEffectSpatialAllCrops_0.5.5_20260907`
 - window `8`, burn-in `2`, batch `1` on the RTX 5070 Ti;
 - old/new temporal mixture `0.35` new-domain probability;
 - spatial probability `0.25`;
@@ -46,7 +46,7 @@ probe.
 - base/temporal/capacity learning rates `1e-7 / 1e-6 / 2.5e-6`;
 - 400 exploratory steps, validation every 100 steps, seed `339`;
 - output:
-  `E:\OpenNR_Training\local_arm_C_depth_expansion_0.5.5_20260907`.
+  `<DATA_ROOT>\OpenNR_Training\local_arm_C_depth_expansion_0.5.5_20260907`.
 
 ## Result — rejected
 
@@ -77,11 +77,11 @@ under the two-cohort rule. The trainer's selected `best_mae.pt` remained the
 step-0 child checkpoint; it is not a new research candidate. The independent
 result files are under:
 
-- `E:\OpenNR_Training\local_arm_C_depth_expansion_0.5.5_20260907\independent_eval\prior\result.json`
-- `E:\OpenNR_Training\local_arm_C_depth_expansion_0.5.5_20260907\independent_eval\new\result.json`
+- `<DATA_ROOT>\OpenNR_Training\local_arm_C_depth_expansion_0.5.5_20260907\independent_eval\prior\result.json`
+- `<DATA_ROOT>\OpenNR_Training\local_arm_C_depth_expansion_0.5.5_20260907\independent_eval\new\result.json`
 
 The rejected artifacts remain at
-`E:\OpenNR_Training\local_arm_C_depth_expansion_0.5.5_20260907`. No frozen
+`<DATA_ROOT>\OpenNR_Training\local_arm_C_depth_expansion_0.5.5_20260907`. No frozen
 test evaluation or production/MO2 change was made. This result again points
 to an information/conditioning limitation rather than a lack of capacity;
 the next justified branch is live renderer-conditioning capture, not another

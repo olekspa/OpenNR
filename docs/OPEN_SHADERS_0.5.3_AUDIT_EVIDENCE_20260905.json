@@ -1,36 +1,36 @@
 {
   "auditTime": "2026-09-05T12:36:54.1073791-04:00",
-  "profile": "MGO NSFW - 4.0 BETA",
-  "sourceRoot": "D:\\.CODEX_Projects\\DLSS_5_SKYRIM\\vendor\\open-shaders-dlssnr-vr-091bfb4d",
+  "profile": "<MO2_PROFILE>",
+  "sourceRoot": "<LEGACY_REPO>\\vendor\\open-shaders-dlssnr-vr-091bfb4d",
   "sourceHead": "3bd930002a96135cff5b092a7e55e11cf28bc912",
   "sourceDirty": true,
   "files": [
     {
-      "path": "E:\\MGO-RC3-fresh\\overwrite\\SKSE\\Plugins\\CommunityShaders\\SettingsUser.json",
+      "path": "<MO2_INSTANCE>\\overwrite\\SKSE\\Plugins\\CommunityShaders\\SettingsUser.json",
       "length": 22997,
       "lastWriteTime": "2026-09-04T18:22:48.7297773-04:00",
       "sha256": "31372BABD527A78B4A44F1BC53662DFDE073EBA0BD57172CB22084DE4801FE9A"
     },
     {
-      "path": "C:\\Users\\oleks\\OneDrive\\Documents\\My Games\\Skyrim VR\\SKSE\\CommunityShaders.log",
+      "path": "<USER_HOME>\\Documents\\My Games\\Skyrim VR\\SKSE\\CommunityShaders.log",
       "length": 59573,
       "lastWriteTime": "2026-09-04T22:10:13.3937185-04:00",
       "sha256": "A9C1A08E125B924E77F358E1CD24F0E53ABAE8A5E4FCC4E5D0EEABD4CEA63E3E"
     },
     {
-      "path": "D:\\.CODEX_Projects\\DLSS_5_SKYRIM\\vendor\\open-shaders-dlssnr-vr-091bfb4d\\dist\\Open Shaders DLSSNR VR 0.5.3.7z",
+      "path": "<LEGACY_REPO>\\vendor\\open-shaders-dlssnr-vr-091bfb4d\\dist\\Open Shaders DLSSNR VR 0.5.3.7z",
       "length": 142991383,
       "lastWriteTime": "2026-09-05T12:33:42.7655929-04:00",
       "sha256": "7FD949292772C58E68B7617CB47587ED2C62232553A911F27DB2C8E09C04158E"
     },
     {
-      "path": "D:\\.CODEX_Projects\\DLSS_5_SKYRIM\\vendor\\open-shaders-dlssnr-vr-091bfb4d\\dist\\Open Shaders DLSSNR VR 0.5.3 OpenNR.7z",
+      "path": "<LEGACY_REPO>\\vendor\\open-shaders-dlssnr-vr-091bfb4d\\dist\\Open Shaders DLSSNR VR 0.5.3 OpenNR.7z",
       "length": 143021128,
       "lastWriteTime": "2026-09-05T12:34:06.4954006-04:00",
       "sha256": "39241E8DD251A6DE88A49F9A3F4102BEF9307EE307E0E0E4D74A4679729B27CA"
     },
     {
-      "path": "E:\\MGO-RC3-fresh\\mods\\Open Shaders DLSSNR VR 0.5.2 OpenNR\\SKSE\\Plugins\\CommunityShaders.dll",
+      "path": "<MO2_INSTANCE>\\mods\\Open Shaders DLSSNR VR 0.5.2 OpenNR\\SKSE\\Plugins\\CommunityShaders.dll",
       "length": 43704320,
       "lastWriteTime": "2026-09-04T15:12:54.6006787-04:00",
       "sha256": "1B8BE8EF371305D11DEA5C73F4D4C2B2AD1F17E7AA4B0F5D073E9E32206FD49C"
@@ -538,7 +538,7 @@
       "enable_capture": true,
       "full_frame_every_samples": 0,
       "max_samples": 20,
-      "output_directory": "C:/OpenNR_Captures_FullRes_Pilot_20260904",
+      "output_directory": "<DATA_ROOT>/OpenNR_Captures_FullRes_Pilot_20260904",
       "queue_capacity": 16,
       "single_capture_key": 221,
       "toggle_capture_key": 219

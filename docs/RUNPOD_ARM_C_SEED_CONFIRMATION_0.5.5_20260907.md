@@ -47,7 +47,7 @@ width run:
 - spatial rows SHA-256: `74351fc4c6e3e83816e6be45a8d3f607c62b96a6183dcdb663974248a345af46`.
 
 The seed-337 Arm C reference is preserved at
-`E:\OpenNR_Training\runpod_latest_cache_width_ablation_0.5.5_20260907\arm_C\best_mae.pt`.
+`<DATA_ROOT>\OpenNR_Training\runpod_latest_cache_width_ablation_0.5.5_20260907\arm_C\best_mae.pt`.
 Its local independent validation is `0.019690728` prior and `0.019369167`
 new; its frozen merged test is `0.021328798`.
 
@@ -149,7 +149,7 @@ artifact recovery/verification.
 
 The run completed at 1,000 steps in `717.88` seconds including its final
 validation. The trainer's selected checkpoint is step `500`, recovered at
-`E:\OpenNR_Training\runpod_arm_C_seed338_confirmation_0.5.5_20260907\seed338\best_mae.pt`.
+`<DATA_ROOT>\OpenNR_Training\runpod_arm_C_seed338_confirmation_0.5.5_20260907\seed338\best_mae.pt`.
 Its SHA-256 is
 `d5b2f50062e8750f0fda78f0de5d3f267205bba870806eb66060c5671aaa99d2`.
 All eight requested artifacts were recovered and each matched its remote
@@ -178,7 +178,7 @@ and in the `>=0.1` band `0.073737` / `0.075670`. These are broadly consistent
 with seed 337, not evidence of a new capacity regime.
 
 A matched frame-32 new-validation visual sheet is retained at
-`E:\OpenNR_Training\runpod_arm_C_seed338_confirmation_0.5.5_20260907\visuals\new_validation_frame32\seed338.png`.
+`<DATA_ROOT>\OpenNR_Training\runpod_arm_C_seed338_confirmation_0.5.5_20260907\visuals\new_validation_frame32\seed338.png`.
 At sheet scale it shows no obvious teacher-resemblance regression, but this
 is offline visual evidence only; it does not establish Feature 18 semantics,
 stereo delivery, headset quality, compositor behavior, or VR frame-time

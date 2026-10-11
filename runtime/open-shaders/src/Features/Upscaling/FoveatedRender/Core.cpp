@@ -1244,30 +1244,53 @@ namespace FoveatedRenderImpl::Ops
 		if (!Core::vrSubrectBlendCS || !Core::vrSubrectBlendCB)
 			return false;
 
-		// Get or create cached SRV on the DLSS output
-		if (Core::vrBlendSrcSRVOwner != dlssSrc) {
-			Core::vrBlendSrcSRV = nullptr;
-			winrt::com_ptr<ID3D11Texture2D> dlssTex;
-			if (FAILED(dlssSrc->QueryInterface(IID_PPV_ARGS(dlssTex.put())))) {
-				D3D11_BOX srcBox = { srcOffsetX, 0, 0, srcOffsetX + subWidth, subHeight, 1 };
-				context->CopySubresourceRegion(dst, 0, dstOffsetX, dstOffsetY, 0, dlssSrc, 0, &srcBox);
-				return true;
-			}
-			D3D11_TEXTURE2D_DESC desc;
-			dlssTex->GetDesc(&desc);
-			D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
-			srvDesc.Format = desc.Format;
-			srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
-			srvDesc.Texture2D.MostDetailedMip = 0;
-			srvDesc.Texture2D.MipLevels = 1;
-			if (FAILED(device->CreateShaderResourceView(dlssSrc, &srvDesc, Core::vrBlendSrcSRV.put()))) {
-				D3D11_BOX srcBox = { srcOffsetX, 0, 0, srcOffsetX + subWidth, subHeight, 1 };
-				context->CopySubresourceRegion(dst, 0, dstOffsetX, dstOffsetY, 0, dlssSrc, 0, &srcBox);
-				return true;
-			}
-			Util::SetResourceName(Core::vrBlendSrcSRV.get(), "FoveatedRender::BlendSrcSRV");
-			Core::vrBlendSrcSRVOwner = dlssSrc;
+		// Keep both eye outputs resident. Each SRV owns its source resource, so
+		// its identity remains valid until this entry is evicted or explicitly cleared.
+		winrt::com_ptr<ID3D11Texture2D> dlssTex;
+		if (FAILED(dlssSrc->QueryInterface(IID_PPV_ARGS(dlssTex.put())))) {
+			D3D11_BOX srcBox = { srcOffsetX, 0, 0, srcOffsetX + subWidth, subHeight, 1 };
+			context->CopySubresourceRegion(dst, 0, dstOffsetX, dstOffsetY, 0, dlssSrc, 0, &srcBox);
+			return true;
 		}
+		D3D11_TEXTURE2D_DESC textureDesc{};
+		dlssTex->GetDesc(&textureDesc);
+		D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
+		srvDesc.Format = textureDesc.Format;
+		srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+		srvDesc.Texture2D.MostDetailedMip = 0;
+		srvDesc.Texture2D.MipLevels = 1;
+
+		Core::BlendSourceSRVCacheEntry* blendSourceEntry = nullptr;
+		for (auto& entry : Core::vrBlendSrcSRVs) {
+			if (entry.srv && entry.resource == dlssSrc &&
+				entry.format == srvDesc.Format && entry.viewDimension == srvDesc.ViewDimension &&
+				entry.mostDetailedMip == srvDesc.Texture2D.MostDetailedMip &&
+				entry.mipLevels == srvDesc.Texture2D.MipLevels) {
+				blendSourceEntry = &entry;
+				break;
+			}
+		}
+		if (!blendSourceEntry) {
+			auto slot = std::find_if(Core::vrBlendSrcSRVs.begin(), Core::vrBlendSrcSRVs.end(),
+				[](const auto& entry) { return !entry.srv; });
+			if (slot == Core::vrBlendSrcSRVs.end())
+				slot = std::min_element(Core::vrBlendSrcSRVs.begin(), Core::vrBlendSrcSRVs.end(),
+					[](const auto& a, const auto& b) { return a.lastUse < b.lastUse; });
+			slot->srv = nullptr;
+			if (FAILED(device->CreateShaderResourceView(dlssSrc, &srvDesc, slot->srv.put()))) {
+				D3D11_BOX srcBox = { srcOffsetX, 0, 0, srcOffsetX + subWidth, subHeight, 1 };
+				context->CopySubresourceRegion(dst, 0, dstOffsetX, dstOffsetY, 0, dlssSrc, 0, &srcBox);
+				return true;
+			}
+			Util::SetResourceName(slot->srv.get(), "FoveatedRender::BlendSrcSRV");
+			slot->resource = dlssSrc;
+			slot->format = srvDesc.Format;
+			slot->viewDimension = srvDesc.ViewDimension;
+			slot->mostDetailedMip = srvDesc.Texture2D.MostDetailedMip;
+			slot->mipLevels = srvDesc.Texture2D.MipLevels;
+			blendSourceEntry = &*slot;
+		}
+		blendSourceEntry->lastUse = ++Core::vrBlendSrcSRVUseCounter;
 
 		{
 			D3D11_MAPPED_SUBRESOURCE mapped;
@@ -1310,7 +1333,7 @@ namespace FoveatedRenderImpl::Ops
 		context->CSSetShader(Core::vrSubrectBlendCS.get(), nullptr, 0);
 		ID3D11Buffer* cbs[] = { Core::vrSubrectBlendCB.get() };
 		context->CSSetConstantBuffers(0, 1, cbs);
-		ID3D11ShaderResourceView* srvs[] = { Core::vrBlendSrcSRV.get() };
+		ID3D11ShaderResourceView* srvs[] = { blendSourceEntry->srv.get() };
 		context->CSSetShaderResources(0, 1, srvs);
 		ID3D11UnorderedAccessView* uavs[] = { dstUAV };
 		context->CSSetUnorderedAccessViews(0, 1, uavs, nullptr);
@@ -1709,9 +1732,9 @@ namespace FoveatedRenderImpl
 		vrTemporalHistoryW = vrTemporalHistoryH = 0;
 		vrTemporalFrameIdx = 0;
 		vrTemporalHistoryValid = false;
+		lastRouteFrame = kNoCompletedRouteFrame;
 
-		vrBlendSrcSRV = nullptr;
-		vrBlendSrcSRVOwner = nullptr;
+		ClearBlendSourceSRVCache();
 		vrAdaptiveCropColorSRV = nullptr;
 		vrAdaptiveCropColorSRVOwner = nullptr;
 		vrAdaptiveCropMotionSRV = nullptr;
@@ -1724,6 +1747,13 @@ namespace FoveatedRenderImpl
 		activeSubrectUVHash = 0;
 		neuralGuidesFrame = UINT32_MAX;
 		ResetAdaptiveCropHandoff();
+	}
+
+	void Core::ClearBlendSourceSRVCache()
+	{
+		for (auto& entry : vrBlendSrcSRVs)
+			entry = {};
+		vrBlendSrcSRVUseCounter = 0;
 	}
 
 	void Core::InvalidateTemporalState()

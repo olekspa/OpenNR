@@ -1,6 +1,6 @@
 # Oversized U-Net fitting experiment
 
-Authority: read the complete revised objective at `C:\Users\oleks\.codex\attachments\3df10bd8-bc78-4ee2-ac2f-bb9d79486ed6\goal-objective.md`. The overall goal remains held-out MAE .011 and teacher appearance. The immediate requested experiment is an oversized predictor on a tiny fixed subset trained toward convergence.
+Authority: read the complete revised objective at `<USER_HOME>\.codex\attachments\3df10bd8-bc78-4ee2-ac2f-bb9d79486ed6\goal-objective.md`. The overall goal remains held-out MAE .011 and teacher appearance. The immediate requested experiment is an oversized predictor on a tiny fixed subset trained toward convergence.
 
 Implemented `tools/oversized_tone_head.py`:38,454,796 parameters, encoder widths16/32/64/128/256/512, full-resolution stem, half/quarter-resolution features, residual blocks, four512-channel bottleneck residual blocks, decoder skips to quarter resolution, bounded affine RGB coefficient output. Current normal inputs: sourceRGB, frozen parentRGB, aligned native guides5channels, context8channels. No teacher targets or sample identifiers are predictor inputs. The affine bounds and output grid remain comparable to the target-assisted fitting diagnostic. Model and activation size fit the local5070Ti.
 
@@ -10,7 +10,7 @@ Data: the same twelve training images from six sequences, two eyes, causal frame
 
 Recipe: seed358,AdamWlr3e-4,no weight decay,pureL1,Float32,round-robin twelve images,maximum8000updates,evaluation every200. ReduceLROnPlateau halves learning rate after three evaluations without absolute improvement2e-5; minimum1e-6. Plateau criterion: at least2400updates, learning rate at most1e-5, and best MAE improvement below5e-5 over the last five evaluation intervals. Report the actual near_converged flag; reaching8000 alone does not establish convergence. Save best diagnostic checkpoint plus last head/optimizer/scheduler/history for continuation. No resume CLI implemented yet; state is preserved for a verified continuation if needed.
 
-Outputs: `E:\OpenNR_Training\tone_oversized_unet_fit_20260907` and sequential replay/gallery at `E:\OpenNR_Training\tone_oversized_unet_replay_20260907`. Model source hashes and exact image membership are checked on replay. Training and replay pending at launch.
+Outputs: `<DATA_ROOT>\OpenNR_Training\tone_oversized_unet_fit_20260907` and sequential replay/gallery at `<DATA_ROOT>\OpenNR_Training\tone_oversized_unet_replay_20260907`. Model source hashes and exact image membership are checked on replay. Training and replay pending at launch.
 
 Interpretation: <=.007 training MAE is evidence of fitting capability on this set; .008..011 is promising; a plateau around .014..016 motivates input/formulation/optimization investigation. Small-set memorization does not prove sufficient information for unseen scenes, and finite-run failure does not prove missing information. Do not mark the overall .011 goal complete from training scores. Next stages in the user's objective include stronger inputs/context, separate detail corrections, hard examples and loss design, and broad ordinary-MAE/temporal/visual evaluation as supported by results.
 
@@ -20,7 +20,7 @@ Initial session96116 stopped deliberately after saved step2800. MAE jumped from 
 
 Added `stable_oversized_tone_head.py`, inserting GroupNorm after internal convolutions while preserving the original architecture source. New parameter count38,477,484. Normalization changes the predictor and may affect absolute-brightness representation; it is a stabilization hypothesis to evaluate. Exact initial identity and five native512 optimization updates passed, finite loss .01325 on synthetic reachable brightening.
 
-Fresh retry: `E:\OpenNR_Training\tone_stable_unet_fit_20260907`,lr1e-4,otherwise same8000-step cap/plateau policy and twelve images. Separate sequential replay at `tone_stable_unet_replay_20260907`. No result or convergence claim at launch.
+Fresh retry: `<DATA_ROOT>\OpenNR_Training\tone_stable_unet_fit_20260907`,lr1e-4,otherwise same8000-step cap/plateau policy and twelve images. Separate sequential replay at `tone_stable_unet_replay_20260907`. No result or convergence claim at launch.
 
 ## Stabilized run reaches the fitting milestone
 
@@ -34,8 +34,8 @@ Replay subsequently completed in session80891, exit0. All twelve replay differen
 
 Implemented resume into a fresh output directory with architecture/input hashes and image-set validation, exact per-image checkpoint replay before updates, optimizer/scheduler restoration, original step-dependent round-robin order, and retained best checkpoint. Resume at8000 reproduced every image exactly and restoredlr2.5e-5,scheduler epoch41; initial evaluation was not repeated into the scheduler history.
 
-Session85649 completed exit0. Output `E:\OpenNR_Training\tone_stable_unet_converge_20260907`. Predefined near_converged criterion became true at12200,lr6.25e-6; this is an operational plateau criterion, not proof of a global optimum. Selected best step12000, mean training MAE .005437374231405556. The last five evaluation intervals improved best error by less than5e-5. All twelve individual MAEs are below.011, range .0025025182...0080701727.
+Session85649 completed exit0. Output `<DATA_ROOT>\OpenNR_Training\tone_stable_unet_converge_20260907`. Predefined near_converged criterion became true at12200,lr6.25e-6; this is an operational plateau criterion, not proof of a global optimum. Selected best step12000, mean training MAE .005437374231405556. The last five evaluation intervals improved best error by less than5e-5. All twelve individual MAEs are below.011, range .0025025182...0080701727.
 
-Replay `E:\OpenNR_Training\tone_stable_unet_converged_replay_20260907\verification.json`: all twelve errors reproduced with zero difference. Best checkpointSHA25650a0b1bfc431d59307eae8fc6680a1252d1c9086f91731ba83461dc28eb501e4. Diagnostic milestone <=.007 training mean achieved and replay verified. The required near-convergence subset experiment is complete. The broader .011 validation and facial/temporal objectives remain open.
+Replay `<DATA_ROOT>\OpenNR_Training\tone_stable_unet_converged_replay_20260907\verification.json`: all twelve errors reproduced with zero difference. Best checkpointSHA25650a0b1bfc431d59307eae8fc6680a1252d1c9086f91731ba83461dc28eb501e4. Diagnostic milestone <=.007 training mean achieved and replay verified. The required near-convergence subset experiment is complete. The broader .011 validation and facial/temporal objectives remain open.
 
 Next authorized work: fresh stabilized U-Net head trained across existing three training cohorts, preserving frozen parent and matched normal inference inputs, ordinary full-sequence validation and temporal metrics, and teacher/parent/candidate facial sheets. Do not initialize broad candidate from this deliberately overfit checkpoint. The twelve-image result establishes fitting capability and motivates a generalization experiment; it cannot establish sufficient input information on unseen scenes or that38M parameters are necessary.

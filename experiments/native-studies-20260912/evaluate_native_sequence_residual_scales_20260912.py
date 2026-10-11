@@ -23,10 +23,10 @@ FULL_WIDTH = 2496
 FULL_HEIGHT = 2688
 FRAME_IDS = tuple(range(1, 17))
 SEQUENCE = Path(
-    r"C:\OpenNR_Captures_FullEyeTemporalStateTranche_20260910\seq-1789064397821-5"
+    r"<DATA_ROOT>\OpenNR_Captures_FullEyeTemporalStateTranche_20260910\seq-1789064397821-5"
 )
-REPLAY_ROOT = Path(r"C:\OpenNR\NativeSequenceResidualScales_20260912")
-OUTPUT = Path(r"C:\OpenNR\NativeSequenceResidualScaleEvaluation_20260912")
+REPLAY_ROOT = Path(r"<OPENNR_DATA>\NativeSequenceResidualScales_20260912")
+OUTPUT = Path(r"<OPENNR_DATA>\NativeSequenceResidualScaleEvaluation_20260912")
 SCALES = (75, 65, 50)
 FACE_CROP = (1480, 700, 1980, 1300)
 SELECTED_FRAMES = (1, 4, 8, 12, 16)

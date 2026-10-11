@@ -69,42 +69,42 @@ def main() -> None:
         "--full-input-eye0",
         type=Path,
         default=Path(
-            r"C:\OpenNR_Captures_FullEyeTemporalStateTranche_20260910\seq-1789063628889-1\frames\frame_00000001\input_eye0_full.raw.bin"
+            r"<DATA_ROOT>\OpenNR_Captures_FullEyeTemporalStateTranche_20260910\seq-1789063628889-1\frames\frame_00000001\input_eye0_full.raw.bin"
         ),
     )
     parser.add_argument(
         "--full-input-eye1",
         type=Path,
         default=Path(
-            r"C:\OpenNR_Captures_FullEyeTemporalStateTranche_20260910\seq-1789063628889-1\frames\frame_00000001\input_eye1_full.raw.bin"
+            r"<DATA_ROOT>\OpenNR_Captures_FullEyeTemporalStateTranche_20260910\seq-1789063628889-1\frames\frame_00000001\input_eye1_full.raw.bin"
         ),
     )
     parser.add_argument(
         "--work-input-eye0",
         type=Path,
         default=Path(
-            r"D:\.CODEX_Projects\OpenNR-VR\out\native_teacher_resolution_renderer_contract_20260912\scale050\input_eye0.rgba"
+            r"<REPO>\out\native_teacher_resolution_renderer_contract_20260912\scale050\input_eye0.rgba"
         ),
     )
     parser.add_argument(
         "--work-input-eye1",
         type=Path,
         default=Path(
-            r"D:\.CODEX_Projects\OpenNR-VR\out\native_teacher_resolution_renderer_contract_20260912\scale050\input_eye1.rgba"
+            r"<REPO>\out\native_teacher_resolution_renderer_contract_20260912\scale050\input_eye1.rgba"
         ),
     )
     parser.add_argument(
         "--native-work-eye0",
         type=Path,
         default=Path(
-            r"D:\.CODEX_Projects\OpenNR-VR\out\native_teacher_resolution_renderer_contract_20260912\scale050\teacher_eye0.rgba"
+            r"<REPO>\out\native_teacher_resolution_renderer_contract_20260912\scale050\teacher_eye0.rgba"
         ),
     )
     parser.add_argument(
         "--native-work-eye1",
         type=Path,
         default=Path(
-            r"D:\.CODEX_Projects\OpenNR-VR\out\native_teacher_resolution_renderer_contract_20260912\scale050\teacher_eye1.rgba"
+            r"<REPO>\out\native_teacher_resolution_renderer_contract_20260912\scale050\teacher_eye1.rgba"
         ),
     )
     parser.add_argument("--warmup", type=int, default=40)
@@ -112,7 +112,7 @@ def main() -> None:
     parser.add_argument(
         "--output",
         type=Path,
-        default=Path(r"C:\OpenNR\native_residual_compositor_stereo_bench_scale050_20260912.json"),
+        default=Path(r"<OPENNR_DATA>\native_residual_compositor_stereo_bench_scale050_20260912.json"),
     )
     args = parser.parse_args()
 

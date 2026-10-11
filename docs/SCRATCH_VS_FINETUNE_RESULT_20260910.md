@@ -8,13 +8,13 @@ This result supports continuing from the best learned representation. It does no
 
 The immutable protected best remains:
 
-- Checkpoint: `C:\OpenNR\Training\semantic_pixel_l1_pair_20260909\joint\best_all_cohorts.pt`
+- Checkpoint: `<OPENNR_DATA>\Training\semantic_pixel_l1_pair_20260909\joint\best_all_cohorts.pt`
 - SHA-256: `40C214A9C0BC214C6E1366872E6D9270BFE7C00D63797AEFB6B3896865C15756`
 - Protected ordinary renderer-pilot MAE: `0.013283985`
 
 The new finetune checkpoint is an experimental candidate only:
 
-- `C:\OpenNR\Training\semantic_scratch_vs_finetune_20260910\finetune\checkpoint_1600.pt`
+- `<OPENNR_DATA>\Training\semantic_scratch_vs_finetune_20260910\finetune\checkpoint_1600.pt`
 - SHA-256: `F1DDABE27DE2BDE99CDD876535575B7B19A0BF3259443C2F3B2F19CBA27DB53C`
 - Ordinary renderer-pilot MAE: `0.012460920`
 
@@ -33,13 +33,13 @@ Both arms used the same:
 - AdamW setup, head learning rate `1e-4`, parent learning rate `1e-5`;
 - 1600 optimizer steps and validation at steps `0, 400, 800, 1200, 1600`.
 
-The seven cohorts were the six retained older cohorts plus `C:\OpenNR\TrainingCache\sparse_full_eye_anchor_crop_clean7_20260909`. The invalid `seq8` motion stream was not admitted. The 18-sequence cache and all protected checkpoints remained controls and were not modified.
+The seven cohorts were the six retained older cohorts plus `<OPENNR_DATA>\TrainingCache\sparse_full_eye_anchor_crop_clean7_20260909`. The invalid `seq8` motion stream was not admitted. The 18-sequence cache and all protected checkpoints remained controls and were not modified.
 
 The finetune arm loaded the protected best weights and started fresh AdamW state. The scratch arm newly initialized the trainable OpenNR parent and semantic/tone head while keeping only the pretrained DINOv2 encoder. Its zero-output/residual initialization was checked before training: maximum and mean identity error were both `0.0`, and the temporal state was present. This makes the scratch baseline stable and fair rather than an uncontrolled random-pixel baseline.
 
 The complete scratch experiment is under:
 
-`C:\OpenNR\Training\semantic_scratch_vs_finetune_20260910`
+`<OPENNR_DATA>\Training\semantic_scratch_vs_finetune_20260910`
 
 The generated schedule digest is `cabc1cf31badd39d8e12d4c080ca9285c9da79b60f4c203d4e06bff70f649a24`; the schedule itself contains `246` new-cohort draws out of `1600` steps, approximately `15%`.
 
@@ -100,7 +100,7 @@ An initial 100-step calibration using evaluation batch `4` failed only during th
 
 The independent replay helper reloaded both final checkpoints and reproduced the recorded validation metrics exactly: `max_abs_difference = 0.0` and `replay_match = true`. The combined replay summary is:
 
-`C:\OpenNR\Training\semantic_scratch_vs_finetune_20260910\replay\summary.json`
+`<OPENNR_DATA>\Training\semantic_scratch_vs_finetune_20260910\replay\summary.json`
 
 The replay helper now writes arm-specific artifact names to avoid the earlier `checkpoint_1600_replay.json` collision between the two arms.
 

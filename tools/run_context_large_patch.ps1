@@ -1,6 +1,6 @@
 $ErrorActionPreference = 'Stop'
 $PSNativeCommandUseErrorActionPreference = $false
-Set-Location -LiteralPath 'D:\.CODEX_Projects\OpenNR-VR'
+Set-Location -LiteralPath '<REPO>'
 
 $phase = 'out/quality_phase_20260905'
 $statePath = "$phase/context_large_patch_queue.json"
@@ -17,11 +17,11 @@ if (-not (Test-Path -LiteralPath $baseline)) { throw "Baseline checkpoint missin
 
 @{state='training';pid=$PID;run=$run;baseline=$baseline;patch_size=1024;batch=1;started=(Get-Date).ToString('o')} | ConvertTo-Json | Set-Content -LiteralPath $statePath
 try {
-    & E:/OpenNR-VR-Poc-Venv/Scripts/python.exe tools/train_long_student.py `
-        --cache C:/OpenNR/TrainingCache/student_v1 `
+    & <POC_VENV>/Scripts/python.exe tools/train_long_student.py `
+        --cache <OPENNR_DATA>/TrainingCache/student_v1 `
         --output $run `
         --initialize $baseline `
-        --dynamic-guides C:/OpenNR/TrainingCache/dynamic_guides_v1 `
+        --dynamic-guides <OPENNR_DATA>/TrainingCache/dynamic_guides_v1 `
         --face-audit "$phase/face_audit_all/result.json" `
         --workers 2 `
         --patch-size 1024 `
@@ -33,8 +33,8 @@ try {
         --face-loss-weight 0.75 > $log 2>&1
     if ($LASTEXITCODE -ne 0) { throw "Large-patch training exit code $LASTEXITCODE" }
     @{state='evaluating';pid=$PID;run=$run;baseline=$baseline} | ConvertTo-Json | Set-Content -LiteralPath $statePath
-    & E:/OpenNR-VR-Poc-Venv/Scripts/python.exe tools/evaluate_quality_run.py `
-        --cache C:/OpenNR/TrainingCache/student_v1 `
+    & <POC_VENV>/Scripts/python.exe tools/evaluate_quality_run.py `
+        --cache <OPENNR_DATA>/TrainingCache/student_v1 `
         --run $run `
         --baseline $baseline `
         --output $evaluation >> $log 2>&1

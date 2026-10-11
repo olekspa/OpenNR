@@ -47,6 +47,7 @@ public:
 
 	/** @brief Installs rendering hooks and registers event handlers after plugin load. */
 	virtual void PostPostLoad() override;
+	virtual void GameLoaded() override;
 
 	//////////////////////////////////////////////////////////////////////////////////
 
@@ -59,6 +60,9 @@ public:
 		float MaxZenith = 3.1415926f / 2.f;  // 90 deg
 		float MinDiffuseVisibility = 0.1f;
 		float MinSpecularVisibility = 0.1f;
+		bool EnableInInteriors = false;
+		bool ForceNeutralOutput = false;
+		bool EnableDiagnostics = false;
 		float ProbeFieldSize = kDefaultProbeFieldSize;  // total camera-centered XY field width in game units
 		uint ProbeGridQuality = 2;                      // 2 = 256 x 256 x 128, the legacy fixed grid
 		bool EnableIncrementalProbeUpdates = REL::Module::IsVR();
@@ -85,6 +89,10 @@ public:
 		float MinSpecularVisibility;
 		uint ProbeUpdateSliceStart;
 		uint ProbeUpdateSliceCount;
+		uint EnableInInteriors;
+		uint ProbeDataReady;
+		uint ForceNeutralOutput;
+		uint ShadowDataAvailable;
 	};
 	static_assert(sizeof(SkylightingCB) % 16 == 0);
 
@@ -114,6 +122,10 @@ public:
 	// Grid changes from settings loads must recreate resources on the render
 	// thread (the load itself can run on the main thread mid-frame).
 	bool queuedSetupResources = false;
+	bool setupFailureLatched = false;
+	bool probeResourcesReady = false;
+	bool probeDataReady = false;
+	bool previousShadowDataAvailable = true;
 	bool inOcclusion = false;
 	REX::W32::XMFLOAT4X4 OcclusionTransform;
 	float4 OcclusionDir;
@@ -127,9 +139,21 @@ public:
 	bool forceProbeUpdateThisFrame = true;
 	uint probeUpdateFrameCounter = 0;
 	uint occlusionUpdateFrameCounter = 0;
+	uint occlusionRenderSuccessCount = 0;
+	uint probeDispatchCount = 0;
+	uint occlusionSkipCount = 0;
+	uint probeSkipCount = 0;
+	uint32_t previousCellFormID = 0;
+	uint32_t previousWorldspaceFormID = 0;
+	std::optional<bool> previousSceneInterior;
+	std::chrono::steady_clock::time_point lastInteriorDiagnostic = std::chrono::steady_clock::now();
 
 	/** @brief Clears the accumulation frames array to force a full rebuild of skylighting probes. */
 	void ResetSkylighting();
+	void QueueSceneReset() { queuedResetSkylighting = true; }
+	bool HasProbeResources() const;
+	bool HasShadowData() const;
+	void LogInteriorDiagnostics(bool a_interior, const char* a_mode);
 	/** @brief Restarts the incremental probe update window (slice cursor and quadrant mask). */
 	void ResetProbeUpdateWindow();
 	/** @brief Applies the selected probe grid preset to probeArrayDims and reclamps dependent settings. */

@@ -15,6 +15,8 @@
 #include <imgui.h>
 
 #include "ShadowCasterManager.h"
+#include "ShadowTeardownCoordinator.h"
+#include "ShadowWorkGate.h"
 #include "Utils/BootSnapshot.h"
 
 namespace ShadowCasterManager
@@ -187,9 +189,10 @@ namespace ShadowCasterManager
 	// change) racing a live scheduler or render pass reading s_lights.Lights[slot].
 	extern std::shared_mutex s_lightsPoolMutex;
 
-	// Synchronizes engine teardown with active shadow render passes.
-	extern std::atomic<int> s_shadowFlushReaders;
-	extern std::atomic<bool> s_teardownWaiting;
+	// Admission gate covers scheduler snapshots and render passes before teardown frees lights.
+	inline ShadowWorkGate s_shadowWorkGate;
+	bool TryEnterShadowWork() noexcept;
+	void LeaveShadowWork() noexcept;
 
 	// User light suppression set.
 	extern std::unordered_set<uintptr_t> s_suppressedLights;
@@ -273,6 +276,11 @@ namespace ShadowCasterManager
 	/// acquires a light pointer (fresh or recycled address) so a stale anchor from the previous
 	/// occupant can't poison the newcomer's score for ~25 frames.
 	void ResetScoreAnchor(const RE::NiLight* ni);
+
+	/// Returns the frame-scoped anchored radius when enabled, otherwise the live radius.
+	float ShadowDecisionRadius(const RE::NiLight* ni, float liveRadius);
+	/// Read-only lookup for the scheduler's once-per-frame radius anchor.
+	float AnchoredRadius(const RE::NiLight* ni, float liveRadius);
 
 	/// Sets camera/scene formula params once per scheduler frame.
 	void SetupSceneFormula(const RE::NiCamera* camera);

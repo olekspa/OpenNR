@@ -34,7 +34,7 @@ width-plus-depth change.
 
 Parent checkpoint:
 
-- `E:\OpenNR_Training\fullres_aux_oversample_v65_probe_0.5.5_20260906\best_mae.pt`
+- `<DATA_ROOT>\OpenNR_Training\fullres_aux_oversample_v65_probe_0.5.5_20260906\best_mae.pt`
 - SHA-256: `5672252B438669169D8B2FED9FFB16F20768270F01D79DC924F32B9318FBC3E3`
 - Architecture: `context_v7_capacity_temporal`
 - Current parent configuration: base width 64 / 3 blocks; temporal hidden 64,
@@ -44,7 +44,7 @@ Parent checkpoint:
 
 Strict combined cache:
 
-- `E:\OpenNR_RawCropCache_StrictCombinedFresh_0.5.5_20260906`
+- `<DATA_ROOT>\OpenNR_RawCropCache_StrictCombinedFresh_0.5.5_20260906`
 - 25,472 eye rows: 16,128 train / 4,096 validation / 5,248 test.
 - Strict reset and sequence provenance are retained; `test_used_for_tuning`
   remains false.
@@ -52,7 +52,7 @@ Strict combined cache:
 
 Spatial auxiliary cache used by the selected v65 recipe:
 
-- `E:\OpenNR_FullResMasterSpatialAux_0.5.5_20260906`
+- `<DATA_ROOT>\OpenNR_FullResMasterSpatialAux_0.5.5_20260906`
 - Local size: approximately 1.67 GiB.
 - It is training-only spatial auxiliary data; it is not a temporal validation
   or test source.
@@ -248,7 +248,7 @@ time acceptance result. They establish that forward inference is not the
 same constraint as the earlier training attempt on the 5070 Ti.
 
 Recovered artifacts are under
-`E:\\OpenNR_Training\\runpod_width_a6000_0.5.5_20260906`.
+`<DATA_ROOT>\\OpenNR_Training\\runpod_width_a6000_0.5.5_20260906`.
 
 ## Decision rule
 

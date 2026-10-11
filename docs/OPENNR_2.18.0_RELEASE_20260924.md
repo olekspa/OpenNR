@@ -32,13 +32,13 @@ candidate to `main` with the Skyrim VR address-library startup fix.
 ## Build and package verification
 
 - A separate MSVC/VS2022 Release build completed in
-  `E:/OpenNR_Builds/2.18.0`; the DLL file version is `2.18.0.0` and its
+  `<BUILD_DIR>/2.18.0`; the DLL file version is `2.18.0.0` and its
   SHA-256 is
   `6E14C6BA194C4ACBF7C7D676FFE0A14DFD4BEF77A2F994CE63DAA5D8DEEC5A5E`.
 - The native suite passed 230 cases and 9,601 assertions. The release source
   contract and AIO manifest validation passed.
 - `7z t` verified 521 files and 105 folders in
-  `E:/OpenNR_Builds/2.18.0/dist/OpenNR 2.18.0.7z`. The archive is
+  `<BUILD_DIR>/2.18.0/dist/OpenNR 2.18.0.7z`. The archive is
   228,748,655 bytes; SHA-256 is
   `F538F1390C4BC161AA8A5E09E99B9F8E7F032E02539B97A9F608E362C9C27F74`.
   Its only versioned package changelog is `OPENNR-2.18.0-CHANGELOG.md`.
@@ -48,8 +48,8 @@ candidate to `main` with the Skyrim VR address-library startup fix.
 
 ## Local installation and rollback
 
-- Installed at `E:/MGO-RC3-fresh/mods/OpenNR 2.18.0` as a separate mod.
-- Cloned the tested profile to `MGO NSFW - OpenNR 2.18.0`, enabled 2.18.0,
+- Installed at `<MO2_INSTANCE>/mods/OpenNR 2.18.0` as a separate mod.
+- Cloned the tested profile to `<MO2_PROFILE>`, enabled 2.18.0,
   disabled 2.17.0 in that clone, and selected it in `ModOrganizer.ini`.
   Exactly one enabled mod provides `CommunityShaders.dll` in the new profile.
 - The shared `SettingsUser.json` hash is unchanged by installation. The
@@ -57,7 +57,7 @@ candidate to `main` with the Skyrim VR address-library startup fix.
   restored.
 - Original `ModOrganizer.ini`, the 2.17.0 profile modlist, and shared user
   settings were copied to
-  `E:/MGO-RC3-fresh/_OpenNR_Pilot_Backups/2.18.0-promotion-20260924`.
+  `<MO2_INSTANCE>/_OpenNR_Pilot_Backups/2.18.0-promotion-20260924`.
   Its `ROLLBACK.txt` gives the exact profile-selection recovery step.
 
 ## Acceptance limits

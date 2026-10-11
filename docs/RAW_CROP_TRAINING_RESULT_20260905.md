@@ -10,14 +10,14 @@ explicitly rebound at initialization; future resumes remain identity-strict.
 
 | Item | Value |
 | --- | --- |
-| Capture root | `C:\OpenNR_Captures_Temporal_Crops_0.5.3_NoPreview_20260905` |
-| Cache | `E:\OpenNR_RawCropCache_0.5.3_20260905` |
+| Capture root | `<DATA_ROOT>\OpenNR_Captures_Temporal_Crops_0.5.3_NoPreview_20260905` |
+| Cache | `<DATA_ROOT>\OpenNR_RawCropCache_0.5.3_20260905` |
 | Cache rows | 6,870 stereo eye rows from 3,435 frames and 111 sequences |
 | Split | 70 train / 18 validation / 23 test sequences; 4,396 / 1,108 / 1,366 eye rows |
 | Cache rows fingerprint | `2d47b2deb16a3c537a2cabc86d235a6bf7fe075631d100765154b7703053c82a` |
 | Candidate manifest fingerprint | `392105c47932860361b01e5da650fc0a0523bd3445ba314ebca6af53439d8f16` |
 | Architecture | `context_v3`, width 64, 3 blocks, scale 4 |
-| Initialization | `D:\.CODEX_Projects\OpenNR-VR\out\quality_phase_20260905\OpenNR_ContextFaceVGGFaceLoss_v4_best_mae.pt`, parent step 1,000 |
+| Initialization | `<REPO>\out\quality_phase_20260905\OpenNR_ContextFaceVGGFaceLoss_v4_best_mae.pt`, parent step 1,000 |
 | Schedule | 12,000 steps, batch 4, initial LR `2e-5`, feature weight `0.05`, VGG weight `0.05` |
 | Runtime | RTX 5070 Ti, CUDA BF16 autocast, 2,157.29 seconds (35.95 minutes) |
 | Test tuning | `false`; the test split was evaluated only after the run completed |
@@ -68,14 +68,14 @@ runtime test decide between them.
 
 | Artifact | SHA-256 |
 | --- | --- |
-| `E:\OpenNR_Training\context_raw_crop_v1_20260905\best_mae.pt` | `C6D28700AFBEF17C44508328BF8285C54711C36449B0D9F7CCCE09CC88C88740` |
-| `E:\OpenNR_Training\context_raw_crop_v1_20260905\best_feature.pt` | `70B42F65CF7350125BC87B54E8B1EB6EBDD89F79312DCFE6ACD35E922F28AAD0` |
-| `E:\OpenNR_Training\context_raw_crop_v1_20260905\last.pt` | `1135F44ABACAFFEC97A5E5AB646F79F77E718A4E14839501232C95CEC8B2BAE7` |
+| `<DATA_ROOT>\OpenNR_Training\context_raw_crop_v1_20260905\best_mae.pt` | `C6D28700AFBEF17C44508328BF8285C54711C36449B0D9F7CCCE09CC88C88740` |
+| `<DATA_ROOT>\OpenNR_Training\context_raw_crop_v1_20260905\best_feature.pt` | `70B42F65CF7350125BC87B54E8B1EB6EBDD89F79312DCFE6ACD35E922F28AAD0` |
+| `<DATA_ROOT>\OpenNR_Training\context_raw_crop_v1_20260905\last.pt` | `1135F44ABACAFFEC97A5E5AB646F79F77E718A4E14839501232C95CEC8B2BAE7` |
 
 The frozen-test evaluator and result are:
 
 - `tools/evaluate_frozen_raw_crop_test.py`
-- `E:\OpenNR_Training\context_raw_crop_v1_20260905\test_evaluation\result.json`
+- `<DATA_ROOT>\OpenNR_Training\context_raw_crop_v1_20260905\test_evaluation\result.json`
 
 The corrected native-eye benchmark (`tools/evaluate_student.py` now accepts
 already-suffixed `.raw.bin` paths) measured both candidates on the RTX 5070 Ti
@@ -89,14 +89,14 @@ with CUDA-resident 512×512 inputs:
 These are model-forward timings only. They exclude raw-guide preparation,
 capture interop, engine launch, compositor, display submission, and headset
 frame budget. The raw benchmark JSON files are
-`E:\OpenNR_Training\context_raw_crop_v1_20260905\benchmark_best_mae.json` and
+`<DATA_ROOT>\OpenNR_Training\context_raw_crop_v1_20260905\benchmark_best_mae.json` and
 `benchmark_best_feature.json`.
 
 The completion metadata is in:
 
-- `E:\OpenNR_Training\context_raw_crop_v1_20260905\status.json`
-- `E:\OpenNR_Training\context_raw_crop_v1_20260905\run.json`
-- `E:\OpenNR_Training\context_raw_crop_v1_20260905\history.jsonl`
+- `<DATA_ROOT>\OpenNR_Training\context_raw_crop_v1_20260905\status.json`
+- `<DATA_ROOT>\OpenNR_Training\context_raw_crop_v1_20260905\run.json`
+- `<DATA_ROOT>\OpenNR_Training\context_raw_crop_v1_20260905\history.jsonl`
 
 ## Next gates
 
@@ -104,7 +104,7 @@ The completion metadata is in:
    `best_feature.pt`, including both eyes and changed regions. Choose a visual
    candidate only after checking facial shadow, skin, hair, local contrast, and
    stereo consistency. A first six-sheet direct-view gallery is already at
-   `E:\OpenNR_Training\context_raw_crop_v1_20260905\visual_evaluation\dual_gallery`;
+   `<DATA_ROOT>\OpenNR_Training\context_raw_crop_v1_20260905\visual_evaluation\dual_gallery`;
    it shows the two students are close to each other and closer to the teacher,
    but still differ in dark-material exposure and local appearance.
 2. Benchmark the chosen checkpoint as a CUDA-resident native 512×512 eye and

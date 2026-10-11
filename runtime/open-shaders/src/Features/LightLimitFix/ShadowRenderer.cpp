@@ -5,11 +5,59 @@
 #include "Deferred.h"
 #include "GpuPass.h"
 #include "I18n/I18n.h"
+#include "ShaderCache.h"
 #include "Menu/ThemeManager.h"
 #include "ShadowCasterInternal.h"
+#include "ShadowTilePolicy.h"
+#include "SceneHistoryResetPolicy.h"
 #include "State.h"
 #include "Util.h"
 #include "Utils/D3D.h"
+#include "../Upscaling.h"
+#include "../Skylighting.h"
+#include "../ScreenSpaceGI.h"
+#include "../Upscaling/FoveatedRender/Core.h"
+#include "../Upscaling/NeuralRendering/Integration.h"
+
+#include <atomic>
+#include <chrono>
+
+namespace ShadowCasterManager
+{
+	namespace
+	{
+		std::atomic<uint32_t> s_spotFallbackFrame{ UINT32_MAX };
+		std::atomic<uint32_t> s_spotFailedOpen{};
+		std::atomic<uint32_t> s_spotForcedDark{};
+	}
+
+	void RecordSpotlightTileFallback(bool a_failedOpen)
+	{
+		const uint32_t frame = globals::state ? globals::state->frameCount : 0;
+		if (s_spotFallbackFrame.load(std::memory_order_relaxed) != frame) {
+			s_spotFailedOpen.store(0, std::memory_order_relaxed);
+			s_spotForcedDark.store(0, std::memory_order_relaxed);
+			s_spotFallbackFrame.store(frame, std::memory_order_relaxed);
+		}
+		(a_failedOpen ? s_spotFailedOpen : s_spotForcedDark).fetch_add(1, std::memory_order_relaxed);
+
+		static auto lastLog = std::chrono::steady_clock::now();
+		const auto now = std::chrono::steady_clock::now();
+		if (globals::game::tes && globals::game::tes->interiorCell && now - lastLog >= std::chrono::seconds(1)) {
+			lastLog = now;
+			logger::info("[LLF-Dungeon] missing-rect spots failedOpen={} forcedDark={} frame={}",
+				s_spotFailedOpen.load(std::memory_order_relaxed),
+				s_spotForcedDark.load(std::memory_order_relaxed), frame);
+		}
+	}
+
+	SpotlightFallbackCounters GetSpotlightFallbackCounters()
+	{
+		return { s_spotFallbackFrame.load(std::memory_order_relaxed),
+			s_spotFailedOpen.load(std::memory_order_relaxed),
+			s_spotForcedDark.load(std::memory_order_relaxed) };
+	}
+}
 
 // False means no usable descriptors; see the ShadowParam.y sentinel contract
 // below (CopyShadowLightData) for what the caller must do with that.
@@ -34,6 +82,43 @@ static bool SetShadowParameters(T& lightData, Deferred::ShadowLightData& sd)
 
 void LightLimitFix::EarlyPrepass()
 {
+	// Scene identity is sampled at the early safe boundary, before either eye's
+	// upscale/NR work. Keep cell IDs only for interiors: exterior streaming swaps
+	// cells constantly, while worldspace identity still captures load transitions.
+	auto* tes = globals::game::tes;
+	auto* player = RE::PlayerCharacter::GetSingleton();
+	auto* cell = player ? player->GetParentCell() : nullptr;
+	const bool interior = tes && tes->interiorCell != nullptr;
+	const uint32_t cellId = (interior && cell) ? cell->GetFormID() : 0;
+	auto world = cell ? cell->GetRuntimeData().worldSpace : nullptr;
+	const uint32_t worldId = world ? world->GetFormID() : 0;
+	static bool identityInitialized = false;
+	static LightLimitFixPolicy::SceneIdentity previousIdentity{};
+	const LightLimitFixPolicy::SceneIdentity identity{ interior, cellId, worldId };
+	const bool changed = identityInitialized && LightLimitFixPolicy::SceneIdentityChanged(previousIdentity, identity);
+	if (changed) {
+		logger::info("[OpenNR-Scene] interior={} cell={:08X} worldspace={:08X}", interior, cellId, worldId);
+		SIE::ShaderCache::ArmInteriorLightingCompileDiagnostics(interior);
+		// Skylighting has independent occlusion/probe accumulation and must always
+		// be reseeded on scene changes, even if the optional NR/SSGI reset fanout
+		// is disabled.
+		if (globals::features::skylighting.loaded)
+			globals::features::skylighting.QueueSceneReset();
+		if (settings.ResetTemporalHistoryOnWorldChange) {
+			// Queue/perform resets before the render passes. Foveated invalidation
+			// resets both NR contexts; pendingDLSSReset rebuilds both eye features
+			// at the next Upscale boundary for either route.
+			FoveatedRenderImpl::Core::InvalidateTemporalState();
+			globals::features::upscaling.foveatedRender.ResetAdaptiveState();
+			globals::features::screenSpaceGI.QueueHistoryReset();
+			NeuralRendering::ResetHistory();
+			const bool dlssAlreadyQueued = globals::features::upscaling.pendingDLSSReset.exchange(true, std::memory_order_acq_rel);
+			logger::info("[Upscaling-History] reset requested reason=scene-identity-change route=standard+foveated eyes=both dlssReset={}",
+				dlssAlreadyQueued ? "already-queued-by-loading-menu" : "queued");
+		}
+	}
+	identityInitialized = true;
+	previousIdentity = identity;
 	CopyShadowLightData();
 }
 
@@ -157,6 +242,7 @@ void LightLimitFix::CopyShadowLightData()
 			sd[depthSlot].FadeParam.x = ShadowCasterManager::GetShadowFadeAlpha(stableSlot);
 			// AtlasRect: advertise the tile only once it holds rendered
 			// content; zero keeps the shader on the array-slice path.
+			bool missingAtlasTile = false;
 			if (ShadowCasterManager::AtlasActive()) {
 				ShadowCasterManager::AtlasRectUV rect{};
 				if (ShadowCasterManager::GetSlotAtlasRectUV(stableSlot, rect)) {
@@ -182,15 +268,23 @@ void LightLimitFix::CopyShadowLightData()
 						}
 					}
 				} else if (sd[depthSlot].ShadowParam.y > 0.0f) {
+					missingAtlasTile = true;
 					// No rendered tile behind this slot; atlas mode never writes the
 					// engine slices, so force the safe sentinel instead of sampling
 					// stale array depth (suppressed lights keep their -1 sentinel).
 					sd[depthSlot].ShadowParam.y = 0.0f;
+				} else {
+					missingAtlasTile = true;
 				}
 			}
-			// Spotlights require a valid shadow footprint before they can illuminate the scene.
-			if (shadowTypeF == 0.0f && sd[depthSlot].ShadowParam.y == 0.0f)
-				sd[depthSlot].ShadowParam.y = -1.0f;
+			if (missingAtlasTile && shadowTypeF == 0.0f && !suppressed)
+				ShadowCasterManager::RecordSpotlightTileFallback(
+					ShadowCasterManager::s_settings.FailOpenSpotlightWithoutShadowTile);
+			sd[depthSlot].ShadowParam.y = ShadowCasterManager::ApplySpotMissingTilePolicy(
+				sd[depthSlot].ShadowParam.y,
+				static_cast<uint32_t>(shadowTypeF),
+				suppressed,
+				ShadowCasterManager::s_settings.FailOpenSpotlightWithoutShadowTile);
 			// Name resolved once per NiLight (owner ref, then scenegraph node,
 			// then form ID) to identify the light for the diagnostics table.
 			static std::unordered_map<const RE::NiLight*, std::string> s_lightNames;
@@ -357,6 +451,22 @@ void LightLimitFix::DrawOverlay()
 	ShadowCasterManager::DrawShadowSummary(lightCount, MAX_LIGHTS, shadowUnshadowedLightCount);
 	if (!vizOn)
 		ShadowCasterManager::DrawShadowSchedulerStats();
+	if (showOverlay) {
+		ImGui::SeparatorText("Dungeon diagnostics");
+		ImGui::Checkbox("Fail open spotlights without tile", &settings.ShadowSettings.FailOpenSpotlightWithoutShadowTile);
+		ImGui::Checkbox("Bounded session reset drain", &settings.ShadowSettings.BoundedSessionResetDrain);
+		ImGui::Checkbox("Reset histories on cell/worldspace change", &settings.ResetTemporalHistoryOnWorldChange);
+		auto spot = ShadowCasterManager::GetSpotlightFallbackCounters();
+		ImGui::Text("Missing tile spots (frame %u): lit %u / dark %u", spot.frame, spot.failedOpen, spot.forcedDark);
+		auto scm = ShadowCasterManager::GetDungeonShadowDiagnostics();
+		ImGui::Text("SCM reset pending: %s age %u | gate %s / readers %u",
+			scm.resetPending ? "yes" : "no", scm.pendingAgeFrames,
+			scm.gateClosing ? "closing" : "open", scm.gateReaders);
+		ImGui::Text("Schedule skips: gate %u / VR %u / scene %u / portal %u",
+			scm.skipGate, scm.skipVr, scm.skipScene, scm.skipPortal);
+		ImGui::Text("Render skips: reset %llu / portal %llu / gate %llu / race %llu",
+			scm.renderSessionReset, scm.renderPortal, scm.renderGate, scm.renderRace);
+	}
 
 	// ── Per-mode informational panels (visualization-mode-specific only) ──
 	if (vizOn) {

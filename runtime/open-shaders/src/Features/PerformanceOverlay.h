@@ -285,9 +285,9 @@ struct PerformanceOverlay : OverlayFeature
 		static constexpr int kMaxFrameHistorySize = 1800;            // 30s @ 60fps, 7.5s @ 240fps
 
 		bool ShowInOverlay = true;  // was: Enabled
-		bool ShowDrawCalls = true;
-		bool ShowCSPasses = true;
-		bool ShowVRAM = true;
+		bool ShowDrawCalls = false;
+		bool ShowCSPasses = false;
+		bool ShowVRAM = false;
 		bool ShowFPS = true;
 		bool ShowPreFGFrameTimeGraph = true;
 		bool ShowPostFGFrameTimeGraph = true;

@@ -28,7 +28,7 @@ option(
 project(
     # gersemi: ignore
     CommunityShaders
-	VERSION 2.20.1
+    VERSION 2.22.2
     LANGUAGES CXX
 )
 
@@ -812,6 +812,12 @@ install(
     DESTINATION .
     COMPONENT Shaders
     PATTERN "Tests" EXCLUDE
+    PATTERN "OPENNR-*-CHANGELOG.md" EXCLUDE
+)
+install(
+    FILES "${CMAKE_SOURCE_DIR}/package/OPENNR-${PROJECT_VERSION}-CHANGELOG.md"
+    DESTINATION .
+    COMPONENT Shaders
 )
 include(FeaturePackaging)
 include(FidelityFX-Runtime)
@@ -859,6 +865,11 @@ if(AUTO_PLUGIN_DEPLOYMENT OR AIO_ZIP_TO_DIST)
         LIST_DIRECTORIES FALSE
         "${CMAKE_SOURCE_DIR}/package/*"
     )
+    # Keep historical release notes in source control, but ship only the
+    # changelog matching this package version. The package validator requires
+    # exactly one versioned changelog in the AIO payload.
+    list(FILTER _AIO_PACKAGE_FILES EXCLUDE REGEX "/OPENNR-[0-9]+\\.[0-9]+\\.[0-9]+-CHANGELOG\\.md$")
+    list(APPEND _AIO_PACKAGE_FILES "${CMAKE_SOURCE_DIR}/package/OPENNR-${PROJECT_VERSION}-CHANGELOG.md")
     list(FILTER _AIO_PACKAGE_FILES EXCLUDE REGEX "/Tests/")
     list(FILTER _AIO_PACKAGE_FILES EXCLUDE REGEX "/Shaders/")
     foreach(_fpath IN LISTS AIO_LOCAL_FEATURE_PATHS)
@@ -1845,6 +1856,9 @@ add_dependencies("Package-AIO-Manual" Validate-OpenNR-AIO)
 # # Shader Unit Tests
 # #######################################################################################################################
 if(BUILD_SHADER_TESTS)
+    set(OPENNR_GPU_BROKER_PYTHON "" CACHE FILEPATH "Python for the local OpenNR GPU broker")
+    set(OPENNR_GPU_BROKER_SCRIPT "" CACHE FILEPATH "Local OpenNR GPU broker script")
+    set(OPENNR_GPU_JOB_LABEL "OPENNR-SHADERS" CACHE STRING "GPU broker shader-test label")
     message(STATUS "Adding shader tests subdirectory")
     enable_testing() # Enable CTest integration for shader tests
     add_subdirectory(tests/shaders)
@@ -1864,6 +1878,7 @@ if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/tests/cpp/CMakeLists.txt")
             COMMENT "Running C++ unit tests..."
             VERBATIM
         )
+        add_dependencies("Package-AIO-Manual" run_cpp_tests)
     endif()
 endif()
 
@@ -1871,9 +1886,22 @@ if(BUILD_SHADER_TESTS)
     # Add a custom target that runs the shader tests
     # Users can run this manually with: cmake --build <build-dir> --target run_shader_tests
     # Runs the test executable directly (not via CTest) to show discovery count
+    # Local shader tests execute GPU work. Wrap only the test process in a
+    # broker lease; compilation and archive creation remain CPU-only.
+    set(_shader_test_command $<TARGET_FILE:shader_tests> --reporter compact)
+    if(OPENNR_GPU_BROKER_PYTHON OR OPENNR_GPU_BROKER_SCRIPT)
+        if(NOT EXISTS "${OPENNR_GPU_BROKER_PYTHON}" OR NOT EXISTS "${OPENNR_GPU_BROKER_SCRIPT}")
+            message(FATAL_ERROR "Both local GPU broker Python and script must exist")
+        endif()
+        set(_shader_test_command
+            "${OPENNR_GPU_BROKER_PYTHON}" "${OPENNR_GPU_BROKER_SCRIPT}"
+            gpu run --label "${OPENNR_GPU_JOB_LABEL}"
+            --purpose "OpenNR shader unit tests" --minutes 5 --wait --timeout 3600
+            -- $<TARGET_FILE:shader_tests> --reporter compact)
+    endif()
     add_custom_target(
         run_shader_tests
-        COMMAND $<TARGET_FILE:shader_tests> --reporter compact
+        COMMAND ${_shader_test_command}
         DEPENDS shader_tests
         WORKING_DIRECTORY $<TARGET_FILE_DIR:shader_tests>
         COMMENT "Running shader unit tests..."

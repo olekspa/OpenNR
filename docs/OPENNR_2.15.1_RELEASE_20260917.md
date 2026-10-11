@@ -7,7 +7,7 @@ separately from this local release record.
 
 ## Deliverable
 
-- AIO: `E:/OpenNR_Builds/2.15.1/dist/OpenNR 2.15.1.7z`
+- AIO: `<BUILD_DIR>/2.15.1/dist/OpenNR 2.15.1.7z`
 - Archive: 228,060,032 bytes; 490 files; 440,836,907 uncompressed file bytes.
 - Archive SHA-256: `EACDEF4A496112EEE900FB00140D12CBE52E541B09D297A307D7C6324FEC60E1`
 - DLL version: 2.15.1.0.
@@ -17,7 +17,7 @@ separately from this local release record.
 The AIO contains the native Feature 18 carrier, OpenNR Capture support, the full
 declared feature payload, and current shaders/translations. Automatic deployment
 was disabled during the build. The pinned external dependency snapshot remains
-`C:/OpenNR/Dependencies/runtime-2.15.0`; its directory name is provenance rather
+`<OPENNR_DATA>/Dependencies/runtime-2.15.0`; its directory name is provenance rather
 than the release version. Current build defaults now resolve to the 2.15.1 tree.
 Historical 2.15.0 records remain historical; its old package changelog was moved
 to `runtime/open-shaders/docs/releases/` so the new AIO has exactly one changelog.
@@ -63,7 +63,7 @@ was not shipped in place of the conservative reset policy.
 - Current adaptive-budget UI and previous map/UI follow-up source changes.
 
 The pre-existing working-tree diff and source/test backup are retained under
-`C:/OpenNR/ReleaseBackups/2.15.1-20260917/`. No existing change was reset or reverted.
+`<OPENNR_DATA>/ReleaseBackups/2.15.1-20260917/`. No existing change was reset or reverted.
 
 ## Verification
 
@@ -84,12 +84,12 @@ The pre-existing working-tree diff and source/test backup are retained under
 
 Evidence: `build.log`, `cpp-tests.log`, `shader-test.log`, `package.log`,
 `archive-test.log`, `archive-manifest.json`, `installed-manifest.json`, and
-`install-record.json` under `C:/OpenNR/ReleaseBackups/2.15.1-20260917/`.
+`install-record.json` under `<OPENNR_DATA>/ReleaseBackups/2.15.1-20260917/`.
 
 ## Local installation and rollback
 
-Active profile: `E:/MGO-RC3-fresh/profiles/MGO NSFW - 4.0 BETA`.
-New mod: `E:/MGO-RC3-fresh/mods/OpenNR 2.15.1`, enabled at the former OpenNR
+Active profile: `<MO2_INSTANCE>/profiles/<MO2_PROFILE>`.
+New mod: `<MO2_INSTANCE>/mods/OpenNR 2.15.1`, enabled at the former OpenNR
 position. Previous `OpenNR 2.15.0` remains on disk, disabled. MO2 was restarted
 and its UI confirmed the new enabled entry and disabled rollback entry.
 

@@ -1,6 +1,6 @@
 param([int]$TrainingProcessId = 6192, [int]$CheckpointStep = 4000)
 $ErrorActionPreference = 'Stop'
-Set-Location -LiteralPath 'D:\.CODEX_Projects\OpenNR-VR'
+Set-Location -LiteralPath '<REPO>'
 $sourceDirectory = 'out/quality_phase_20260905/dynamic_continuation'
 $destinationDirectory = 'out/quality_phase_20260905/dynamic_prefetch_continuation'
 $handoffPath = 'out/quality_phase_20260905/dynamic_prefetch_handoff.json'
@@ -29,7 +29,7 @@ $priorState | ConvertTo-Json | Set-Content -LiteralPath "$sourceDirectory/status
 New-Item -ItemType Directory -Force -Path $destinationDirectory | Out-Null
 foreach ($name in @('best_mae.pt','best_feature.pt')) { Copy-Item -LiteralPath "$sourceDirectory/$name" -Destination "$destinationDirectory/$name" }
 @{ state='resuming'; checkpoint_step=$record.step; source="$sourceDirectory/last.pt"; destination=$destinationDirectory; coordinator_pid=$PID } | ConvertTo-Json | Set-Content -LiteralPath $handoffPath
-& 'E:\OpenNR-VR-Poc-Venv\Scripts\python.exe' tools/train_long_student.py --cache C:/OpenNR/TrainingCache/student_v1 --output $destinationDirectory --resume "$sourceDirectory/last.pt" --dynamic-guides C:/OpenNR/TrainingCache/dynamic_guides_v1 --workers 2 --steps 20000 --eval-every 1000 *> out/quality_dynamic_prefetch_continuation.log
+& '<POC_VENV>\Scripts\python.exe' tools/train_long_student.py --cache <OPENNR_DATA>/TrainingCache/student_v1 --output $destinationDirectory --resume "$sourceDirectory/last.pt" --dynamic-guides <OPENNR_DATA>/TrainingCache/dynamic_guides_v1 --workers 2 --steps 20000 --eval-every 1000 *> out/quality_dynamic_prefetch_continuation.log
 if ($LASTEXITCODE -ne 0) {
     @{ state='failed'; destination=$destinationDirectory; exit_code=$LASTEXITCODE } | ConvertTo-Json | Set-Content -LiteralPath $handoffPath
     throw 'Resumed training failed; original checkpoint remains preserved'

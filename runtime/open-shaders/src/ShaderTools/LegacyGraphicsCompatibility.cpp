@@ -490,7 +490,7 @@ namespace LegacyGraphicsCompatibility
 		void InstallShadowBoundsExtentsAdapter()
 		{
 			if (globals::game::isVR) {
-				logger::warn("Legacy shadow bounds viewport adapter unavailable for VR address library; skipping");
+				logger::info("Legacy shadow bounds viewport adapter unavailable for VR address library; skipping");
 				return;
 			}
 
@@ -565,7 +565,10 @@ namespace LegacyGraphicsCompatibility
 			if (!REL::verify_code(setupAddress + 0x24, setupContext) ||
 				!REL::verify_code(shutdownAddress + 0x86, shutdownContext) ||
 				!REL::verify_code(destructorAddress + 0x86, destructorContext)) {
-				logger::error("Legacy FullScreenBlur stage-count opcode contexts do not match the verified 1.5.97/1.6.1170 sequences; no blur adapters installed");
+				if (globals::game::isVR)
+					logger::info("Legacy FullScreenBlur adapters are unavailable for this VR runtime; no blur adapters installed");
+				else
+					logger::error("Legacy FullScreenBlur stage-count opcode contexts do not match the verified 1.5.97/1.6.1170 sequences; no blur adapters installed");
 				return false;
 			}
 

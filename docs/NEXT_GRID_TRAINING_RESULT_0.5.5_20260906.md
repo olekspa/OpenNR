@@ -8,7 +8,7 @@ current RGB/depth/native-Feature-18-motion representation did not produce a
 measurable improvement over the v65 parent in controlled local training. The
 best known checkpoint therefore remains unchanged:
 
-`E:\OpenNR_Training\fullres_aux_oversample_v65_probe_0.5.5_20260906\best_mae.pt`
+`<DATA_ROOT>\OpenNR_Training\fullres_aux_oversample_v65_probe_0.5.5_20260906\best_mae.pt`
 
 The requested MAE `0.011` target remains open. The current v65 checkpoint is
 offline crop-space research evidence only; it has not been installed into the
@@ -18,7 +18,7 @@ active SkyrimVR/MO2 runtime.
 
 Source root:
 
-`C:\OpenNR_Captures_NextGridPilot_0.5.5_20260906`
+`<DATA_ROOT>\OpenNR_Captures_NextGridPilot_0.5.5_20260906`
 
 The root contains 105 complete 64-frame sequences: 6,720 frames and 215,040
 crop-eye-stage artifacts. Structural validation passed with zero missing files,
@@ -61,7 +61,7 @@ audit/appearance use. They are not silently treated as valid temporal motion.
 
 The clean center-crop temporal cache is on the fast E: path:
 
-`E:\OpenNR_RawCropCache_NextGridTemporalClean_0.5.5_20260906`
+`<DATA_ROOT>\OpenNR_RawCropCache_NextGridTemporalClean_0.5.5_20260906`
 
 It contains 92 sequences, 5,888 frames, and 11,776 eye rows split into 58
 train, 15 validation, and 19 test sequences. Its `complete.json` records:
@@ -74,7 +74,7 @@ train, 15 validation, and 19 test sequences. Its `complete.json` records:
 The all-crop spatial auxiliary cache is on C: because it is the larger,
 non-recurrent representation:
 
-`C:\OpenNR_Cache_NextGridSpatialAllCrops_0.5.5_20260906`
+`<DATA_ROOT>\OpenNR_Cache_NextGridSpatialAllCrops_0.5.5_20260906`
 
 It contains all 105 sequences, 53,760 eye/crop rows, and crop indices 0, 1, 2,
 and 3. Its `complete.json` records:
@@ -97,7 +97,7 @@ The all-cohort strict cache combines the prior accepted 73-sequence historical
 cache, the prior 126-sequence fresh cache, and the new 92-sequence clean grid
 cache:
 
-`E:\OpenNR_RawCropCache_StrictAllCohortsNextGrid_0.5.5_20260906`
+`<DATA_ROOT>\OpenNR_RawCropCache_StrictAllCohortsNextGrid_0.5.5_20260906`
 
 It contains 291 sequences, 18,624 frames, and 37,248 eye rows. The preserved
 source-level splits produce 368 train streams, 94 validation streams, and 120
@@ -135,19 +135,19 @@ completed fit is not automatically a quality improvement.
 The interrupted run artifacts are preserved and explicitly marked
 `state=interrupted` with reasons in their status files:
 
-- `E:\OpenNR_Training\next_grid_v68_capacity_temporal_probe_0.5.5_20260906`
-- `E:\OpenNR_Training\next_grid_v68b_temporal_dominant_probe_0.5.5_20260906`
-- `E:\OpenNR_Training\next_grid_v69_allcohort_temporal_dominant_probe_0.5.5_20260906`
-- `E:\OpenNR_Training\next_grid_v70_width160_allcohort_probe_0.5.5_20260906`
+- `<DATA_ROOT>\OpenNR_Training\next_grid_v68_capacity_temporal_probe_0.5.5_20260906`
+- `<DATA_ROOT>\OpenNR_Training\next_grid_v68b_temporal_dominant_probe_0.5.5_20260906`
+- `<DATA_ROOT>\OpenNR_Training\next_grid_v69_allcohort_temporal_dominant_probe_0.5.5_20260906`
+- `<DATA_ROOT>\OpenNR_Training\next_grid_v70_width160_allcohort_probe_0.5.5_20260906`
 
 The completed but rejected fixed-fit artifact is preserved at
-`E:\OpenNR_Training\next_grid_v71_allnontest_fit_0.5.5_20260906`.
+`<DATA_ROOT>\OpenNR_Training\next_grid_v71_allnontest_fit_0.5.5_20260906`.
 
 ## Visual validation
 
 A representative new-grid validation gallery is preserved at:
 
-`D:\.CODEX_Projects\OpenNR-VR\out\next_grid_v65_visual_gallery_0.5.5_20260906`
+`<REPO>\out\next_grid_v65_visual_gallery_0.5.5_20260906`
 
 It shows input, the earlier v8 spatial output, v65, and the captured Feature
 18 teacher for both eyes at frames 1, 32, and 64. The sampled stone/wood,

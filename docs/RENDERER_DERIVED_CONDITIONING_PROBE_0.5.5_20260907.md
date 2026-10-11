@@ -18,7 +18,7 @@ separate cache schema is created.
 
 The source audit found real Skyrim deferred G-buffer render targets at the
 Neural Rendering call boundary in
-`D:\.CODEX_Projects\DLSS_5_SKYRIM\vendor\open-shaders-dlssnr-vr-091bfb4d`:
+`<LEGACY_REPO>\vendor\open-shaders-dlssnr-vr-091bfb4d`:
 
 | Capture stage | Renderer source | Runtime format | Interpretation |
 | --- | --- | --- | --- |
@@ -59,11 +59,11 @@ The source changes are in:
 The repository's warm `Dev-Fast` build completed successfully on 2026-09-07.
 The isolated DLL is:
 
-`D:\.CODEX_Projects\OpenNR-VR\out\renderer_conditioning_probe_0.5.5_20260907\CommunityShaders.dll`
+`<REPO>\out\renderer_conditioning_probe_0.5.5_20260907\CommunityShaders.dll`
 
 A ready-to-copy MO2 payload is also present at:
 
-`D:\.CODEX_Projects\OpenNR-VR\out\renderer_conditioning_probe_0.5.5_20260907\MO2_mod\SKSE\Plugins\CommunityShaders.dll`
+`<REPO>\out\renderer_conditioning_probe_0.5.5_20260907\MO2_mod\SKSE\Plugins\CommunityShaders.dll`
 
 Its SHA-256 is
 `A50B62C955ACE36AC52800921646F53B8500BE6CDBEB7028F6DFB3362EF4D817`.
@@ -73,15 +73,15 @@ after a byte-verified rollback backup. The installed DLL SHA-256 is the same
 
 The active production DLL remains:
 
-`E:\MGO-RC3-fresh\mods\Open Shaders DLSSNR VR 0.5.5 OpenNR\SKSE\Plugins\CommunityShaders.dll`
+`<MO2_INSTANCE>\mods\Open Shaders DLSSNR VR 0.5.5 OpenNR\SKSE\Plugins\CommunityShaders.dll`
 
 The previous production DLL SHA-256 was
 `751401C26DF6B9FCD7F6F3DD906EE6D57ED69D6F3C6EE6305D1C445C49E3FFD4` and is
 preserved at
-`G:\OpenNR_Capture_Setup_Backups\active-renderer-conditioning-pilot-0.5.5-20260907-0210\CommunityShaders.dll`.
+`<DATA_ROOT>\OpenNR_Capture_Setup_Backups\active-renderer-conditioning-pilot-0.5.5-20260907-0210\CommunityShaders.dll`.
 The active profile now has renderer conditionings enabled for the bounded pilot
 and writes to
-`C:\OpenNR_Captures_RendererConditioningPilot_0.5.5_20260907`.
+`<DATA_ROOT>\OpenNR_Captures_RendererConditioningPilot_0.5.5_20260907`.
 The active `SettingsUser.json` SHA-256 is
 `F4938BCB975120ECC627A42BDA3EA69C3F3AEE9837EFED6C51203469A2BA6234`.
 
@@ -132,13 +132,13 @@ used for selection.
 The prepared run recipe is:
 
 ```text
-parent: E:\OpenNR_Training\fullres_aux_oversample_v65_probe_0.5.5_20260906\best_mae.pt
-old temporal cache: E:\OpenNR_TrainingInputs\OpenNR_RawCropCache_StrictAllCohortsNextGrid_0.5.5_20260906
-new temporal cache: E:\OpenNR_RawCropCache_VariedHighEffectTemporalClean_0.5.5_20260907
+parent: <DATA_ROOT>\OpenNR_Training\fullres_aux_oversample_v65_probe_0.5.5_20260906\best_mae.pt
+old temporal cache: <DATA_ROOT>\OpenNR_TrainingInputs\OpenNR_RawCropCache_StrictAllCohortsNextGrid_0.5.5_20260906
+new temporal cache: <DATA_ROOT>\OpenNR_RawCropCache_VariedHighEffectTemporalClean_0.5.5_20260907
 new temporal probability: 0.35
-spatial cache: C:\OpenNR_Cache_VariedHighEffectSpatialAllCrops_0.5.5_20260907
+spatial cache: <DATA_ROOT>\OpenNR_Cache_VariedHighEffectSpatialAllCrops_0.5.5_20260907
 spatial probability: 0.25
-output: E:\OpenNR_Training\high_effect_mixture_v75_probe_0.5.5_20260907
+output: <DATA_ROOT>\OpenNR_Training\high_effect_mixture_v75_probe_0.5.5_20260907
 ```
 
 This gives the new high-effect domain substantially more exposure than its
@@ -149,7 +149,7 @@ paused in this state because another Codex task is using the GPU.
 ## Storage and provenance
 
 The old cache was copied from the verified cold archive
-`G:\OpenNR_ColdStorage\OpenNR_RawCropCache_StrictAllCohortsNextGrid_0.5.5_20260906`
+`<DATA_ROOT>\OpenNR_ColdStorage\OpenNR_RawCropCache_StrictAllCohortsNextGrid_0.5.5_20260906`
 to the E: staging path above. All 8 files and 65.500 GiB were copied with zero
 robocopy mismatches, then size and SHA-256 verified file by file. The G: copy
 remains intact as the cold/archive source. No raw capture, selected checkpoint,
@@ -180,7 +180,7 @@ and the applicable terms.
 The active isolated profile has the renderer-conditioning capture flags enabled
 and the bounded pilot configured for eight-frame, one-crop, both-eye sequences.
 The output root is
-`C:\OpenNR_Captures_RendererConditioningPilot_0.5.5_20260907`; it was rechecked
+`<DATA_ROOT>\OpenNR_Captures_RendererConditioningPilot_0.5.5_20260907`; it was rechecked
 after the local Arm-C follow-up pilots and contains no files yet.
 
 This probe is therefore still a capture prerequisite, not a training result.
@@ -196,7 +196,7 @@ The first renderer-conditioning pilot was structurally valid but semantically
 empty: all seven eight-frame sequences requested renderer conditionings while
 recording none. Those sequences were moved, with their files and byte sizes
 preserved, to
-`C:\OpenNR_Captures_RendererConditioningPilot_0.5.5_20260907_discarded_no_renderer_conditionings_20260907`.
+`<DATA_ROOT>\OpenNR_Captures_RendererConditioningPilot_0.5.5_20260907_discarded_no_renderer_conditionings_20260907`.
 They are quarantined rather than permanently deleted.
 
 The local OpenNR runtime was rebuilt so the six deferred G-buffer targets are
@@ -228,7 +228,7 @@ The public test build is a separate artifact and must remain OpenNR-free:
   with no OpenNR entries.
 - Historical generated public-build residue, including the old manual-stage
   and zip output trees, was moved recoverably under
-  `D:\.CODEX_Projects\DLSS_5_SKYRIM\vendor\open-shaders-dlssnr-vr-091bfb4d\_quarantine_public_build_stale_20260907`.
+  `<LEGACY_REPO>\vendor\open-shaders-dlssnr-vr-091bfb4d\_quarantine_public_build_stale_20260907`.
   The source tree intentionally retains OpenNR sources for the separate
   OpenNR build; that source presence does not make them part of the public
   target or package.

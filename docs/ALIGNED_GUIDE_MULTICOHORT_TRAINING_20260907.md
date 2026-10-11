@@ -8,7 +8,7 @@ Continue improving the OpenNR model toward MAE 0.011 using current data and docu
 
 The legacy raw crop builder calls `sample_guide` with box `[0,0,512,512]` and source color size `[512,512]` even when native guide and teacher crops cover different regions. Sample metadata has teacher source 2496x2688 and crop (992,1088,512,512), but native source 1664x1792 and crop (576,640,512,512). The teacher crop corresponds to native crop-relative box `(85.3333,85.3333,341.3333,341.3333)`, not the complete native 512-pixel crop.
 
-Training-only reconstruction checks sampled 12 rows from each of the prior and high-effect caches. Twenty raw-accessible samples exactly reproduced saved legacy guide tensors; all twenty differed after correcting only the coordinate box with the same bilinear/strict-valid sampler. Four initially missing samples reference the relocated next-grid capture tree, found at `G:\OpenNR_ColdStorage\OpenNR_RawCaptures_20260907\OpenNR_Captures_NextGridPilot_0.5.5_20260906`.
+Training-only reconstruction checks sampled 12 rows from each of the prior and high-effect caches. Twenty raw-accessible samples exactly reproduced saved legacy guide tensors; all twenty differed after correcting only the coordinate box with the same bilinear/strict-valid sampler. Four initially missing samples reference the relocated next-grid capture tree, found at `<DATA_ROOT>\OpenNR_ColdStorage\OpenNR_RawCaptures_20260907\OpenNR_Captures_NextGridPilot_0.5.5_20260906`.
 
 This confirms a training-input spatial mapping defect, not its effect size on model MAE. Corrected inference may initially regress a model trained on misaligned guides. A controlled continuation is required.
 
@@ -33,7 +33,7 @@ The analytic pixel-center, invalid-support, coverage-boundary and test-denial te
 
 ## Paths
 
-Guide overlays: `E:\OpenNR_TrainingInputs\AlignedGuides_AllCohorts_20260907`, `AlignedGuides_HighEffect_20260907`, `AlignedGuides_RendererPilot_20260907`.
+Guide overlays: `<DATA_ROOT>\OpenNR_TrainingInputs\AlignedGuides_AllCohorts_20260907`, `AlignedGuides_HighEffect_20260907`, `AlignedGuides_RendererPilot_20260907`.
 
 Diagnostic evidence: `out/legacy_guide_mapping_audit_same_sampler_20260907.json`.
 
@@ -43,7 +43,7 @@ Trainer: `tools/train_aligned_multicohort.py`; read-only loader: `tools/aligned_
 
 All three overlays completed. Their populated training/validation eye-row counts are 29,568 prior, 2,816 high-effect, and 1,024 latest pilot (33,408 total). RGB arrays were not duplicated or changed. Original metadata identities and source guide payloads were hashed; output array hashes are in each `complete.json`.
 
-The corrected full-model run is active at `E:\OpenNR_Training\alignment_multicohort_20260907\corrected`. All 3,480,979 existing parameters train. Training includes 184/17/6 sequences in the three cohorts, with 47/5/2 validation sequences. The parent baseline with corrected guides is MAE 0.019748280 / 0.019429492 / 0.019413111, respectively. These starting values do not themselves demonstrate improvement.
+The corrected full-model run is active at `<DATA_ROOT>\OpenNR_Training\alignment_multicohort_20260907\corrected`. All 3,480,979 existing parameters train. Training includes 184/17/6 sequences in the three cohorts, with 47/5/2 validation sequences. The parent baseline with corrected guides is MAE 0.019748280 / 0.019429492 / 0.019413111, respectively. These starting values do not themselves demonstrate improvement.
 
 The first 50 steps completed with finite loss; logged peak Torch allocation was 6.210 GiB. The existing-guide control is queued after successful completion of the corrected arm in the same live execution session. Each arm is bounded to 1,200 steps and validation at 0/400/800/1,200. A failure stops the queued chain. Read `status.json`, `history.json`, and `selection.json` for current state; do not restart based on stale progress text.
 
@@ -81,7 +81,7 @@ Corrected mapping beats the matched trained control on high-effect and latest MA
 
 Corrected temporal-delta MAE is 0.008491112 / 0.007729436 / 0.009993354, compared with original-input parent 0.008520315 / 0.007934997 / 0.010550665. All three improve against that parent; against the trained control, corrected is slightly worse on high-effect temporal error. These offline metrics do not establish live headset quality or VR frame time.
 
-Fixed first/middle/last validation sequences, both eyes at frame 32 after causal history, are rendered in `E:\OpenNR_Training\alignment_multicohort_20260907\visuals\index.html`. All three PNG sheets were inspected: labels/order are readable, but teacher texture/contrast remains visibly different, particularly face and dark wall details. Images are unenhanced display comparisons, not evidence of exact teacher equivalence. No test images are used here.
+Fixed first/middle/last validation sequences, both eyes at frame 32 after causal history, are rendered in `<DATA_ROOT>\OpenNR_Training\alignment_multicohort_20260907\visuals\index.html`. All three PNG sheets were inspected: labels/order are readable, but teacher texture/contrast remains visibly different, particularly face and dark wall details. Images are unenhanced display comparisons, not evidence of exact teacher equivalence. No test images are used here.
 
 ### Future-cache regression prevention
 
@@ -93,4 +93,4 @@ Next research priority: preserve prior-cohort appearance while retaining the new
 
 ### Saved-checkpoint verification completed
 
-`tools/verify_alignment_ablation.py` reloaded both selected checkpoints and replayed all 54 validation sequences per model. MAE, PSNR, and temporal-delta MAE reproduced exactly for all six arm/cohort comparisons. Evidence: `E:\OpenNR_Training\alignment_multicohort_20260907\checkpoint_verification.json`. Verification exited successfully; both training arms and their verification/render jobs are finished. The target goal remains unachieved, but this comparison is complete.
+`tools/verify_alignment_ablation.py` reloaded both selected checkpoints and replayed all 54 validation sequences per model. MAE, PSNR, and temporal-delta MAE reproduced exactly for all six arm/cohort comparisons. Evidence: `<DATA_ROOT>\OpenNR_Training\alignment_multicohort_20260907\checkpoint_verification.json`. Verification exited successfully; both training arms and their verification/render jobs are finished. The target goal remains unachieved, but this comparison is complete.

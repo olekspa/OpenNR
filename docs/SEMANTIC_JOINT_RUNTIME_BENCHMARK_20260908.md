@@ -43,15 +43,15 @@ deployment artifact and does not replace the checkpoint or the training run.
 
 | Artifact | Location | SHA-256 |
 | --- | --- | --- |
-| Source checkpoint | `C:\OpenNR\Training\semantic_parent_seed812_joint1200_20260908\best_all_cohorts.pt` | `a233c7bda73ffd1cbc5af268fbbdf01afcc9e3acad106effd29d88e1f498509` |
-| Inference bundle | `C:\OpenNR\Inference\semantic_joint_seed812_update1200_20260908\bundle.pt` | `fa2f7c3626cef474f56ffe0d2d3632316cfb09d4acf0d785dda506a5d47ffe57` |
-| 33% FP32-ONNX graph | `C:\OpenNR\Inference\semantic_joint_seed812_update1200_20260908\trt_33pct_824x887\semantic_joint_runtime.onnx` | `c65adf8ba2af8b0740ce9a2f0e8123fa8073250f77addaf38270f89adbfc448a` |
-| 33% optimized FP16-I/O engine | `C:\OpenNR\Inference\semantic_joint_seed812_update1200_20260908\trt_33pct_824x887_fp16io_opt5\semantic_joint_fp16_io.engine` | `0fefafe6c12f91f72c2201b7ed0254233d86a66d618d79319ee1d2d8e4b41562` |
-| Native TensorRT ABI probe | `C:\OpenNR\Inference\semantic_trt_cpp_probe.exe` | `321aad2efdaee83ee484b511bbb85f57f26a0a8f87142ab25bd08928d0964360` |
-| Native D3D11/CUDA/TensorRT bridge probe | `C:\OpenNR\Inference\semantic_trt_d3d11_bridge_probe.exe` | compiled and passed against the engine |
+| Source checkpoint | `<OPENNR_DATA>\Training\semantic_parent_seed812_joint1200_20260908\best_all_cohorts.pt` | `a233c7bda73ffd1cbc5af268fbbdf01afcc9e3acad106effd29d88e1f498509` |
+| Inference bundle | `<OPENNR_DATA>\Inference\semantic_joint_seed812_update1200_20260908\bundle.pt` | `fa2f7c3626cef474f56ffe0d2d3632316cfb09d4acf0d785dda506a5d47ffe57` |
+| 33% FP32-ONNX graph | `<OPENNR_DATA>\Inference\semantic_joint_seed812_update1200_20260908\trt_33pct_824x887\semantic_joint_runtime.onnx` | `c65adf8ba2af8b0740ce9a2f0e8123fa8073250f77addaf38270f89adbfc448a` |
+| 33% optimized FP16-I/O engine | `<OPENNR_DATA>\Inference\semantic_joint_seed812_update1200_20260908\trt_33pct_824x887_fp16io_opt5\semantic_joint_fp16_io.engine` | `0fefafe6c12f91f72c2201b7ed0254233d86a66d618d79319ee1d2d8e4b41562` |
+| Native TensorRT ABI probe | `<OPENNR_DATA>\Inference\semantic_trt_cpp_probe.exe` | `321aad2efdaee83ee484b511bbb85f57f26a0a8f87142ab25bd08928d0964360` |
+| Native D3D11/CUDA/TensorRT bridge probe | `<OPENNR_DATA>\Inference\semantic_trt_d3d11_bridge_probe.exe` | compiled and passed against the engine |
 
 The inference bundle manifest is at
-`C:\OpenNR\Inference\semantic_joint_seed812_update1200_20260908\manifest.json`.
+`<OPENNR_DATA>\Inference\semantic_joint_seed812_update1200_20260908\manifest.json`.
 It records the removed optimizer and RNG state, the parent/head tensor
 digests, and the reset contract. The full benchmark JSON files are kept beside
 the bundle rather than being copied into the active game installation.
@@ -91,7 +91,7 @@ headset presentation.
 
 The real-capture benchmark used preserved full-resolution color, depth, and
 motion-vector files from
-`C:\OpenNR_Captures_FullRes_Pilot_20260904\seq-1788564568291-1`. The native
+`<DATA_ROOT>\OpenNR_Captures_FullRes_Pilot_20260904\seq-1788564568291-1`. The native
 guide/context preprocessing plus both model-surface resizes took `1.763 ms`
 sequentially on the GPU. Adding that measured preparation cost to the forward
 timing gives approximately `18.770 ms` median, `19.327 ms` p95, and
@@ -171,7 +171,7 @@ builder repeatedly reported unsupported FP8 reformats, unimplemented scalar
 types, and fallback reformat assertions. The isolated builder was stopped after
 the bounded attempt; no FP8 engine was accepted. The Q/DQ graph, calibration
 archive, log, and candidate manifest remain under
-`C:\OpenNR\Inference\semantic_joint_seed812_update1200_20260908\fp8_33pct_capture`.
+`<OPENNR_DATA>\Inference\semantic_joint_seed812_update1200_20260908\fp8_33pct_capture`.
 
 NVFP4 was then tested as a narrower one-node weight-only candidate. The
 installed ModelOpt NVFP4 exporter produced a valid explicit FP4E2M1 graph for
@@ -181,7 +181,7 @@ the graph but failed to serialize even this single quantized node with the same
 `Unsupported data type FP8` cuTENSOR/reformat errors, plus packed-reformat and
 unimplemented-scalar-type failures. The candidate graph and manifest remain
 under
-`C:\OpenNR\Inference\semantic_joint_seed812_update1200_20260908\nvfp4_33pct_selective_probe`.
+`<OPENNR_DATA>\Inference\semantic_joint_seed812_update1200_20260908\nvfp4_33pct_selective_probe`.
 This makes both FP8 and NVFP4 toolchain follow-ups rather than immediate speed
 options in the current installed builder. More nodes must not be quantized into
 this path until a compatible native FP4/FP8 build stack is available.
@@ -214,10 +214,10 @@ from the frozen bundle.
 
 ## Source benchmark files
 
-- [inference bundle manifest](C:/OpenNR/Inference/semantic_joint_seed812_update1200_20260908/manifest.json)
-- [optimized synthetic benchmark](C:/OpenNR/Inference/semantic_joint_seed812_update1200_20260908/benchmark_tensorrt_fp16io_opt5_33pct_824x887_compare.json)
-- [optimized preserved-capture benchmark](C:/OpenNR/Inference/semantic_joint_seed812_update1200_20260908/benchmark_tensorrt_fp16io_opt5_33pct_actual_capture_frame1_v2.json)
-- [optimized TensorRT engine](C:/OpenNR/Inference/semantic_joint_seed812_update1200_20260908/trt_33pct_824x887_fp16io_opt5/semantic_joint_fp16_io.engine)
+- [inference bundle manifest](<OPENNR_DATA>/Inference/semantic_joint_seed812_update1200_20260908/manifest.json)
+- [optimized synthetic benchmark](<OPENNR_DATA>/Inference/semantic_joint_seed812_update1200_20260908/benchmark_tensorrt_fp16io_opt5_33pct_824x887_compare.json)
+- [optimized preserved-capture benchmark](<OPENNR_DATA>/Inference/semantic_joint_seed812_update1200_20260908/benchmark_tensorrt_fp16io_opt5_33pct_actual_capture_frame1_v2.json)
+- [optimized TensorRT engine](<OPENNR_DATA>/Inference/semantic_joint_seed812_update1200_20260908/trt_33pct_824x887_fp16io_opt5/semantic_joint_fp16_io.engine)
 - [native TensorRT C++ probe source](../tools/semantic_trt_cpp_probe.cpp)
 - [native D3D11/CUDA/TensorRT bridge probe source](../tools/semantic_trt_d3d11_bridge_probe.cpp)
 - [selective NVFP4 candidate preparation tool](../tools/prepare_semantic_joint_nvfp4_onnx.py)

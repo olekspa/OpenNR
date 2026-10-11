@@ -122,7 +122,7 @@ size, as the principal speed gap.
 
 Source sequence:
 
-`C:\OpenNR_Captures_FullEyeTemporalStateTranche_20260910\seq-1789063628889-1`
+`<DATA_ROOT>\OpenNR_Captures_FullEyeTemporalStateTranche_20260910\seq-1789063628889-1`
 
 The replay uses frames 1–8 from the same sequence, both eyes, with a reset on
 the first frame and state carried through the remaining frames. The full
@@ -268,7 +268,7 @@ critical path.
 ## TensorRT runtime result
 
 TensorRT 10.13.3.9 CUDA 12 bindings were installed in the isolated
-`C:\OpenNR\Tools\OpenNRTrainVenv` environment. Fixed-shape FP16 engines were
+`<OPENNR_DATA>\Tools\OpenNRTrainVenv` environment. Fixed-shape FP16 engines were
 exported from the actual trained checkpoints; no engine was installed into a
 game or live OpenNR deployment.
 
@@ -389,11 +389,11 @@ This changes the diagnosis of the project:
 The corrected-target training script, checkpoint, replay result, engine, and
 clean speed measurement are:
 
-* `D:\.CODEX_Projects\OpenNR-VR\tools\train_fast_student_reduced_native_target_20260912.py`
-* `D:\.CODEX_Projects\OpenNR-VR\out\fast_student_native50_target_h16_m32_t32_b1_20260912\best.pt`
-* `D:\.CODEX_Projects\OpenNR-VR\out\fast_student_native50_target_h16_m32_t32_b1_20260912\result.json`
-* `D:\.CODEX_Projects\OpenNR-VR\out\fast_student_trt_native50_target_h16_m32_t32_b1_context96_20260912\fast_student_v1_fp16_io.engine`
-* `D:\.CODEX_Projects\OpenNR-VR\out\fast_student_trt_native50_target_full_eye_seq1_context96_20260912\result.json`
+* `<REPO>\tools\train_fast_student_reduced_native_target_20260912.py`
+* `<REPO>\out\fast_student_native50_target_h16_m32_t32_b1_20260912\best.pt`
+* `<REPO>\out\fast_student_native50_target_h16_m32_t32_b1_20260912\result.json`
+* `<REPO>\out\fast_student_trt_native50_target_h16_m32_t32_b1_context96_20260912\fast_student_v1_fp16_io.engine`
+* `<REPO>\out\fast_student_trt_native50_target_full_eye_seq1_context96_20260912\result.json`
 
 The engine benchmark is an isolated resident-tensor measurement, not a live
 Skyrim frame-time test. No engine, checkpoint, or evaluator was installed in
@@ -525,28 +525,28 @@ capture/training spend.
 
 The new replay, training, and control artifacts are:
 
-* `D:\.CODEX_Projects\OpenNR-VR\out\native_sequence_scale_50_seq2_f1-16_20260912\input_manifest.json`
-* `D:\.CODEX_Projects\OpenNR-VR\out\native_sequence_scale_50_seq2_f1-16_eval_20260912\result.json`
-* `D:\.CODEX_Projects\OpenNR-VR\out\native_sequence_scale_50_seq4_f1-16_20260912\input_manifest.json`
-* `D:\.CODEX_Projects\OpenNR-VR\out\native_sequence_scale_50_seq4_f1-16_eval_20260912\result.json`
-* `D:\.CODEX_Projects\OpenNR-VR\out\native_sequence_scale_50_seq5_f1-16_20260912\input_manifest.json`
-* `D:\.CODEX_Projects\OpenNR-VR\out\native_sequence_scale_50_seq5_f1-16_eval_20260912\result.json`
-* `D:\.CODEX_Projects\OpenNR-VR\out\fast_student_trt_native50_target_full_eye_seq2_context96_20260912\result.json`
-* `D:\.CODEX_Projects\OpenNR-VR\out\fast_student_native50_target_multiseq12_h16_m32_t32_b1_cont50_20260912\result.json`
-* `D:\.CODEX_Projects\OpenNR-VR\out\fast_student_native50_target_multiseq12_test_seq4_20260912\result.json`
-* `D:\.CODEX_Projects\OpenNR-VR\out\fast_student_native50_target_multiseq12_test_seq5_20260912\result.json`
-* `D:\.CODEX_Projects\OpenNR-VR\out\fast_student_native50_target_multiseq124_h32_m64_t64_b2_50steps_20260912\history.jsonl`
-* `D:\.CODEX_Projects\OpenNR-VR\out\fast_student_native50_target_multiseq124_h32_m64_t64_b2_short4f_20260912\history.jsonl`
-* `D:\.CODEX_Projects\OpenNR-VR\tools\train_fast_student_reduced_native_multiseq_20260912.py`
-* `D:\.CODEX_Projects\OpenNR-VR\tools\train_fast_student_reduced_native_streaming_20260912.py`
-* `D:\.CODEX_Projects\OpenNR-VR\out\fast_student_native50_target_streaming346_crop512_bptt4_10steps_20260912\result.json`
-* `D:\.CODEX_Projects\OpenNR-VR\out\fast_student_native50_target_streaming346_crop512_bptt4_half10_20260912\result.json`
-* `D:\.CODEX_Projects\OpenNR-VR\out\visual_comparison_seq5_students_20260912\frame_00000008_eye0_full_comparison.jpg`
-* `D:\.CODEX_Projects\OpenNR-VR\out\visual_comparison_seq5_students_20260912\frame_00000008_eye0_face_comparison.jpg`
-* `D:\.CODEX_Projects\OpenNR-VR\out\visual_comparison_seq5_students_20260912\frame_00000001_eye0_detail_comparison.jpg`
-* `D:\.CODEX_Projects\OpenNR-VR\out\visual_comparison_seq5_students_20260912\frame_00000016_eye0_detail_comparison.jpg`
-* `D:\.CODEX_Projects\OpenNR-VR\tools\evaluate_fast_student_reduced_native_checkpoint_20260912.py`
-* `D:\.CODEX_Projects\OpenNR-VR\tools\fit_affine_scale_resolve_multiseq_20260912.py`
+* `<REPO>\out\native_sequence_scale_50_seq2_f1-16_20260912\input_manifest.json`
+* `<REPO>\out\native_sequence_scale_50_seq2_f1-16_eval_20260912\result.json`
+* `<REPO>\out\native_sequence_scale_50_seq4_f1-16_20260912\input_manifest.json`
+* `<REPO>\out\native_sequence_scale_50_seq4_f1-16_eval_20260912\result.json`
+* `<REPO>\out\native_sequence_scale_50_seq5_f1-16_20260912\input_manifest.json`
+* `<REPO>\out\native_sequence_scale_50_seq5_f1-16_eval_20260912\result.json`
+* `<REPO>\out\fast_student_trt_native50_target_full_eye_seq2_context96_20260912\result.json`
+* `<REPO>\out\fast_student_native50_target_multiseq12_h16_m32_t32_b1_cont50_20260912\result.json`
+* `<REPO>\out\fast_student_native50_target_multiseq12_test_seq4_20260912\result.json`
+* `<REPO>\out\fast_student_native50_target_multiseq12_test_seq5_20260912\result.json`
+* `<REPO>\out\fast_student_native50_target_multiseq124_h32_m64_t64_b2_50steps_20260912\history.jsonl`
+* `<REPO>\out\fast_student_native50_target_multiseq124_h32_m64_t64_b2_short4f_20260912\history.jsonl`
+* `<REPO>\tools\train_fast_student_reduced_native_multiseq_20260912.py`
+* `<REPO>\tools\train_fast_student_reduced_native_streaming_20260912.py`
+* `<REPO>\out\fast_student_native50_target_streaming346_crop512_bptt4_10steps_20260912\result.json`
+* `<REPO>\out\fast_student_native50_target_streaming346_crop512_bptt4_half10_20260912\result.json`
+* `<REPO>\out\visual_comparison_seq5_students_20260912\frame_00000008_eye0_full_comparison.jpg`
+* `<REPO>\out\visual_comparison_seq5_students_20260912\frame_00000008_eye0_face_comparison.jpg`
+* `<REPO>\out\visual_comparison_seq5_students_20260912\frame_00000001_eye0_detail_comparison.jpg`
+* `<REPO>\out\visual_comparison_seq5_students_20260912\frame_00000016_eye0_detail_comparison.jpg`
+* `<REPO>\tools\evaluate_fast_student_reduced_native_checkpoint_20260912.py`
+* `<REPO>\tools\fit_affine_scale_resolve_multiseq_20260912.py`
 
 The 346k timing above remains about 1.78 ms per eye in steady state. A newer
 clean resident benchmark of the corrected 99k engine measured 1.0488 ms on
@@ -563,12 +563,12 @@ sequence on the engine stream until timing is complete.
 
 The reproducible full-eye evaluator and result are:
 
-* `D:\.CODEX_Projects\OpenNR-VR\tools\evaluate_fast_student_trt_full_eye.py`
-* `D:\.CODEX_Projects\OpenNR-VR\out\fast_student_trt_full_eye_seq1_context48_rerun_20260912\result.json`
-* `D:\.CODEX_Projects\OpenNR-VR\out\fast_student_trt_full_eye_seq1_context96_20260912\result.json`
-* `D:\.CODEX_Projects\OpenNR-VR\out\fast_student_trt_full_eye_seq1_context48_rerun_20260912\previews\`
-* `D:\.CODEX_Projects\OpenNR-VR\out\fast_student_trt_half_trained_h32_m64_t64_b2_context96_20260912\engine_manifest.json`
-* `D:\.CODEX_Projects\OpenNR-VR\out\fast_student_trt_half_trained_h32_m64_t64_b2_context96_20260912\numerical_check.json`
+* `<REPO>\tools\evaluate_fast_student_trt_full_eye.py`
+* `<REPO>\out\fast_student_trt_full_eye_seq1_context48_rerun_20260912\result.json`
+* `<REPO>\out\fast_student_trt_full_eye_seq1_context96_20260912\result.json`
+* `<REPO>\out\fast_student_trt_full_eye_seq1_context48_rerun_20260912\previews\`
+* `<REPO>\out\fast_student_trt_half_trained_h32_m64_t64_b2_context96_20260912\engine_manifest.json`
+* `<REPO>\out\fast_student_trt_half_trained_h32_m64_t64_b2_context96_20260912\numerical_check.json`
 
 The preview images are useful for visual inspection, but they are not a
 headset or motion-quality acceptance test. The exact native 50% composite is
@@ -677,36 +677,36 @@ be wasteful until the temporal objective and validation cadence are adjusted.
 
 The new reproducible artifacts are:
 
-* `D:\.CODEX_Projects\OpenNR-VR\tools\fit_affine_scale_resolve_20260912.py`
-* `D:\.CODEX_Projects\OpenNR-VR\tools\benchmark_scale_resolve_student_20260912.py`
-* `D:\.CODEX_Projects\OpenNR-VR\tools\benchmark_affine_fused_triton_20260912.py`
-* `D:\.CODEX_Projects\OpenNR-VR\out\affine_scale_resolve_50_seq1_f1-8_20260912\result.json`
-* `D:\.CODEX_Projects\OpenNR-VR\out\affine_fused_triton_50_frame1_20260912\result.json`
-* `D:\.CODEX_Projects\OpenNR-VR\out\affine_fused_triton_50_f1_7_8_20260912\result.json`
-* `D:\.CODEX_Projects\OpenNR-VR\out\affine_fused_triton_50_full_validation_20260912\result.json`
-* `D:\.CODEX_Projects\OpenNR-VR\out\affine_scale_resolve_75_seq1_f1-8_20260912\result.json`
-* `D:\.CODEX_Projects\OpenNR-VR\out\affine_fused_triton_75_frame1_20260912\result.json`
-* `D:\.CODEX_Projects\OpenNR-VR\out\affine_fused_triton_75_f1_7_8_20260912\result.json`
-* `D:\.CODEX_Projects\OpenNR-VR\out\native_sequence_scale_50_seq1_f1-8_eval_20260912\result.json`
-* `D:\.CODEX_Projects\OpenNR-VR\out\native_sequence_scale_75_seq1_f1-8_20260912\timings.csv`
-* `D:\.CODEX_Projects\OpenNR-VR\out\scale_resolve_student_rgb_h4_l1_50_seq1_f1-8_20260912\result.json`
-* `D:\.CODEX_Projects\OpenNR-VR\out\scale_resolve_student_50_seq1_f1-8_20260912\result.json`
-* `D:\.CODEX_Projects\OpenNR-VR\out\scale_resolve_guided_student_50_seq1_f1-8_20260912\result.json`
-* `D:\.CODEX_Projects\OpenNR-VR\tools\fast_student_v1.py`
-* `D:\.CODEX_Projects\OpenNR-VR\tools\benchmark_fast_student.py`
-* `D:\.CODEX_Projects\OpenNR-VR\tools\train_fast_student.py`
-* `D:\.CODEX_Projects\OpenNR-VR\tools\compare_fast_student_trt.py`
-* `D:\.CODEX_Projects\OpenNR-VR\tools\evaluate_fast_student.py`
-* `D:\.CODEX_Projects\OpenNR-VR\out\fast_student_scale50_h32_m64_t64_b2_lr5e5_delta05_20260912\best_mae.pt`
-* `D:\.CODEX_Projects\OpenNR-VR\out\fast_student_scale50_h32_m64_t64_b2_lr5e5_delta05_20260912\test_result.json`
-* `D:\.CODEX_Projects\OpenNR-VR\out\fast_student_scale50_h16_m32_t32_b1_lr5e5_delta05_20260912\best_mae.pt`
-* `D:\.CODEX_Projects\OpenNR-VR\out\fast_student_scale50_h16_m32_t32_b1_lr5e5_delta05_20260912\test_result.json`
-* `D:\.CODEX_Projects\OpenNR-VR\out\fast_student_trt_half_trained_h32_m64_t64_b2_20260912\engine_manifest.json`
-* `D:\.CODEX_Projects\OpenNR-VR\out\fast_student_trt_half_trained_h32_m64_t64_b2_20260912\numerical_check.json`
-* `D:\.CODEX_Projects\OpenNR-VR\out\fast_student_trt_half_trained_h16_m32_t32_b1_20260912\engine_manifest.json`
-* `D:\.CODEX_Projects\OpenNR-VR\out\fast_student_trt_half_trained_h16_m32_t32_b1_20260912\numerical_check.json`
-* `D:\.CODEX_Projects\OpenNR-VR\out\fast_student_trt_half_trained_h32_m64_t64_b2_20260912\fast_student_v1_fp16_io.engine`
-* `D:\.CODEX_Projects\OpenNR-VR\out\fast_student_trt_half_trained_h16_m32_t32_b1_20260912\fast_student_v1_fp16_io.engine`
+* `<REPO>\tools\fit_affine_scale_resolve_20260912.py`
+* `<REPO>\tools\benchmark_scale_resolve_student_20260912.py`
+* `<REPO>\tools\benchmark_affine_fused_triton_20260912.py`
+* `<REPO>\out\affine_scale_resolve_50_seq1_f1-8_20260912\result.json`
+* `<REPO>\out\affine_fused_triton_50_frame1_20260912\result.json`
+* `<REPO>\out\affine_fused_triton_50_f1_7_8_20260912\result.json`
+* `<REPO>\out\affine_fused_triton_50_full_validation_20260912\result.json`
+* `<REPO>\out\affine_scale_resolve_75_seq1_f1-8_20260912\result.json`
+* `<REPO>\out\affine_fused_triton_75_frame1_20260912\result.json`
+* `<REPO>\out\affine_fused_triton_75_f1_7_8_20260912\result.json`
+* `<REPO>\out\native_sequence_scale_50_seq1_f1-8_eval_20260912\result.json`
+* `<REPO>\out\native_sequence_scale_75_seq1_f1-8_20260912\timings.csv`
+* `<REPO>\out\scale_resolve_student_rgb_h4_l1_50_seq1_f1-8_20260912\result.json`
+* `<REPO>\out\scale_resolve_student_50_seq1_f1-8_20260912\result.json`
+* `<REPO>\out\scale_resolve_guided_student_50_seq1_f1-8_20260912\result.json`
+* `<REPO>\tools\fast_student_v1.py`
+* `<REPO>\tools\benchmark_fast_student.py`
+* `<REPO>\tools\train_fast_student.py`
+* `<REPO>\tools\compare_fast_student_trt.py`
+* `<REPO>\tools\evaluate_fast_student.py`
+* `<REPO>\out\fast_student_scale50_h32_m64_t64_b2_lr5e5_delta05_20260912\best_mae.pt`
+* `<REPO>\out\fast_student_scale50_h32_m64_t64_b2_lr5e5_delta05_20260912\test_result.json`
+* `<REPO>\out\fast_student_scale50_h16_m32_t32_b1_lr5e5_delta05_20260912\best_mae.pt`
+* `<REPO>\out\fast_student_scale50_h16_m32_t32_b1_lr5e5_delta05_20260912\test_result.json`
+* `<REPO>\out\fast_student_trt_half_trained_h32_m64_t64_b2_20260912\engine_manifest.json`
+* `<REPO>\out\fast_student_trt_half_trained_h32_m64_t64_b2_20260912\numerical_check.json`
+* `<REPO>\out\fast_student_trt_half_trained_h16_m32_t32_b1_20260912\engine_manifest.json`
+* `<REPO>\out\fast_student_trt_half_trained_h16_m32_t32_b1_20260912\numerical_check.json`
+* `<REPO>\out\fast_student_trt_half_trained_h32_m64_t64_b2_20260912\fast_student_v1_fp16_io.engine`
+* `<REPO>\out\fast_student_trt_half_trained_h16_m32_t32_b1_20260912\fast_student_v1_fp16_io.engine`
 
 All outputs are isolated under `out`; no live Skyrim, MGO, Feature 18, or
 known-good deployment files were changed. The experiment records

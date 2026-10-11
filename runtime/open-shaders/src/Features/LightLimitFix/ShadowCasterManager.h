@@ -290,6 +290,18 @@ namespace ShadowCasterManager
 		/// candidates, instead of always spending the full budget -- see
 		/// ShadowDemandSample::redrawDueGate for the dirty/clean partition.
 		bool RedrawDueGateEnabled = true;
+
+		/// Keep unshadowed spot lights visible when their atlas tile is unavailable.
+		/// Explicit suppression/solo remains fully dark.
+		bool FailOpenSpotlightWithoutShadowTile = true;
+
+		/// Drain a pending scene teardown reset at the first schedule boundary where
+		/// the shadow scene and portal graph are safe to touch.
+		bool BoundedSessionResetDrain = true;
+
+		/// Use a per-frame EMA radius anchor for shadow admission, scoring and redraw decisions.
+		/// Disable to restore 2.20.5 decision inputs while retaining its hash-only EMA behavior.
+		bool AnchorLightRadiusForShadowDecisions = true;
 	};
 
 	/// Legacy score formula strings kept for settings migration.
@@ -326,7 +338,10 @@ namespace ShadowCasterManager
 		ImportanceMaxScale,
 		RedrawIntervalMaxFrames,
 		SkipZeroDemandRedraw,
-		RedrawDueGateEnabled)
+		RedrawDueGateEnabled,
+		FailOpenSpotlightWithoutShadowTile,
+		BoundedSessionResetDrain,
+		AnchorLightRadiusForShadowDecisions)
 
 	/// Restart-gated hook toggles applied at boot.
 	inline constexpr Util::Settings::RestartTable<Settings, 7> kRestartFields{ {
@@ -573,6 +588,27 @@ namespace ShadowCasterManager
 		/// scenegraph name, then form ID) so a table row identifies the light.
 		std::string name;
 	};
+
+	struct SpotlightFallbackCounters
+	{
+		uint32_t frame = 0;
+		uint32_t failedOpen = 0;
+		uint32_t forcedDark = 0;
+	};
+
+	struct DungeonShadowDiagnostics
+	{
+		bool resetPending = false;
+		uint32_t pendingAgeFrames = 0;
+		uint32_t skipGate = 0, skipVr = 0, skipScene = 0, skipPortal = 0;
+		uint64_t renderSessionReset = 0, renderPortal = 0, renderGate = 0, renderRace = 0;
+		bool gateClosing = false;
+		uint32_t gateReaders = 0;
+	};
+
+	void RecordSpotlightTileFallback(bool a_failedOpen);
+	SpotlightFallbackCounters GetSpotlightFallbackCounters();
+	DungeonShadowDiagnostics GetDungeonShadowDiagnostics();
 
 	/// Resets slot metadata for a new frame.  Call at the start of CopyShadowLightData.
 	void BeginSlotFrame(uint32_t slotCount);

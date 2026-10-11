@@ -20,8 +20,8 @@ Existing accepted cache inventory:
 
 | Cache | Source | Rows | Sequence split | Pass mode | Renderer channels |
 | --- | --- | ---: | --- | ---: | ---: |
-| Fresh one-pass | `C:\OpenNR_Captures_RendererConditioningPilot_0.5.5_20260907` | 3,456 | 16/5/6 | 1× | 17 |
-| Two-pass | `C:\OpenNR_Captures_2xDLSSNR_0.5.7_20260907` | 1,280 | 6/2/2 | 2× | 17 |
+| Fresh one-pass | `<DATA_ROOT>\OpenNR_Captures_RendererConditioningPilot_0.5.5_20260907` | 3,456 | 16/5/6 | 1× | 17 |
+| Two-pass | `<DATA_ROOT>\OpenNR_Captures_2xDLSSNR_0.5.7_20260907` | 1,280 | 6/2/2 | 2× | 17 |
 
 They preserve exact Feature 18-bound native depth and motion vectors, six
 renderer-owned stages, both eyes, 64-frame sequences, reset metadata and
@@ -32,7 +32,7 @@ differs. The current student therefore cannot be honestly described as
 distilling teacher state.
 
 The read-only readiness audit confirms this boundary on the existing fresh
-cache: [renderer state-pair audit](<E:/OpenNR_Training/renderer_state_pair_audit_existing_fresh_20260908_final/result.json>)
+cache: [renderer state-pair audit](<<DATA_ROOT>/OpenNR_Training/renderer_state_pair_audit_existing_fresh_20260908_final/result.json>)
 reports `ready=false` with zero state pairs. This is an expected preparation
 result, not a failure of the existing renderer-temporal cache.
 
@@ -43,17 +43,17 @@ student or state-behavior distillation arm be trained.
 ## Live capture profile armed
 
 The live profile is now pointed at the new empty raw-capture root
-`C:\OpenNR_Captures_RendererStateDistillation_0.5.7_20260908`; the old
-`C:\OpenNR_Captures_2xDLSSNR_0.5.7_20260907` root was not reused. The active
+`<DATA_ROOT>\OpenNR_Captures_RendererStateDistillation_0.5.7_20260908`; the old
+`<DATA_ROOT>\OpenNR_Captures_2xDLSSNR_0.5.7_20260907` root was not reused. The active
 settings file is
-`E:\MGO-RC3-fresh\overwrite\SKSE\Plugins\CommunityShaders\SettingsUser.json`.
+`<MO2_INSTANCE>\overwrite\SKSE\Plugins\CommunityShaders\SettingsUser.json`.
 The change preserved the existing capture contract: 64-frame bursts, both eyes,
 pre/post NR, raw teacher, native depth, native motion vectors, one 512x512 crop,
 and renderer conditionings enabled. The configured burst key remains virtual-key
 220 (the keyboard backslash key `\\`), not forward slash.
 
 Before the edit, the settings file was backed up and hash-verified at
-`E:\MGO-RC3-fresh\_OpenNR_Pilot_Backups\pre-renderer-state-output-root-20260908\SettingsUser.json`.
+`<MO2_INSTANCE>\_OpenNR_Pilot_Backups\pre-renderer-state-output-root-20260908\SettingsUser.json`.
 The original settings hash is
 `ba23dda38ac274864bcfa17ade761f8a447dab78966694de127cee8017d84c52`.
 The new root was created empty; no capture or game process was running during
@@ -67,7 +67,7 @@ records. The final post-capture strict crop audit accepts 37 sequences and
 excludes one sequence, `seq-1788876151201-8`, because it contains a mid-clip
 history reset and a 45-frame host transition gap. The excluded sequence is
 preserved; it is not repaired or deleted. The audit report is
-[renderer state capture validation](<E:/OpenNR_Training/renderer_state_capture_validate_final_20260908.json>).
+[renderer state capture validation](<<DATA_ROOT>/OpenNR_Training/renderer_state_capture_validate_final_20260908.json>).
 
 This exceeds the 24 accepted ordinary-sequence minimum. It does not yet prove
 that eight clean reset/warm state pairs exist: pair membership and exact
@@ -287,9 +287,9 @@ After the new cache and pair manifest exist, the read-only gate will be:
 
 ```powershell
 py -3.12 tools/audit_renderer_state_pairs.py `
-  --cache E:\OpenNR_TrainingInputs\RendererStateDistillation_<date> `
-  --pairs E:\OpenNR_TrainingInputs\RendererStateDistillation_<date>\state_pairs.json `
-  --output E:\OpenNR_Training\renderer_state_pair_audit_<date>
+  --cache <DATA_ROOT>\OpenNR_TrainingInputs\RendererStateDistillation_<date> `
+  --pairs <DATA_ROOT>\OpenNR_TrainingInputs\RendererStateDistillation_<date>\state_pairs.json `
+  --output <DATA_ROOT>\OpenNR_Training\renderer_state_pair_audit_<date>
 ```
 
 The current accepted one-pass and two-pass caches should not be relabeled as
@@ -299,15 +299,15 @@ and are preserved as prior cohorts.
 ## Completed first capture tranche — 2026-09-08
 
 The live renderer/state tranche is now audited. The raw root
-`C:\OpenNR_Captures_RendererStateDistillation_0.5.7_20260908` contains 38
+`<DATA_ROOT>\OpenNR_Captures_RendererStateDistillation_0.5.7_20260908` contains 38
 64-frame sequence folders. The strict crop temporal audit accepted 37 and
 preserved one exclusion, `seq-1788876151201-8`, because it contains a mid-clip
 history reset and a host-frame gap of 45. The final audit is at
-`E:\OpenNR_Training\renderer_state_capture_validate_final_20260908.json`.
+`<DATA_ROOT>\OpenNR_Training\renderer_state_capture_validate_final_20260908.json`.
 
 All 37 accepted sequences passed the decoded renderer-content and alignment
 audit. The new immutable aligned cache is
-`E:\OpenNR_TrainingInputs\RendererStateDistillation_20260908`, with 4,736 rows,
+`<DATA_ROOT>\OpenNR_TrainingInputs\RendererStateDistillation_20260908`, with 4,736 rows,
 17 conditioning channels and a 23/6/8 train/validation/test sequence split.
 The frozen test was not used for tuning. Its completion SHA-256 is
 `c699bb6464001b1b4cd3798a0bd33680fb02a6f224769829dbeab40ce4ce7f3c`. The cache
@@ -323,7 +323,7 @@ recurrent state arm is justified from this tranche.
 
 As the safe non-pair branch, a registered 400-step renderer-conditioned pilot
 was run at
-`E:\OpenNR_Training\renderer_state_conditioning_pilot_400_20260908`. Both the
+`<DATA_ROOT>\OpenNR_Training\renderer_state_conditioning_pilot_400_20260908`. Both the
 control and 17-channel conditioned arm selected step zero with validation MAE
 `0.0201330753`; test MAE was `0.0250988306` for both. Their selected checkpoint
 hashes are identical, and independent validation replay passed with a
@@ -336,15 +336,15 @@ The next step is a deliberate paired replay with at least eight pair units
 (normally 16 valid clips), followed by the formal pair audit. No Runpod spend,
 runtime change or production/public-build change is warranted by the current
 result. The live profile is now armed to write only to the empty
-`C:\OpenNR_Captures_RendererStatePairs_0.5.7_20260908` root. The pre-edit
+`<DATA_ROOT>\OpenNR_Captures_RendererStatePairs_0.5.7_20260908` root. The pre-edit
 settings backup is preserved at
-`E:\MGO-RC3-fresh\_OpenNR_Pilot_Backups\pre-renderer-state-pairs-output-root-20260908`.
+`<MO2_INSTANCE>\_OpenNR_Pilot_Backups\pre-renderer-state-pairs-output-root-20260908`.
 
 ## Follow-up status — strict temporal continuation and MLX parity — 2026-09-08
 
 The 37 accepted sequences were also materialized into the strict raw crop
 cache
-`D:\OpenNR_TrainingInputs\RendererStateDistillationStrict_20260908`.
+`<DATA_ROOT>\OpenNR_TrainingInputs\RendererStateDistillationStrict_20260908`.
 The cache contains 4,736 eye rows, reports `strict_initial_reset=true` and
 `temporal_training_allowed=true`, and retains the `[0, 842672]` depth/motion
 invalid-guide counts. Its `complete.json` SHA-256 is

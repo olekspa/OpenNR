@@ -16,10 +16,10 @@ FULL_WIDTH = 2496
 FULL_HEIGHT = 2688
 FRAME_NUMBER = 8
 SEQUENCE = Path(
-    r"C:\OpenNR_Captures_FullEyeTemporalStateTranche_20260910\seq-1789064397821-5"
+    r"<DATA_ROOT>\OpenNR_Captures_FullEyeTemporalStateTranche_20260910\seq-1789064397821-5"
 )
 FRAME = SEQUENCE / "frames" / f"frame_{FRAME_NUMBER:08d}"
-STUDY = Path(r"C:\OpenNR\NativeFaceResidualLadder_20260912")
+STUDY = Path(r"<OPENNR_DATA>\NativeFaceResidualLadder_20260912")
 OUTPUT = STUDY / "visuals"
 SCALES = (90, 75, 65, 50, 33)
 FACE_CROP = (1480, 700, 1980, 1300)

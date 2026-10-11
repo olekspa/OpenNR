@@ -33,7 +33,7 @@ for training:
 
 The rejected outputs are preserved under:
 
-`C:\OpenNR_GEN_Static_20260910\rejected_strength_028_smoke`
+`<DATA_ROOT>\OpenNR_GEN_Static_20260910\rejected_strength_028_smoke`
 
 The active static target root retains the corresponding raw and teacher images
 and the four lower-strength smoke outputs. The earlier `.28` outputs remain
@@ -69,9 +69,9 @@ The advisory numeric summary is:
 These scores are advisory only. They do not establish realism, identity, or
 material fidelity; the visual rejection above is the actual gate result.
 The full machine-readable result is
-`C:\OpenNR_GEN_Static_20260910\pilot_v1\target_scores_smoke.json` and the
+`<DATA_ROOT>\OpenNR_GEN_Static_20260910\pilot_v1\target_scores_smoke.json` and the
 three-way sheet is
-`C:\OpenNR_GEN_Static_20260910\pilot_v1\threeway_smoke_gallery.png`.
+`<DATA_ROOT>\OpenNR_GEN_Static_20260910\pilot_v1\threeway_smoke_gallery.png`.
 
 ## Conservative follow-up
 
@@ -98,7 +98,7 @@ Its advisory numeric summary is:
 
 The lower-strength target is numerically closer to the teacher on this tiny
 probe, but visual review rejects all four eyes. The machine-readable results
-are `C:\OpenNR_GEN_Static_20260910\pilot_v1\target_scores_lower_smoke.json`,
+are `<DATA_ROOT>\OpenNR_GEN_Static_20260910\pilot_v1\target_scores_lower_smoke.json`,
 `target_audit_lower_smoke_reviewed.json`, and
 `target_review_lower_smoke.json`; the reviewed three-way sheet is
 `threeway_lower_smoke_reviewed_gallery.png`. The final audit has zero hash
@@ -119,7 +119,7 @@ the official gated checkpoint.
 
 The probe used:
 
-- the local conversion at `C:\OpenNR\Models\flux_kontext_fp8_scaled_diffusers_20260910`;
+- the local conversion at `<OPENNR_DATA>\Models\flux_kontext_fp8_scaled_diffusers_20260910`;
 - the DLSS5 teacher as the image context, retaining raw and teacher inputs;
 - 12 inference steps, guidance scale `2.5`, seed `92110`, and a 512x512 output;
 - only `scene-000-eye0`, with the other 39 eyes intentionally unrun;
@@ -139,7 +139,7 @@ The advisory score for the single eye was:
 | target clipped fraction | `0.44944509` |
 
 The machine-readable evidence is under
-`C:\OpenNR_GEN_Static_20260910\flux_kontext_probe_v1`:
+`<DATA_ROOT>\OpenNR_GEN_Static_20260910\flux_kontext_probe_v1`:
 
 - `manifest.json` — route manifest SHA-256
   `6fae07153503f44222368ab8fb3cde15693897b203e1b20cedd9baf3d276e3e8`;
@@ -156,7 +156,7 @@ structurally invalid, this is recorded as a conversion/runtime probe failure.
 A fresh isolated Diffusers-main stack (`0.41.0.dev0` with Transformers
 `5.17.0` and the matching Hub development package) was then used for a
 four-step compatibility rerun in
-`C:\OpenNR_GEN_Static_20260910\flux_kontext_mainstack_probe_v1`. It generated
+`<DATA_ROOT>\OpenNR_GEN_Static_20260910\flux_kontext_mainstack_probe_v1`. It generated
 only the same `scene-000-eye0` sample. The output again was a repeating
 cyan/black grid. Its advisory score was:
 
@@ -198,7 +198,7 @@ enhancement, so both eyes are recorded as `reject` with
 `teacher_preference: fail` and the other structural checks passing.
 
 The route is
-`C:\OpenNR_GEN_Static_20260910\sdxl_strength005_probe_v1`. Its advisory
+`<DATA_ROOT>\OpenNR_GEN_Static_20260910\sdxl_strength005_probe_v1`. Its advisory
 two-eye mean is:
 
 | Quantity | Mean over `scene-000` stereo pair |
@@ -217,7 +217,7 @@ not establish photorealism or target preference.
 ## Historical SDXL strength 0.08 setup (superseded)
 
 A fresh route was prepared from the immutable `pilot_v1` source at
-`C:\OpenNR_GEN_Static_20260910\sdxl_strength008_probe_v1`. Its manifest
+`<DATA_ROOT>\OpenNR_GEN_Static_20260910\sdxl_strength008_probe_v1`. Its manifest
 SHA-256 is
 `6f36f6299c8925fb84f738913dadd3442762c978fcf59fa9befdde191d86ff3d`, with
 parent manifest SHA-256
@@ -239,9 +239,9 @@ personal/creative-use boundary; this run is local research only, with no game
 runtime or paid API use.
 
 The isolated fp16 Diffusers tree is
-`C:\OpenNR\Models\juggernaut_xl_v9_fp16_20260910` and totals 6.464 GiB. The
+`<OPENNR_DATA>\Models\juggernaut_xl_v9_fp16_20260910` and totals 6.464 GiB. The
 source/teacher route is
-`C:\OpenNR_GEN_Static_20260910\juggernaut_v9_probe_v1`, manifest SHA-256
+`<DATA_ROOT>\OpenNR_GEN_Static_20260910\juggernaut_v9_probe_v1`, manifest SHA-256
 `44638e524f0a5a942caac09284a5fa0f10cff80ec0298fab03f7e815917e8775`, with
 the original pilot manifest as parent. Only the `scene-000` stereo pair is
 planned for the first probe. No target has been generated from this candidate
@@ -268,15 +268,15 @@ the selected input per sample.
 
 The corrected raw-input routes are:
 
-- `C:\OpenNR_GEN_Static_20260910\sdxl_raw_input_face_probe_v1` — one
+- `<DATA_ROOT>\OpenNR_GEN_Static_20260910\sdxl_raw_input_face_probe_v1` — one
   `scene-019-eye0` eye at strength `0.08`; conservative/near raw, with
   target-to-teacher MAE `0.05646643` versus raw-to-teacher `0.05065818`;
-- `C:\OpenNR_GEN_Static_20260910\sdxl_raw_input_strength060_face_probe_v1`
+- `<DATA_ROOT>\OpenNR_GEN_Static_20260910\sdxl_raw_input_strength060_face_probe_v1`
   — one eye at the maximum tested strength `0.60`; psychedelic texture and
   facial distortion, with target-to-teacher MAE `0.07644924`.
 
 The visually pleasing full-face route is
-`C:\OpenNR_GEN_Static_20260910\sdxl_strength008_face_probe_v1`, but its
+`<DATA_ROOT>\OpenNR_GEN_Static_20260910\sdxl_strength008_face_probe_v1`, but its
 recorded `input_role` is `dlss5_teacher`. It is therefore an offline visual
 control, not a deployable target. The interrupted full route generated 12 eyes
 from the same teacher-conditioned graph before being stopped and is preserved

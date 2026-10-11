@@ -16,7 +16,7 @@ cache, all source cohorts, and every earlier checkpoint remain immutable.
 ## Immutable starting point and corpus
 
 - Protected checkpoint:
-  `C:\OpenNR\Training\semantic_pixel_l1_pair_20260909\joint\best_all_cohorts.pt`
+  `<OPENNR_DATA>\Training\semantic_pixel_l1_pair_20260909\joint\best_all_cohorts.pt`
 - Required protected SHA-256:
   `40C214A9C0BC214C6E1366872E6D9270BFE7C00D63797AEFB6B3896865C15756`
 - Exact current `context_v7_capacity_temporal` graph.
@@ -77,8 +77,8 @@ but bounded anchor response. No blind 50,000-step extension is preauthorized.
 
 Write only to new roots:
 
-- `C:\OpenNR\Training\semantic_retention_renderer_pair_20260910_calibration`
-- `C:\OpenNR\Training\semantic_retention_renderer_pair_20260910`
+- `<OPENNR_DATA>\Training\semantic_retention_renderer_pair_20260910_calibration`
+- `<OPENNR_DATA>\Training\semantic_retention_renderer_pair_20260910`
 
 Abort before any destructive cleanup if C: falls below `100 GiB` free. Keep
 all prior data and checkpoints. Runpod is unnecessary unless local VRAM fails;

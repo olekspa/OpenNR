@@ -22,11 +22,11 @@ clips remain preserved and should not be relabeled as paired evidence.
 
 Raw capture root:
 
-`C:\OpenNR_Captures_RendererStateDistillation_0.5.7_20260908`
+`<DATA_ROOT>\OpenNR_Captures_RendererStateDistillation_0.5.7_20260908`
 
 Final strict temporal audit:
 
-`E:\OpenNR_Training\renderer_state_capture_validate_final_20260908.json`
+`<DATA_ROOT>\OpenNR_Training\renderer_state_capture_validate_final_20260908.json`
 
 The root contains 38 sequence folders, each with 64 frame records. The strict
 crop temporal gate accepted 37 sequences and excluded one:
@@ -49,7 +49,7 @@ diagnosis and is not silently repaired or included in the aligned cache.
 
 The decoded renderer-content audit was run at:
 
-`E:\OpenNR_Training\renderer_state_conditioning_audit_20260908`
+`<DATA_ROOT>\OpenNR_Training\renderer_state_conditioning_audit_20260908`
 
 It accepted the same 37 sequences and excluded the one strict-temporal failure.
 The accepted sequences passed the finite-value, renderer-stage content and
@@ -58,7 +58,7 @@ reported a renderer-content error.
 
 The aligned cache was built separately from the immutable raw root:
 
-`E:\OpenNR_TrainingInputs\RendererStateDistillation_20260908`
+`<DATA_ROOT>\OpenNR_TrainingInputs\RendererStateDistillation_20260908`
 
 Its immutable completion record is `complete.json`, SHA-256
 `c699bb6464001b1b4cd3798a0bd33680fb02a6f224769829dbeab40ce4ce7f3c`. It has
@@ -92,13 +92,13 @@ teacher targets from the frozen test split.
 
 Discovery output:
 
-`E:\OpenNR_Training\renderer_state_pair_discovery_20260908\discovery.json`
+`<DATA_ROOT>\OpenNR_Training\renderer_state_pair_discovery_20260908\discovery.json`
 
 The discovery pass hashed 3,712 non-test reset/warm rows and skipped 1,024 test
 rows. It found zero exact-signature candidate pairs. The formal acceptance audit
 was run at:
 
-`E:\OpenNR_Training\renderer_state_pair_audit_renderer_state_20260908`
+`<DATA_ROOT>\OpenNR_Training\renderer_state_pair_audit_renderer_state_20260908`
 
 and reported `ready=false`, `ready_pair_count=0`, `minimum_pairs=8`, with
 `test_used=false`. Therefore:
@@ -117,11 +117,11 @@ frozen parent at all. The run was deliberately stopped at the registered
 
 Output:
 
-`E:\OpenNR_Training\renderer_state_conditioning_pilot_400_20260908`
+`<DATA_ROOT>\OpenNR_Training\renderer_state_conditioning_pilot_400_20260908`
 
 Parent:
 
-`E:\OpenNR_Training\aligned_retention_20260907_seed352\best_all_cohorts.pt`
+`<DATA_ROOT>\OpenNR_Training\aligned_retention_20260907_seed352\best_all_cohorts.pt`
 
 Parent SHA-256:
 
@@ -163,7 +163,7 @@ step zero, so it cannot supply a new teacher color/detail match.
 The strict raw crop cache was built separately on D: from the candidate
 manifest, without changing the immutable raw capture root:
 
-`D:\OpenNR_TrainingInputs\RendererStateDistillationStrict_20260908`
+`<DATA_ROOT>\OpenNR_TrainingInputs\RendererStateDistillationStrict_20260908`
 
 Its `complete.json` SHA-256 is
 `34ff59c2852d9ceb3af5bc6a330ee85c23eaa8a293155ce0922ec865d9094ca1` and its
@@ -178,7 +178,7 @@ renderer audit. The cache is 8.33 GiB; the raw capture remains separate.
 The existing selected parent was evaluated independently on the new validation
 split before training:
 
-`E:\OpenNR_Training\aligned_retention_20260907_seed352\best_all_cohorts.pt`
+`<DATA_ROOT>\OpenNR_Training\aligned_retention_20260907_seed352\best_all_cohorts.pt`
 
 Parent SHA-256 is
 `2024593e3ebacb576c2848d0176bc0d8a16bbc35e1250f0dda519937778c5f60`. Its
@@ -186,7 +186,7 @@ validation MAE was `0.0201341000`, temporal-delta MAE `0.0075894919`,
 first-frame MAE `0.0201701969` and steady-frame MAE `0.0201335271`.
 
 A single bounded continuation was then run at
-`D:\OpenNR_Training\renderer_state_temporal_continuation_freeze_temporal_400_20260908`.
+`<DATA_ROOT>\OpenNR_Training\renderer_state_temporal_continuation_freeze_temporal_400_20260908`.
 It used seed 347, 400 updates, 8-frame windows, 2-frame burn-in, no spatial
 mixing, and `--freeze-base-capacity`, so only the inherited temporal branch was
 trainable. This is an ordinary temporal continuation, not a renderer-state
@@ -243,11 +243,11 @@ on this same cache:
 
 The next capture root is now prepared and empty:
 
-`C:\OpenNR_Captures_RendererStatePairs_0.5.7_20260908`
+`<DATA_ROOT>\OpenNR_Captures_RendererStatePairs_0.5.7_20260908`
 
 Only the live `OpenNR Capture.output_directory` was changed. A pre-edit backup
 of the settings is at
-`E:\MGO-RC3-fresh\_OpenNR_Pilot_Backups\pre-renderer-state-pairs-output-root-20260908\SettingsUser.json`
+`<MO2_INSTANCE>\_OpenNR_Pilot_Backups\pre-renderer-state-pairs-output-root-20260908\SettingsUser.json`
 with SHA-256
 `a9a0cfc4e4152586df500f92fe03edc9fac93e28eb109c8c04b8b21d8abcd777`.
 Capture remains enabled at 64 samples with the existing native-guide and

@@ -8,7 +8,7 @@ from face_patches import FacePatches
 from dynamic_patches import DynamicPatches,raw_color_path
 
 def main():
-    p=argparse.ArgumentParser();p.add_argument('--cache',default='C:/OpenNR/TrainingCache/student_v1');p.add_argument('--dynamic-guides',default='C:/OpenNR/TrainingCache/dynamic_guides_v1');p.add_argument('--faces',default='out/quality_phase_20260905/face_audit_all/result.json');p.add_argument('--patch-size',type=int,default=512);a=p.parse_args()
+    p=argparse.ArgumentParser();p.add_argument('--cache',default='<OPENNR_DATA>/TrainingCache/student_v1');p.add_argument('--dynamic-guides',default='<OPENNR_DATA>/TrainingCache/dynamic_guides_v1');p.add_argument('--faces',default='out/quality_phase_20260905/face_audit_all/result.json');p.add_argument('--patch-size',type=int,default=512);a=p.parse_args()
     torch.set_num_threads(2)
     cache=a.cache;guides=a.dynamic_guides
     data=FacePatches(cache,guides,a.faces,patch_size=a.patch_size)

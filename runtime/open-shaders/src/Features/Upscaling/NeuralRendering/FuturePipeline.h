@@ -40,13 +40,15 @@ namespace NeuralRendering::Future
 
 	struct PeripheralCompressionContract
 	{
-		static constexpr uint32_t kRevision = 1;
-		static constexpr bool kRuntimeEnabled = false;
+		static constexpr uint32_t kRevision = 2;
+		static constexpr bool kRuntimeEnabled = true;
 		static constexpr bool kSeparateVRPerformanceBranch = true;
 		static constexpr bool kUsesNonLinearPeripheralBudget = true;
 		static constexpr bool kRunsOnEveryFullModelPass = true;
 		static constexpr bool kSharesCurrentFoveatedCrop = false;
 		static constexpr bool kSharesTeacherCaptureRoute = false;
+		static constexpr bool kUsesIndependentFeatureHistory = true;
+		static constexpr bool kPreservesFullResolutionCentre = true;
+		static constexpr bool kUsesResidualPeripheryComposition = true;
 	};
 }
-

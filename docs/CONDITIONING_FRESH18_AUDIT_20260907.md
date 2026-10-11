@@ -4,7 +4,7 @@
 
 The 18 new eight-frame captures pass structural validation and decoded-buffer health checks. Preserve them. They do not yet satisfy the planned contiguous 64-frame pilot.
 
-Scope: `C:\OpenNR_Captures_RendererConditioningPilot_0.5.5_20260907`, sequences `seq-1788802891824-1` through `seq-1788803150598-18`. No training, cloud activity, runtime/configuration changes, or capture deletion was performed.
+Scope: `<DATA_ROOT>\OpenNR_Captures_RendererConditioningPilot_0.5.5_20260907`, sequences `seq-1788802891824-1` through `seq-1788803150598-18`. No training, cloud activity, runtime/configuration changes, or capture deletion was performed.
 
 ## Evidence
 

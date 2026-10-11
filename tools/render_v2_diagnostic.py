@@ -8,7 +8,7 @@ from train_student import CachedPatches,batch_to_device
 from opennr_student import load_student
 from evaluate_student import pil
 
-torch.set_num_threads(4);out=Path('out/student_v2_20260904/diagnostic');run=json.loads((out/'run.json').read_text());ds=CachedPatches('C:/OpenNR/TrainingCache/student_v1','train');m,_=load_student(out/'best.pt','cuda')
+torch.set_num_threads(4);out=Path('out/student_v2_20260904/diagnostic');run=json.loads((out/'run.json').read_text());ds=CachedPatches('<OPENNR_DATA>/TrainingCache/student_v1','train');m,_=load_student(out/'best.pt','cuda')
 with torch.inference_mode():
     for i,b in enumerate(DataLoader(Subset(ds,run['diagnostic_indices']),batch_size=1)):
         x,t,g,c=batch_to_device(b,'cuda')

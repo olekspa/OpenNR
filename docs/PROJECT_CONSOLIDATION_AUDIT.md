@@ -2,11 +2,11 @@
 
 ## Outcome and authority
 
-The canonical source is `D:/.CODEX_Projects/OpenNR-VR`. The separate leading-space workspace `D:/ .CODEX_Projects/OpenNR-VR` was investigated and is historical.
+The canonical source is `<REPO>`. A separate, differently named workspace was investigated and is historical.
 
 The fixed adaptive NR/crop branch at `a39a25b5` plus correction 20260913-B was independently snapshotted (1,209 files, 101,281,363 bytes), hash-checked for concurrent changes, committed as `44bae628`, and imported with both parents at `987a9284`. The research snapshot `d0974a67` preserves 553 previously modified/untracked files and their evidence. The active source/package version is now 2.15.0; historical versioned reports and changelogs are retained.
 
-The imported build includes its adaptive controllers, shaders, GPU/active-submit timing, guide dimensions, VR/UI/map/input and HDR changes. Existing adaptive enable defaults remain false; saved settings were not edited. Capture's fresh output default is now C:/OpenNR/Captures, with configured paths checked before recording.
+The imported build includes its adaptive controllers, shaders, GPU/active-submit timing, guide dimensions, VR/UI/map/input and HDR changes. Existing adaptive enable defaults remain false; saved settings were not edited. Capture's fresh output default is now <OPENNR_DATA>/Captures, with configured paths checked before recording.
 
 The current-phase validation record is `CONSOLIDATION_MANIFEST.json`. Final source integration is local only. No remote push, public release or game launch occurred. No learned model or recovered teacher was promoted.
 
@@ -14,7 +14,7 @@ The current-phase validation record is `CONSOLIDATION_MANIFEST.json`. Final sour
 
 The user-authorized local `OpenNR 2.15.0` mod directory was refreshed from the
 verified follow-up package on 2026-09-14; the prior directory is backed up under
-`C:/OpenNR/ConsolidationBackups/20260914`.
+`<OPENNR_DATA>/ConsolidationBackups/20260914`.
 
 - Enumerated C:, D:, E:, G:: **2,085,758 file records**, **253,544 directories**, **283 reparse points**.
 - Recorded **419 exclusion/access-error records**. System directories, recycle bins and Git object internals were excluded from the filesystem walk; Git history was inspected separately. Aliases V:, W:, X: were not counted as separate physical volumes.
@@ -50,26 +50,26 @@ The live relocation ledger, rather than pre-copy estimates, determines totals. T
 
 | Previous path | Physical destination | Bytes |
 |---|---|---:|
-| `D:/.CODEX_Projects/OpenNR-VR/.git/objects` | `C:/OpenNR/Repositories/OpenNR-VR.git/objects` | 1,924,449,703 |
-| `D:/.CODEX_Projects/OpenNR-VR/_dlss5_amd_hip_linux_report_app_20260913` | `C:/OpenNR/Reports/LegacyApps/_dlss5_amd_hip_linux_report_app_20260913` | 4,808,450 |
-| `D:/.CODEX_Projects/DLSS_5_SKYRIM/dist` | `E:/OpenNR_Builds/Legacy-20260913/dist` | 288,574,503 |
-| `D:/.CODEX_Projects/DLSS_5_SKYRIM/work/open-nr-eye-tracking-experiment-20260912/build` | `E:/OpenNR_Builds/Legacy-20260913/work/open-nr-eye-tracking-experiment-20260912/build` | 490,095,026 |
-| `D:/.CODEX_Projects/OpenNR/out` | `C:/OpenNR/Relocated/OpenNR-legacy-output-20260913` | 49,771,165 |
-| `D:/.CODEX_Projects/DLSS_5_SKYRIM/vendor/open-shaders-dlssnr-vr-091bfb4d/dist` | `E:/OpenNR_Builds/Legacy-20260913/vendor/open-shaders-dlssnr-vr-091bfb4d/dist` | 740,676,595 |
-| `D:/.CODEX_Projects/DLSS_5_SKYRIM/work/open-nr-adaptive-handoff-2.14.8-fixed-20260913/build` | `E:/OpenNR_Builds/Legacy-20260913/work/open-nr-adaptive-handoff-2.14.8-fixed-20260913/build` | 14,580,621,763 |
-| `D:/.CODEX_Projects/OpenNR-VR/_opennr_gen_final_report_app2` | `C:/OpenNR/Reports/LegacyApps/_opennr_gen_final_report_app2` | 12,329,195 |
-| `D:/.CODEX_Projects/DLSS_5_SKYRIM/work/open-nr-2.14.5-all-features-20260912/dist` | `E:/OpenNR_Builds/Legacy-20260913/work/open-nr-2.14.5-all-features-20260912/dist` | 228,102,246 |
-| `D:/.CODEX_Projects/DLSS_5_SKYRIM/work/open-nr-eye-tracking-experiment-20260912/dist` | `E:/OpenNR_Builds/Legacy-20260913/work/open-nr-eye-tracking-experiment-20260912/dist` | 227,933,879 |
-| `D:/.CODEX_Projects/DLSS_5_SKYRIM/work/open-nr-adaptive-handoff-2.14.8-fixed-20260913/dist` | `E:/OpenNR_Builds/Legacy-20260913/work/open-nr-adaptive-handoff-2.14.8-fixed-20260913/dist` | 518,577,570 |
-| `D:/.CODEX_Projects/DLSS_5_SKYRIM/work/open-shaders-adaptive-nr-handoff-study-opennr-20260913/build` | `E:/OpenNR_Builds/Legacy-20260913/work/open-shaders-adaptive-nr-handoff-study-opennr-20260913/build` | 7,596,698,380 |
-| `D:/.CODEX_Projects/DLSS_5_SKYRIM/work/open-shaders-2.12.0-open-nr/build` | `E:/OpenNR_Builds/Legacy-20260913/work/open-shaders-2.12.0-open-nr/build` | 13,043,129,285 |
-| `D:/.CODEX_Projects/DLSS_5_SKYRIM/work/open-shaders-2.12.0-open-nr/dist` | `E:/OpenNR_Builds/Legacy-20260913/work/open-shaders-2.12.0-open-nr/dist` | 142,469,023 |
-| `D:/.CODEX_Projects/DLSS_5_SKYRIM/vendor/open-shaders-dlssnr-vr-091bfb4d/build` | `E:/OpenNR_Builds/Legacy-20260913/vendor/open-shaders-dlssnr-vr-091bfb4d/build` | 16,576,950,253 |
-| `D:/.CODEX_Projects/DLSS_5_SKYRIM/staging` | `E:/OpenNR_Builds/Legacy-20260913/staging` | 3,252,452,837 |
-| `D:/.CODEX_Projects/OpenNR-VR/_opennr_gen_final_report_app` | `C:/OpenNR/Reports/LegacyApps/_opennr_gen_final_report_app` | 1,875,304 |
-| `D:/OpenNR_TrainingInputs` | `C:/OpenNR/TrainingInputs/Migrated-D-20260913` | 8,943,283,631 |
-| `D:/.CODEX_Projects/DLSS_5_SKYRIM/work/open-nr-2.14.5-all-features-20260912/build` | `E:/OpenNR_Builds/Legacy-20260913/work/open-nr-2.14.5-all-features-20260912/build` | 5,443,937,640 |
-| `D:/.CODEX_Projects/DLSS_5_SKYRIM/open-shaders-dlssnr-public-pr/build` | `E:/OpenNR_Builds/Legacy-20260913/open-shaders-dlssnr-public-pr/build` | 5,115,676,587 |
+| `<REPO>/.git/objects` | `<OPENNR_DATA>/Repositories/OpenNR-VR.git/objects` | 1,924,449,703 |
+| `<REPO>/_dlss5_amd_hip_linux_report_app_20260913` | `<OPENNR_DATA>/Reports/LegacyApps/_dlss5_amd_hip_linux_report_app_20260913` | 4,808,450 |
+| `<LEGACY_REPO>/dist` | `<BUILD_DIR>/Legacy-20260913/dist` | 288,574,503 |
+| `<LEGACY_REPO>/work/open-nr-eye-tracking-experiment-20260912/build` | `<BUILD_DIR>/Legacy-20260913/work/open-nr-eye-tracking-experiment-20260912/build` | 490,095,026 |
+| `<LEGACY_REPO>/out` | `<OPENNR_DATA>/Relocated/OpenNR-legacy-output-20260913` | 49,771,165 |
+| `<LEGACY_REPO>/vendor/open-shaders-dlssnr-vr-091bfb4d/dist` | `<BUILD_DIR>/Legacy-20260913/vendor/open-shaders-dlssnr-vr-091bfb4d/dist` | 740,676,595 |
+| `<LEGACY_REPO>/work/open-nr-adaptive-handoff-2.14.8-fixed-20260913/build` | `<BUILD_DIR>/Legacy-20260913/work/open-nr-adaptive-handoff-2.14.8-fixed-20260913/build` | 14,580,621,763 |
+| `<REPO>/_opennr_gen_final_report_app2` | `<OPENNR_DATA>/Reports/LegacyApps/_opennr_gen_final_report_app2` | 12,329,195 |
+| `<LEGACY_REPO>/work/open-nr-2.14.5-all-features-20260912/dist` | `<BUILD_DIR>/Legacy-20260913/work/open-nr-2.14.5-all-features-20260912/dist` | 228,102,246 |
+| `<LEGACY_REPO>/work/open-nr-eye-tracking-experiment-20260912/dist` | `<BUILD_DIR>/Legacy-20260913/work/open-nr-eye-tracking-experiment-20260912/dist` | 227,933,879 |
+| `<LEGACY_REPO>/work/open-nr-adaptive-handoff-2.14.8-fixed-20260913/dist` | `<BUILD_DIR>/Legacy-20260913/work/open-nr-adaptive-handoff-2.14.8-fixed-20260913/dist` | 518,577,570 |
+| `<LEGACY_REPO>/work/open-shaders-adaptive-nr-handoff-study-opennr-20260913/build` | `<BUILD_DIR>/Legacy-20260913/work/open-shaders-adaptive-nr-handoff-study-opennr-20260913/build` | 7,596,698,380 |
+| `<LEGACY_REPO>/work/open-shaders-2.12.0-open-nr/build` | `<BUILD_DIR>/Legacy-20260913/work/open-shaders-2.12.0-open-nr/build` | 13,043,129,285 |
+| `<LEGACY_REPO>/work/open-shaders-2.12.0-open-nr/dist` | `<BUILD_DIR>/Legacy-20260913/work/open-shaders-2.12.0-open-nr/dist` | 142,469,023 |
+| `<LEGACY_REPO>/vendor/open-shaders-dlssnr-vr-091bfb4d/build` | `<BUILD_DIR>/Legacy-20260913/vendor/open-shaders-dlssnr-vr-091bfb4d/build` | 16,576,950,253 |
+| `<LEGACY_REPO>/staging` | `<BUILD_DIR>/Legacy-20260913/staging` | 3,252,452,837 |
+| `<REPO>/_opennr_gen_final_report_app` | `<OPENNR_DATA>/Reports/LegacyApps/_opennr_gen_final_report_app` | 1,875,304 |
+| `<DATA_ROOT>/OpenNR_TrainingInputs` | `<OPENNR_DATA>/TrainingInputs/Migrated-D-20260913` | 8,943,283,631 |
+| `<LEGACY_REPO>/work/open-nr-2.14.5-all-features-20260912/build` | `<BUILD_DIR>/Legacy-20260913/work/open-nr-2.14.5-all-features-20260912/build` | 5,443,937,640 |
+| `<LEGACY_REPO>/open-shaders-dlssnr-public-pr/build` | `<BUILD_DIR>/Legacy-20260913/open-shaders-dlssnr-public-pr/build` | 5,115,676,587 |
 
 Existing out/artifacts junctions to C: were retained. Reinspection found no remaining discovered OpenNR .npy/.npz/.pt/.pth/.onnx/.engine/.safetensors training payloads physically on D:. Remaining large legacy SDK binaries, documents, game assets and source-adjacent carrier copies are inventoried separately; they were not mistaken for training datasets or deleted as junk.
 
@@ -77,7 +77,7 @@ H: is not mounted. The FullRes pilot junction pointing to H: remains unresolved.
 
 ## Dependencies and build changes
 
-Runtime dependencies are now explicit under C:/OpenNR/Dependencies/runtime-2.15.0, with per-directory file counts, byte totals and content-tree hashes. The build uses external vcpkg libraries and recorded SDK/helper sources. MSVC 19.44 rejects the optional CommonLib prebuilt compiled by 19.51, so the matching source was compiled successfully. No toolset incompatibility was bypassed.
+Runtime dependencies are now explicit under <OPENNR_DATA>/Dependencies/runtime-2.15.0, with per-directory file counts, byte totals and content-tree hashes. The build uses external vcpkg libraries and recorded SDK/helper sources. MSVC 19.44 rejects the optional CommonLib prebuilt compiled by 19.51, so the matching source was compiled successfully. No toolset incompatibility was bypassed.
 
 Build outputs, package staging and archive verification are on E:. Automatic deployment is OFF. The private carrier is passed explicitly and remains hash-identical to the validated NVIDIA-signed input. The VR helper is another explicit external package input. Source/package gates continue checking their presence.
 
@@ -108,4 +108,4 @@ Live HMD/stereo output, transitions during rapid motion/disocclusion, restoratio
 
 Historical scripts with missing raw sources or obsolete absolute paths remain research records, not certified maintained workflows. External upstream research code retains separate licenses and status. No model quality claim changes because its source was organized or committed.
 
-Recovery is at C:/OpenNR/ConsolidationBackups/20260913: verified source copies, original staged/unstaged patches, bundles, shallow-aware clone, initial repository records, submodule pointer backups, per-file migration manifests, dependency hashes and build/test logs. Runtime historical refs are available from the canonical repository. Keep the external Git object store with the repository backup. Do not delete original project folders or external recovery stores solely because the canonical worktree is clean.
+Recovery is at <OPENNR_DATA>/ConsolidationBackups/20260913: verified source copies, original staged/unstaged patches, bundles, shallow-aware clone, initial repository records, submodule pointer backups, per-file migration manifests, dependency hashes and build/test logs. Runtime historical refs are available from the canonical repository. Keep the external Git object store with the repository backup. Do not delete original project folders or external recovery stores solely because the canonical worktree is clean.

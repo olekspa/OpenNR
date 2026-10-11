@@ -150,10 +150,10 @@ sequence 1 improved `0.0365440 -> 0.0313783`, validation sequence 25 regressed
 `0.0128387 -> 0.0164644`, and frozen sequence 31 regressed
 `0.0208572 -> 0.0223160`. These data do not validate the recovered graph as a
 teacher replacement or a relabeling source. The detailed artifact is
-`D:\OpenNR_ExternalResearch\MLX-DLSS-unknown-e16bcf15\parity_3seq_frames4_calibrated\parity.json`.
+`<DATA_ROOT>\OpenNR_ExternalResearch\MLX-DLSS-unknown-e16bcf15\parity_3seq_frames4_calibrated\parity.json`.
 
 The isolated dependency path was
-`C:\OpenNR\python312_ml_deps_20260908`; it contains the CUDA PyTorch stack and
+`<OPENNR_DATA>\python312_ml_deps_20260908`; it contains the CUDA PyTorch stack and
 the additional offline packages required by the existing evaluators. This
 follow-up strengthens, rather than changes, the recommendation: keep MLX-DLSS
 as a parity oracle only, and obtain exact reset/warm native pairs before

@@ -9,7 +9,7 @@ cbuffer ModelResolutionParams : register(b0)
 	float gColourStrength;
 	float gMaxRatio;
 	float gResidualStrength;
-	float gPadding0;
+	uint gTargetX;
 	float gPadding1;
 	float gPadding2;
 };
@@ -126,11 +126,28 @@ void main(uint3 id : SV_DispatchThreadID)
 		gTarget[id.xy] = SampleExactArea(id.xy);
 		return;
 	}
+	if (gMode == 5)
+	{
+		// Emit the low-resolution Feature 18 effect directly. On a native model
+		// frame the two inputs are already model-sized; on a reused frame they are
+		// the current raw frame and the motion-warped full-resolution output.
+		const float3 effect = SampleValidSource(gModel, uv).rgb - SampleValidSource(gProxy, uv).rgb;
+		gTarget[uint2(gTargetX + id.x, id.y)] = float4(effect, 0.0);
+		return;
+	}
 
 	const float3 proxy = SampleValidSource(gProxy, uv).rgb;
 	const float3 model = SampleValidSource(gModel, uv).rgb;
 	const float4 originalSample = gOriginal.Load(int3(id.xy, 0));
 	const float3 original = max(originalSample.rgb, float3(0.0, 0.0, 0.0));
+	if (gMode == 4)
+	{
+		// Periphery hybrid contract: the resolved texture is exactly the original
+		// frame plus the bilinear-upsampled low-resolution Feature18 output-input
+		// residual. No luminance cap or strength scaling is applied here.
+		gTarget[id.xy] = float4(original + (model - proxy), originalSample.a);
+		return;
+	}
 	if (gMode == 3)
 	{
 		// Matched residual: keep the source's full-resolution texture and add

@@ -46,6 +46,18 @@ if(DEFINED OPENNR_IMGUI_HELPER_SOURCE)
     set(_vr_helper_runtime_path "${OPENNR_IMGUI_HELPER_SOURCE}")
 endif()
 set(_vr_helper_config_path "${SOURCE_ROOT}/package/SKSE/Plugins/ImGuiVRHelper.toml")
+# Third-party binaries are not tracked in git. Fail with an actionable message
+# (see docs/THIRD_PARTY_BINARIES.md and tools/stage_local_thirdparty.ps1).
+foreach(_thirdparty_input IN ITEMS _dlssnr_carrier_path _vr_helper_runtime_path)
+    if(NOT EXISTS "${${_thirdparty_input}}")
+        message(FATAL_ERROR
+            "Required third-party binary is not present: ${${_thirdparty_input}}. "
+            "OpenNR does not ship NVIDIA or imgui-vr-helper binaries in the git tree; "
+            "supply them from their official sources (docs/THIRD_PARTY_BINARIES.md) "
+            "or run tools/stage_local_thirdparty.ps1 if you keep a local staging copy."
+        )
+    endif()
+endforeach()
 if(NOT EXISTS "${_icon_loader_path}" OR NOT EXISTS "${_branding_path}" OR
    NOT EXISTS "${_feature_list_path}" OR NOT EXISTS "${_upscaling_page_path}" OR
    NOT EXISTS "${_menu_path}" OR NOT EXISTS "${_menu_header_path}" OR
@@ -246,8 +258,8 @@ endif()
 
 # Keep the probe address arithmetic unsigned: ArrayOrigin is intentionally a
 # wrapped coordinate, so clamping a signed difference aliases wrapped bands to
-# cell zero. Also normalize shadow visibility by the number of valid samples
-# during warm-up; a cleared bitmask means "unknown", not 31 shadowed samples.
+# cell zero. Shadow history is a 32-sample shift register seeded lit. Preserve
+# the full denominator so reset history cannot exceed unit visibility.
 set(_wrapped_cell_contract "uint3 cellID = (probeTexID - settings.ArrayOrigin.xyz) % arrayDims;")
 string(FIND "${_skylighting_update_shader}" "${_wrapped_cell_contract}" _wrapped_cell_index)
 if(_wrapped_cell_index EQUAL -1)
@@ -256,7 +268,7 @@ if(_wrapped_cell_index EQUAL -1)
         "Probe addressing must preserve unsigned toroidal subtraction."
     )
 endif()
-set(_shadow_history_contract "const uint shadowHistoryFrames = max(1u, min(outAccumFramesArray[probeTexID], 32u));")
+set(_shadow_history_contract "outShadowVisibility[probeTexID] = float(countbits(bitmask)) / 32.0;")
 string(FIND "${_skylighting_update_shader}" "${_shadow_history_contract}" _shadow_history_index)
 if(_shadow_history_index EQUAL -1)
     message(FATAL_ERROR
@@ -271,7 +283,7 @@ if(NOT _bad_wrapped_cell_index EQUAL -1)
         "OpenNR Skylighting shader contains the signed/clamped wrapped-cell regression"
     )
 endif()
-set(_bad_shadow_history_contract "float shadow = float(countbits(bitmask)) / 32.0;")
+set(_bad_shadow_history_contract "float(countbits(bitmask)) / float(shadowHistoryFrames)")
 string(FIND "${_skylighting_update_shader}" "${_bad_shadow_history_contract}" _bad_shadow_history_index)
 if(NOT _bad_shadow_history_index EQUAL -1)
     message(FATAL_ERROR
@@ -526,7 +538,7 @@ foreach(_contract IN ITEMS
 endforeach()
 
 foreach(_contract IN ITEMS
-    "VERSION 2.20.1"
+    "VERSION 2.22.2"
     "does not match OpenNR"
     "OPENNR_LEAN_PACKAGE"
 )
@@ -575,6 +587,56 @@ foreach(_contract IN ITEMS
         message(FATAL_ERROR
             "OpenNR future-pipeline boundary missing from FuturePipeline.h: ${_contract}"
         )
+    endif()
+endforeach()
+
+# MapProbe must report whether its vtable writes actually took effect and
+# observe generic image-space draws and the final engine target binds.
+set(_frame_annotations_path "${SOURCE_ROOT}/src/FrameAnnotations.cpp")
+set(_frame_annotations_header_path "${SOURCE_ROOT}/include/FrameAnnotations.h")
+set(_terrain_blending_path "${SOURCE_ROOT}/src/Features/TerrainBlending.cpp")
+if(NOT EXISTS "${_frame_annotations_path}" OR NOT EXISTS "${_frame_annotations_header_path}" OR
+   NOT EXISTS "${_terrain_blending_path}")
+    message(FATAL_ERROR "MapProbe diagnostics sources are missing")
+endif()
+file(READ "${_frame_annotations_path}" _frame_annotations)
+file(READ "${_frame_annotations_header_path}" _frame_annotations_header)
+file(READ "${_terrain_blending_path}" _terrain_blending)
+foreach(_contract IN ITEMS
+    "VfuncMatches"
+    "frameAnnotations={}"
+    "loggedImageSpaceDraws >= 20"
+    "[MapProbe] imagespace draw"
+    "[MapProbe] target bind"
+    "OnMapRenderTargetBind()"
+    "kPROJECTEDMENU"
+)
+    string(FIND "${_frame_annotations}${_terrain_blending}" "${_contract}" _contract_index)
+    if(_contract_index EQUAL -1)
+        message(FATAL_ERROR "MapProbe diagnostic contract missing: ${_contract}")
+    endif()
+endforeach()
+string(FIND "${_frame_annotations_header}" "void OnMapRenderTargetBind();" _map_bind_decl_index)
+if(_map_bind_decl_index EQUAL -1)
+    message(FATAL_ERROR "MapProbe render-target bind callback is not declared")
+endif()
+
+set(_map_probe_index_policy_path "${SOURCE_ROOT}/src/Features/Upscaling/PerfMode/MapProbeIndexPolicy.h")
+set(_map_probe_index_test_path "${SOURCE_ROOT}/tests/cpp/test_map_probe_index_policy.cpp")
+if(NOT EXISTS "${_map_probe_index_policy_path}" OR NOT EXISTS "${_map_probe_index_test_path}")
+    message(FATAL_ERROR "MapProbe bounded-index policy or contract test is missing")
+endif()
+file(READ "${_map_probe_index_policy_path}" _map_probe_index_policy)
+file(READ "${_map_probe_index_test_path}" _map_probe_index_test)
+foreach(_contract IN ITEMS
+    "MapProbeIndexPolicy::TryIndex"
+    "std::size(range)"
+    "0x5FFFFFFFAull"
+    "range.accesses == 0"
+)
+    string(FIND "${_map_probe_index_policy}${_map_probe_index_test}" "${_contract}" _contract_index)
+    if(_contract_index EQUAL -1)
+        message(FATAL_ERROR "MapProbe out-of-range contract missing: ${_contract}")
     endif()
 endforeach()
 

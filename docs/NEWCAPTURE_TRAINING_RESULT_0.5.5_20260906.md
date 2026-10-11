@@ -6,7 +6,7 @@ the live teacher or promoted to a headset/runtime acceptance result.
 
 ## Training input
 
-- Cache: `E:\OpenNR_MergedSpatialCache_0.5.5_20260906`
+- Cache: `<DATA_ROOT>\OpenNR_MergedSpatialCache_0.5.5_20260906`
 - Cache schema: 3
 - Patches: 20,334
 - Rows: 11,864
@@ -14,7 +14,7 @@ the live teacher or promoted to a headset/runtime acceptance result.
 - Sources: the existing merged spatial cache plus the 27-sequence raw crop set
 - Raw crop contribution: 1,728 complete frames / 3,456 eye rows, with zero
   invalid depth or motion rows
-- Dynamic guides: `E:\OpenNR_DynamicGuides_Merged_0.5.5_20260906`
+- Dynamic guides: `<DATA_ROOT>\OpenNR_DynamicGuides_Merged_0.5.5_20260906`
 - Test rows were not used for tuning
 
 The new crop sequences are structurally complete and have exact cadence, but they
@@ -24,7 +24,7 @@ data, not claimed as strict temporal training evidence.
 
 ## Run and selection
 
-- Output: `E:\OpenNR_Training\context_merged_style_v7_newcapture_0.5.5_20260906`
+- Output: `<DATA_ROOT>\OpenNR_Training\context_merged_style_v7_newcapture_0.5.5_20260906`
 - Architecture: `context_v4` (64 width, 3 blocks, scale 4)
 - Initialization: v5 `best_feature.pt`
 - Steps: 12,000
@@ -40,7 +40,7 @@ data, not claimed as strict temporal training evidence.
 
 Portable export:
 
-`E:\OpenNR_Training\context_merged_style_v7_newcapture_0.5.5_20260906\OpenNR_ContextStyle_v7_newcapture_best_feature.pt`
+`<DATA_ROOT>\OpenNR_Training\context_merged_style_v7_newcapture_0.5.5_20260906\OpenNR_ContextStyle_v7_newcapture_best_feature.pt`
 
 Export SHA-256:
 `c91caa49277904ba291467bc62368f91db654680e3b8a73f9a3da1f7ce6aa526`
@@ -50,7 +50,7 @@ Export SHA-256:
 The held-out test was evaluated after training selection using the same cache
 identity. Result artifact:
 
-`E:\OpenNR_Training\context_merged_style_v7_newcapture_0.5.5_20260906_frozen_test_clean\result.json`
+`<DATA_ROOT>\OpenNR_Training\context_merged_style_v7_newcapture_0.5.5_20260906_frozen_test_clean\result.json`
 
 Overall test result:
 
@@ -78,7 +78,7 @@ quality jump.
 
 The held-out gallery is at:
 
-`E:\OpenNR_Training\context_merged_style_v7_newcapture_0.5.5_20260906\test_gallery`
+`<DATA_ROOT>\OpenNR_Training\context_merged_style_v7_newcapture_0.5.5_20260906\test_gallery`
 
 The gallery shows the input, v7 output, and Feature 18 teacher for both eyes. The
 student tracks the teacher closely on the sampled foliage, geometry, and dark-scene

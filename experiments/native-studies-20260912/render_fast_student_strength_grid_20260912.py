@@ -10,7 +10,7 @@ import numpy as np
 import torch
 from PIL import Image, ImageDraw
 
-TOOLS = Path(r"D:\.CODEX_Projects\OpenNR-VR\tools")
+TOOLS = Path(r"<REPO>\tools")
 if str(TOOLS) not in sys.path:
     sys.path.insert(0, str(TOOLS))
 
@@ -18,9 +18,9 @@ from evaluate_fast_student_trt_full_eye import _load_frame, _metrics, _resize  #
 from fast_student_v1 import load_fast_student  # noqa: E402
 
 
-CHECKPOINT = Path(r"C:\OpenNR\OpenNR_FastStudent16_50NativeMultiSeq_20260912\best.pt")
-REPLAY_ROOT = Path(r"C:\OpenNR\NativeReplays50_20260912\seq-1789064397821-5_f1-16")
-OUTPUT = Path(r"C:\OpenNR\OpenNR_FastStudent16_50NativeMultiSeq_StrengthGrid_20260912")
+CHECKPOINT = Path(r"<OPENNR_DATA>\OpenNR_FastStudent16_50NativeMultiSeq_20260912\best.pt")
+REPLAY_ROOT = Path(r"<OPENNR_DATA>\NativeReplays50_20260912\seq-1789064397821-5_f1-16")
+OUTPUT = Path(r"<OPENNR_DATA>\OpenNR_FastStudent16_50NativeMultiSeq_StrengthGrid_20260912")
 FRAME_ID = 8
 EYE = 0
 STRENGTHS = (0.5, 1.0, 1.5, 2.0, 3.0)

@@ -11,13 +11,13 @@ G: copies as archived mirrors of the original paths.
 The superseded/reproducible archive was copied from:
 
 ```text
-C:\OpenNR_Archive_OpenNR_Prune_20260906
+<DATA_ROOT>\OpenNR_Archive_OpenNR_Prune_20260906
 ```
 
 to:
 
 ```text
-G:\OpenNR_ColdStorage\OpenNR_Archive_OpenNR_Prune_20260906
+<DATA_ROOT>\OpenNR_ColdStorage\OpenNR_Archive_OpenNR_Prune_20260906
 ```
 
 The destination was verified against a pre-move source manifest using full
@@ -28,8 +28,8 @@ SHA-256 comparison:
 - Missing files: 0
 - Extra files: 0
 - Hash mismatches: 0
-- Source manifest: `D:\.CODEX_Projects\OpenNR-VR\out\storage_move_open_nr_archive_source_20260906.json`
-- Verification report: `D:\.CODEX_Projects\OpenNR-VR\out\storage_move_open_nr_archive_verification_20260906.json`
+- Source manifest: `<REPO>\out\storage_move_open_nr_archive_source_20260906.json`
+- Verification report: `<REPO>\out\storage_move_open_nr_archive_verification_20260906.json`
 
 The G: copy contains these nine pre-existing artifact directories:
 
@@ -56,15 +56,15 @@ because their manifests identify them as historical derived products and
 `test_used_for_tuning` is false:
 
 ```text
-E:\OpenNR_RawCropCache_FreshTemporalClean_0.5.5_20260906
-E:\OpenNR_RawCropCache_FreshNewDefault_0.5.5_20260906
+<DATA_ROOT>\OpenNR_RawCropCache_FreshTemporalClean_0.5.5_20260906
+<DATA_ROOT>\OpenNR_RawCropCache_FreshNewDefault_0.5.5_20260906
 ```
 
 Their verified destinations are:
 
 ```text
-G:\OpenNR_ColdStorage\OpenNR_RawCropCache_FreshTemporalClean_0.5.5_20260906
-G:\OpenNR_ColdStorage\OpenNR_RawCropCache_FreshNewDefault_0.5.5_20260906
+<DATA_ROOT>\OpenNR_ColdStorage\OpenNR_RawCropCache_FreshTemporalClean_0.5.5_20260906
+<DATA_ROOT>\OpenNR_ColdStorage\OpenNR_RawCropCache_FreshNewDefault_0.5.5_20260906
 ```
 
 These are not the active strict capture, current combined cache, final
@@ -77,8 +77,8 @@ below reached `state: verified`:
 - Missing files: 0
 - Extra files: 0
 - Hash mismatches: 0
-- Source manifest: `D:\.CODEX_Projects\OpenNR-VR\out\storage_move_e_derived_source_20260906.json`
-- Verification report: `D:\.CODEX_Projects\OpenNR-VR\out\storage_move_e_derived_verification_20260906.json`
+- Source manifest: `<REPO>\out\storage_move_e_derived_source_20260906.json`
+- Verification report: `<REPO>\out\storage_move_e_derived_verification_20260906.json`
 
 The final check confirmed that both E: source paths no longer exist and both
 G: destinations retain their complete file sets. The active combined-cache
@@ -97,13 +97,13 @@ building manifests or calculating sample totals.
 The verified raw source was moved from:
 
 ```text
-C:\OpenNR_Captures_NextGridPilot_0.5.5_20260906
+<DATA_ROOT>\OpenNR_Captures_NextGridPilot_0.5.5_20260906
 ```
 
 to:
 
 ```text
-G:\OpenNR_ColdStorage\OpenNR_RawCaptures_20260907\OpenNR_Captures_NextGridPilot_0.5.5_20260906
+<DATA_ROOT>\OpenNR_ColdStorage\OpenNR_RawCaptures_20260907\OpenNR_Captures_NextGridPilot_0.5.5_20260906
 ```
 
 This was the first cleanup move from the 2026-09-07 storage triage. The source
@@ -120,7 +120,7 @@ source:
 - Robocopy move exit code: 1, success range
 - Final source path: absent
 - Final destination path: present
-- Compact verification summary: `D:\.CODEX_Projects\OpenNR-VR\out\storage_move_nextgrid_verification_20260907.json`
+- Compact verification summary: `<REPO>\out\storage_move_nextgrid_verification_20260907.json`
 
 The full per-file hash list was compared during the move session but was not
 persisted as a separate manifest; the compact summary above records the exact

@@ -15,7 +15,7 @@ def main():
     root = Path(__file__).resolve().parents[1]
     phase = root / 'out/quality_phase_20260905'
     state = phase / 'appearance_pair_status.json'
-    cache = 'C:/OpenNR/TrainingCache/student_v1'
+    cache = '<OPENNR_DATA>/TrainingCache/student_v1'
     parent = phase / 'context_continuation/best_feature.pt'
     if args.resume_failed_control:
         previous=json.loads(state.read_text())
@@ -42,7 +42,7 @@ def main():
             initialization=['--resume',destination/'last.pt'] if args.resume_failed_control and name=='context_fresh_control' else ['--initialize',parent]
             execute(['tools/train_long_student.py', '--cache', cache,
                      '--output', destination, *initialization,
-                     '--dynamic-guides', 'C:/OpenNR/TrainingCache/dynamic_guides_v1',
+                     '--dynamic-guides', '<OPENNR_DATA>/TrainingCache/dynamic_guides_v1',
                      '--workers', 2, '--steps', 12000, '--lr', .00005,
                      '--eval-every', 1000, '--vgg-weight', weight], name)
             result = json.loads((destination / 'status.json').read_text())

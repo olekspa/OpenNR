@@ -305,7 +305,7 @@ the established user configuration and safe fallback route.
   one OpenNR-VR repository while preserving their working import layout.
 - Added a shared path resolver with precedence: explicit CLI path, environment
   override, ignored machine-local configuration, then documented default.
-- Changed new capture output defaults to `C:/OpenNR/Captures` and added guards
+- Changed new capture output defaults to `<OPENNR_DATA>/Captures` and added guards
   that reject output physically resolving to D:, including junctions and drive
   aliases. Existing persisted output paths remain user-owned and are checked
   before recording starts.
@@ -328,8 +328,8 @@ the established user configuration and safe fallback route.
   2022 C++ tools, initializes the compiler environment, uses the external E:
   build root, passes the verified external dependencies explicitly, and keeps
   automatic game deployment disabled.
-- Moved large build and package output to `E:/OpenNR_Builds/2.15.0` and
-  consolidated dependencies under `C:/OpenNR/Dependencies/runtime-2.15.0`.
+- Moved large build and package output to `<BUILD_DIR>/2.15.0` and
+  consolidated dependencies under `<OPENNR_DATA>/Dependencies/runtime-2.15.0`.
 - Recorded dependency file counts and content-tree hashes. The incompatible
   CommonLib prebuilt toolset was rejected and the matching source was compiled
   instead; no toolset mismatch was bypassed.
@@ -346,13 +346,13 @@ the established user configuration and safe fallback route.
 
 ## 2.15.0 repository consolidation and recovery
 
-- Established `D:/.CODEX_Projects/OpenNR-VR` as the authoritative source
+- Established `<REPO>` as the authoritative source
   repository and imported the adaptive runtime history without squashing its
   internal ancestry.
 - Preserved the original research main, adaptive source snapshot, dirty-state
   patches, bundles, legacy refs, submodule pointer backups, dependency hashes,
   and per-file migration manifests under
-  `C:/OpenNR/ConsolidationBackups/20260913`.
+  `<OPENNR_DATA>/ConsolidationBackups/20260913`.
 - Reconciled nine legacy runtime trees after proving their unique source state
   was retained. Their full Git statuses, including submodules, are clean and
   their historical refs remain available under `refs/archive/legacy/*`.
@@ -440,7 +440,7 @@ as passed.
 
 ## Recovery
 
-Use `C:/OpenNR/ConsolidationBackups/20260913` for source snapshots, patches,
+Use `<OPENNR_DATA>/ConsolidationBackups/20260913` for source snapshots, patches,
 history bundles, dependency manifests, migration records, and validation logs.
 Keep the external Git object store with the repository backup. To roll back the
 promotion, preserve any later work and revert the final mainline merge rather

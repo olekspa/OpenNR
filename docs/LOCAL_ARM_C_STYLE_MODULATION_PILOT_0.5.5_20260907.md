@@ -36,7 +36,7 @@ that renderer-derived semantics are present in the current input contract.
 ## Expected output
 
 Artifacts will be retained under
-`E:\OpenNR_Training\local_style_modulation_from_arm_C_0.5.5_20260907`.
+`<DATA_ROOT>\OpenNR_Training\local_style_modulation_from_arm_C_0.5.5_20260907`.
 Record trainer status, peak VRAM, independent prior/new validation, effect
 bands, and any visual sheet. No production or MO2 installation is in scope.
 

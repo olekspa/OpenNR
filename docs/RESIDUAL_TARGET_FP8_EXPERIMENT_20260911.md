@@ -37,13 +37,13 @@ The output roots are outside the repository so the dirty worktree and known-
 good installation remain untouched:
 
 ```text
-C:\OpenNR\Training\residual_target_view_available_v1_20260911
-C:\OpenNR\Training\residual_target_pair_available_v1_20260911
-C:\OpenNR\Training\residual_target_pair_available_v1_20260911\postselection
-C:\OpenNR\Training\residual_target_pair_available_v1_20260911\fp8_instrumentation
-C:\OpenNR\Training\residual_target_pair_available_v1_20260911\qat_clamp448
-C:\OpenNR\Training\residual_target_pair_available_v1_20260911\qat_clamp448_selective_v2
-C:\OpenNR\Training\residual_target_pair_available_v1_20260911\latency
+<OPENNR_DATA>\Training\residual_target_view_available_v1_20260911
+<OPENNR_DATA>\Training\residual_target_pair_available_v1_20260911
+<OPENNR_DATA>\Training\residual_target_pair_available_v1_20260911\postselection
+<OPENNR_DATA>\Training\residual_target_pair_available_v1_20260911\fp8_instrumentation
+<OPENNR_DATA>\Training\residual_target_pair_available_v1_20260911\qat_clamp448
+<OPENNR_DATA>\Training\residual_target_pair_available_v1_20260911\qat_clamp448_selective_v2
+<OPENNR_DATA>\Training\residual_target_pair_available_v1_20260911\latency
 ```
 
 Important manifests and reports:
@@ -134,7 +134,7 @@ A final read-only search was made across the mounted local volumes before
 closing the no-recapture branch. It found one additional intact capture, but
 not a recoverable copy of the missing six-cohort RGB corpus:
 
-- `C:\OpenNR_Captures_FullEyeTemporalStateTranche_20260910` contains 14
+- `<DATA_ROOT>\OpenNR_Captures_FullEyeTemporalStateTranche_20260910` contains 14
   sequences and 224 frames. All 224 frames are complete, have contiguous
   16-frame streams, initial `[true, true]` resets, no mid-sequence resets,
   full-frame validation, and all six renderer-conditioning resources. Its
@@ -144,13 +144,13 @@ not a recoverable copy of the missing six-cohort RGB corpus:
   the 101-sequence residual view, so it remains separate capture/validation
   evidence rather than being mixed into the same-split train/validation/test
   comparison. Its metadata also exposes no object/material semantic labels.
-- `G:\OpenNR_Captures_VariedHighEffect_0.5.5_20260906` exists as an empty
-  directory. `G:\OpenNR_Capture_Setup_Backups` contains only one DLL and three
-  settings snapshots. `C:\OpenNR_Captures_FullRes_Pilot_20260904` is a
-  junction to `H:\OpenNR-ColdStorage\RawCaptures\OpenNR_Captures_FullRes_Pilot_20260904`,
+- `<DATA_ROOT>\OpenNR_Captures_VariedHighEffect_0.5.5_20260906` exists as an empty
+  directory. `<DATA_ROOT>\OpenNR_Capture_Setup_Backups` contains only one DLL and three
+  settings snapshots. `<DATA_ROOT>\OpenNR_Captures_FullRes_Pilot_20260904` is a
+  junction to `<COLD_STORAGE>\RawCaptures\OpenNR_Captures_FullRes_Pilot_20260904`,
   but H: is not mounted and the target is unavailable.
 - The old face detector output at
-  `E:\OpenNR_FaceAudit_Merged_20260905\result.json` covers 5,360 rows with
+  `<DATA_ROOT>\OpenNR_FaceAudit_Merged_20260905\result.json` covers 5,360 rows with
   rows hash `d1a699d0...` across 135 sequence IDs, while this study's exact
   12,928-row view has rows hash `06e4d483...` across 101 different sequence
   IDs. Because there is zero sequence-ID overlap, those face detections cannot

@@ -25,21 +25,21 @@ The user-facing changes are in `runtime/open-shaders/package/OPENNR-2.20.0-CHANG
 
 | Check | Result |
 |---|---|
-| Build | `E:/OpenNR_Builds/2.20.0`, MSVC 19.44, VS CMake, `CMAKE_INTERPROCEDURAL_OPTIMIZATION=ON`, same dependency snapshot as 2.19.1 |
-| Dependency note | The shared `C:/OpenNR/Dependencies/runtime-2.16.0/vcpkg_installed` tree was regenerated at 16:48 on Sep 27 outside this work and no longer contains the header-only `devbench-api` port. The build uses a private copy staged at `E:/OpenNR_Builds/2.20.0-deps/devbench-api`, taken from the runtime-2.15.0 snapshot (port 1.5.0). The shared dependency folder was not modified. |
+| Build | `<BUILD_DIR>/2.20.0`, MSVC 19.44, VS CMake, `CMAKE_INTERPROCEDURAL_OPTIMIZATION=ON`, same dependency snapshot as 2.19.1 |
+| Dependency note | The shared `<OPENNR_DATA>/Dependencies/runtime-2.16.0/vcpkg_installed` tree was regenerated at 16:48 on Sep 27 outside this work and no longer contains the header-only `devbench-api` port. The build uses a private copy staged at `<BUILD_DIR>/2.20.0-deps/devbench-api`, taken from the runtime-2.15.0 snapshot (port 1.5.0). The shared dependency folder was not modified. |
 | DLL | `CommunityShaders.dll` file version 2.20.0.0, SHA-256 `73C09692EAB1E64C326BBE68005701FA80C3AC5883CD0EC33B52246D2FEB9C78` |
 | Native tests | 238 cases, 9,702 assertions passed, including 8 new `[nr][policy]` cases (motion-scale conversion, coverage rectangles, stagger, full-resolution lock) |
 | Shaders | `ResultShapingCS`, all three `TemporalReuseCS` entry points and `CopyDepthGuideCS` compile with `fxc cs_5_0` |
 | Source contracts / AIO manifest | `Validate-OpenNR-Source` and `Validate-OpenNR-AIO` passed |
-| Archive | `E:/OpenNR_Builds/2.20.0/dist/OpenNR 2.20.0.7z`, 228,808,844 bytes, SHA-256 `43B910922E5E3E00AD981D4CAE43030CE87E9777375C644F2D52A8BFA13160E3`; `7z t` passed, 522 files |
+| Archive | `<BUILD_DIR>/2.20.0/dist/OpenNR 2.20.0.7z`, 228,808,844 bytes, SHA-256 `43B910922E5E3E00AD981D4CAE43030CE87E9777375C644F2D52A8BFA13160E3`; `7z t` passed, 522 files |
 
 ## Local installation
 
-- Mod `E:/MGO-RC3-fresh/mods/OpenNR 2.20.0`, extracted from the verified archive (522 files).
-- Profile `MGO NSFW - OpenNR 2.20.0`, cloned from the 2.19.1 profile with 2.20.0 enabled and 2.19.1 disabled. Only one enabled mod provides `CommunityShaders.dll`.
+- Mod `<MO2_INSTANCE>/mods/OpenNR 2.20.0`, extracted from the verified archive (522 files).
+- Profile `<MO2_PROFILE>`, cloned from the 2.19.1 profile with 2.20.0 enabled and 2.19.1 disabled. Only one enabled mod provides `CommunityShaders.dll`.
 - The selected MO2 profile was **not** changed.
 - **Grass Optimizations** was enabled at boot in the shared `overwrite/SKSE/Plugins/CommunityShaders/SettingsUser.json`: the `Disable at Boot → GrassOptimizations` flag was set to false and nothing else changed. This file is shared by every profile.
-  - The original was backed up to `E:/MGO-RC3-fresh/_OpenNR_Pilot_Backups/2.20.0-install-20260927/SettingsUser.json` (SHA-256 `247EBCAB…6D6B41`).
+  - The original was backed up to `<MO2_INSTANCE>/_OpenNR_Pilot_Backups/2.20.0-install-20260927/SettingsUser.json` (SHA-256 `247EBCAB…6D6B41`).
   - To roll back, copy that file back, or re-check Grass Optimizations under Disable at Boot.
 
 ## Not yet established

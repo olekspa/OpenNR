@@ -4,8 +4,8 @@ The live OpenNR capture profile is now armed for a bounded, one-button pilot.
 The change was made only after the Skyrim VR, SteamVR, MO2, OpenXR and
 Community Shaders processes were absent. The Steam client and Oculus service
 were left running because they do not load this profile. The selected MO2
-profile is `MGO NSFW - 4.0 BETA`, and the live file is
-`E:/MGO-RC3-fresh/overwrite/SKSE/Plugins/CommunityShaders/SettingsUser.json`.
+profile is `<MO2_PROFILE>`, and the live file is
+`<MO2_INSTANCE>/overwrite/SKSE/Plugins/CommunityShaders/SettingsUser.json`.
 
 ## Capture contract
 
@@ -23,7 +23,7 @@ center crop, pre-NR input, post-NR teacher, raw teacher readback, exact Feature
 18 depth and motion vectors, and all six renderer conditioning resources. Color
 PNG previews remain disabled; the required raw resources and JSONL metadata are
 written. The new output root is
-`C:/OpenNR_Captures_FullEyeTemporalPilot_20260908`, separate from the existing
+`<DATA_ROOT>/OpenNR_Captures_FullEyeTemporalPilot_20260908`, separate from the existing
 renderer-state tranche.
 
 The periodic master is deliberately one frame at the end of each short run.
@@ -50,7 +50,7 @@ The applied values are:
 | `queue_capacity` | `16` |
 | eyes | left and right |
 | renderer conditionings | enabled |
-| output | `C:/OpenNR_Captures_FullEyeTemporalPilot_20260908` |
+| output | `<DATA_ROOT>/OpenNR_Captures_FullEyeTemporalPilot_20260908` |
 
 The configuration validator reports `valid: true` with no warnings. A semantic
 comparison against the pre-edit profile found only six intended changes:
@@ -61,7 +61,7 @@ output root.
 ## Backup and audit handoff
 
 The pre-edit profile is preserved at
-`E:/MGO-RC3-fresh/_OpenNR_Pilot_Backups/pre-full-eye-temporal-pilot-20260908/SettingsUser.before.json`.
+`<MO2_INSTANCE>/_OpenNR_Pilot_Backups/pre-full-eye-temporal-pilot-20260908/SettingsUser.before.json`.
 Its SHA-256 is
 `3b3b1517f296cfca486ce51251e91829366575a8ca1f5f3dc7e6bdc4db0f54a8`.
 The applied profile SHA-256 is
@@ -81,7 +81,7 @@ validator, stereo alignment check, and broad visual sheet pass.
 
 The anchor-only profile described above has been replaced in the live profile
 by a bounded every-frame contract. The live file is
-`E:\MGO-RC3-fresh\overwrite\SKSE\Plugins\CommunityShaders\SettingsUser.json`.
+`<MO2_INSTANCE>\overwrite\SKSE\Plugins\CommunityShaders\SettingsUser.json`.
 Only these capture fields changed from the anchor profile:
 
 | Setting | Before | Live after re-arm |
@@ -90,7 +90,7 @@ Only these capture fields changed from the anchor profile:
 | `capture_full_frame_sequence` | false | true |
 | `full_frame_every_samples` | 240 | 0 |
 | `max_samples` | 240 | 64 |
-| `output_directory` | `C:\OpenNR_Captures_FullEyeTemporalPilot_20260908` | `C:\OpenNR_Captures_FullEyeTemporalEveryFrame_20260909` |
+| `output_directory` | `<DATA_ROOT>\OpenNR_Captures_FullEyeTemporalPilot_20260908` | `<DATA_ROOT>\OpenNR_Captures_FullEyeTemporalEveryFrame_20260909` |
 
 All other OpenNR capture settings remain as previously validated: 80 Hz,
 both eyes, one 512-pixel center crop, raw pre/post input and teacher, native
@@ -99,7 +99,7 @@ validates with `valid: true`, no errors and no warnings. Its SHA-256 is
 `ccde5515081396076715fba06ff66430456adf50a4995ef273ba77de76762dd0`.
 
 Before editing, the exact prior profile was copied to
-`E:\MGO-RC3-fresh\_OpenNR_Pilot_Backups\pre-full-eye-every-frame-20260909\SettingsUser.before.json`
+`<MO2_INSTANCE>\_OpenNR_Pilot_Backups\pre-full-eye-every-frame-20260909\SettingsUser.before.json`
 and matched SHA-256
 `260c185ade91e832c408852e2ed87cb7047d46ddb7d3c74b2d78a21815cd19a9`.
 `Rollback.ps1` in that directory restores and verifies the prior profile.
@@ -137,7 +137,7 @@ changed from the full-eye profile:
 | `capture_full_frame` | true | false |
 | `capture_full_frame_sequence` | true | false |
 | `queue_capacity` | 16 | 32 |
-| `output_directory` | `C:\OpenNR_Captures_FullEyeTemporalEveryFrame_20260909` | `C:\OpenNR_Captures_TemporalCrops_EveryFrame_20260909` |
+| `output_directory` | `<DATA_ROOT>\OpenNR_Captures_FullEyeTemporalEveryFrame_20260909` | `<DATA_ROOT>\OpenNR_Captures_TemporalCrops_EveryFrame_20260909` |
 
 The live profile still requests both eyes, one 512-pixel center crop, 80 Hz,
 raw pre/post input and teacher, native depth and motion, and all six renderer
@@ -145,7 +145,7 @@ conditioning crops, with `burst_frames=max_samples=64`. It validates with
 `valid: true`, no errors and no warnings. Its SHA-256 is
 `6e770b9b9a193bd959b7bc404e4583ddd1472ede7c9dd00c1034ce3f97193c6d`.
 The byte-identical pre-edit backup is
-`E:\MGO-RC3-fresh\_OpenNR_Pilot_Backups\pre-crop-temporal-20260909\SettingsUser.before.json`,
+`<MO2_INSTANCE>\_OpenNR_Pilot_Backups\pre-crop-temporal-20260909\SettingsUser.before.json`,
 with SHA-256
 `ccde5515081396076715fba06ff66430456adf50a4995ef273ba77de76762dd0`;
 `Rollback.ps1` in that directory restores and verifies the prior full-eye

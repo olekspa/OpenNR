@@ -16,8 +16,8 @@
 namespace
 {
 constexpr wchar_t kDefaultGameDirectory[] = L"E:\\Games\\Steam\\steamapps\\common\\SkyrimVR";
-constexpr wchar_t kDefaultLogPath[] = L"E:\\MGO-RC3-clean\\logs\\DLSS5-SKSE-Bridge.log";
-constexpr wchar_t kDefaultUsvfsPath[] = L"E:\\MGO-RC3-clean\\usvfs_x64.dll";
+constexpr wchar_t kDefaultLogPath[] = L"<MO2_INSTANCE>\\logs\\DLSS5-SKSE-Bridge.log";
+constexpr wchar_t kDefaultUsvfsPath[] = L"<MO2_INSTANCE>\\usvfs_x64.dll";
 constexpr wchar_t kSkseSteamLoaderName[] = L"sksevr_steam_loader.dll";
 
 std::wstring GetOption(const std::vector<std::wstring>& args, const wchar_t* name)

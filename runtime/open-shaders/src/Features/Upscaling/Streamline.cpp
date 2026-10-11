@@ -488,6 +488,11 @@ bool Streamline::CheckFrameConstants(sl::ViewportHandle p_viewport, uint32_t eye
 		(FoveatedRenderImpl::Bridge::foveatedEvaluating && FoveatedRenderImpl::Bridge::gazeHistoryReset)) ?
 	                        sl::Boolean::eTrue :
 	                        sl::Boolean::eFalse;
+	const bool frameReset = slConstants.reset == sl::Boolean::eTrue;
+	lastDLSSReset = frameReset;
+	lastDLSSResetFrame = frame;
+	lastDLSSConstantsAccepted = false;
+	lastDLSSConstantsFrame = frame;
 
 	// Apply foveated mvec scale only when the subrect execute path is actually
 	// running this frame (flag set by ExecuteFoveatedRoute). The standard full-frame
@@ -512,6 +517,7 @@ bool Streamline::CheckFrameConstants(sl::ViewportHandle p_viewport, uint32_t eye
 		lastDLSSFailureFrame = frame;
 		return false;
 	}
+	lastDLSSConstantsAccepted = true;
 	constantsFrames[index] = frame;
 	constantsFoveated[index] = FoveatedRenderImpl::Bridge::foveatedEvaluating;
 
@@ -628,6 +634,27 @@ void Streamline::SetDLSSOptions(sl::ViewportHandle p_viewport, uint32_t width, u
 	case 6:
 		customPreset = sl::DLSSPreset::ePresetF;
 		break;
+	}
+	const bool mapQualityActive = PerfModePolicy::ShouldUseMapQualityOverride(
+		globals::game::isVR, perfMode.IsHookActive(), state && state->isMapMenuOpen,
+		state && state->IsStaticMenuBackdropOpen(globals::game::ui));
+	if (mapQualityActive) {
+		switch (PerfModePolicy::ClampMapDlssPreset(globals::features::upscaling.settings.vrMapDlssPreset)) {
+		case 1:
+			customPreset = sl::DLSSPreset::ePresetJ;
+			break;
+		case 2:
+			customPreset = sl::DLSSPreset::ePresetK;
+			break;
+		case 3:
+			customPreset = sl::DLSSPreset::ePresetL;
+			break;
+		case 4:
+			customPreset = sl::DLSSPreset::ePresetM;
+			break;
+		default:
+			break;  // 0 inherits the ordinary per-mode setting.
+		}
 	}
 
 	// Keep eDefault for Auto so NVIDIA can update the mode-specific presets.
@@ -810,7 +837,7 @@ void Streamline::Upscale(ID3D11Resource* a_upscalingTexture, ID3D11Resource* a_r
 		bool eye0Ready = upscaling.vrIntermediateColorIn[0] && upscaling.vrIntermediateColorOut[0] &&
 		                 upscaling.vrIntermediateMotionVectors[0] && upscaling.vrIntermediateReactiveMask[0] && upscaling.vrIntermediateTransparencyMask[0];
 		bool eye1Ready = upscaling.vrIntermediateColorIn[1] && upscaling.vrIntermediateColorOut[1] &&
-		                 upscaling.vrIntermediateDepth && upscaling.vrIntermediateMotionVectors[1] &&
+		                 upscaling.vrIntermediateLinearDepth[1] && upscaling.vrIntermediateMotionVectors[1] &&
 		                 upscaling.vrIntermediateReactiveMask[1] && upscaling.vrIntermediateTransparencyMask[1];
 
 		bool eye0Succeeded = false;
@@ -819,7 +846,6 @@ void Streamline::Upscale(ID3D11Resource* a_upscalingTexture, ID3D11Resource* a_r
 		if (eye1Ready) {
 			D3D11_BOX rightIn = { eyeWidthIn, 0, 0, eyeWidthIn * 2, eyeHeightIn, 1 };
 			context->CopySubresourceRegion(upscaling.vrIntermediateColorIn[1]->resource.get(), 0, 0, 0, 0, a_upscalingTexture, 0, &rightIn);
-			context->CopySubresourceRegion(upscaling.vrIntermediateDepth->resource.get(), 0, 0, 0, 0, Util::AsReal(depthTexture.texture), 0, &rightIn);
 			upscaling.ClearHMDMask(upscaling.vrIntermediateColorIn[1]->uav.get(), Util::AsReal(depthTexture.depthSRV),
 				eyeWidthIn, eyeHeightIn, eyeWidthIn, 0);
 		}
@@ -844,7 +870,7 @@ void Streamline::Upscale(ID3D11Resource* a_upscalingTexture, ID3D11Resource* a_r
 			eye1Succeeded = EvaluateDLSS(viewportRight, 1,
 				upscaling.vrIntermediateColorIn[1]->resource.get(),
 				upscaling.vrIntermediateColorOut[1]->resource.get(),
-				upscaling.vrIntermediateDepth->resource.get(),
+				upscaling.vrIntermediateLinearDepth[1]->resource.get(),
 				upscaling.vrIntermediateMotionVectors[1]->resource.get(),
 				upscaling.vrIntermediateReactiveMask[1]->resource.get(),
 				upscaling.vrIntermediateTransparencyMask[1]->resource.get(),

@@ -379,6 +379,10 @@ void ProfilingRenderer::RenderStatistics(bool showTable, bool showModeToggle)
 		ImGui::TextDisabled("%s", T("menu.profiling.disabled", "Profiling is disabled"));
 		return;
 	}
+	if (profiler.GetSlotRefusals() > 0) {
+		ImGui::TextColored(ImVec4(1.0f, 0.35f, 0.2f, 1.0f),
+			"%u passes dropped (capacity)", profiler.GetSlotRefusals());
+	}
 
 	bool cpuMode = (timingMode == TimingMode::CPU);
 	if (showModeToggle) {

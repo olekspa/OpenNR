@@ -11,8 +11,8 @@ from torch.nn import functional as F
 from stable_oversized_tone_head import StableOversizedToneHead
 from prepare_conditioning_pilot import sha
 
-ENCODER_SOURCE = Path(r'C:\Users\oleks\.cache\torch\hub\facebookresearch_dinov2_main')
-ENCODER_WEIGHTS = Path(r'C:\Users\oleks\.cache\torch\hub\checkpoints\dinov2_vits14_pretrain.pth')
+ENCODER_SOURCE = Path(r'<USER_HOME>\.cache\torch\hub\facebookresearch_dinov2_main')
+ENCODER_WEIGHTS = Path(r'<USER_HOME>\.cache\torch\hub\checkpoints\dinov2_vits14_pretrain.pth')
 
 
 def encoder_provenance():

@@ -25,7 +25,9 @@
 class Profiler
 {
 public:
-	static constexpr uint32_t kMaxTimers = 256;
+	// Hybrid periphery adds per-eye/per-instance NR scopes. Keep enough room for
+	// a complete frame plus other late passes so the profiler never drops them.
+	static constexpr uint32_t kMaxTimers = 1024;
 	static constexpr uint32_t kFrameLatency = 3;
 	static constexpr uint32_t kHistorySize = 300;
 	/** @brief Collection-cycle gap before retiring an inactive timer.
@@ -323,9 +325,7 @@ private:
 	uint32_t readFrame = 0;
 	bool initialized = false;
 	bool frameActive = false;
-	// Enabled by default so profiling pages show data without an extra toggle;
-	// zero-overhead idling still holds because captureActive stays false until requested.
-	std::atomic_bool userEnabled{ true };
+	std::atomic_bool userEnabled{ false };
 	std::atomic_bool captureRequested{ false };
 	std::atomic_bool captureActive{ false };
 	std::mutex captureRequestLock;

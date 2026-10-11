@@ -26,7 +26,7 @@ void WeatherManager::LoadWeatherList()
 	weatherIDMap.clear();
 
 	if (!std::filesystem::exists(weatherListPath)) {
-		logger::warn("[WeatherManager] _weatherlist.ini not found at {}", weatherListPath.string());
+		logger::info("[WeatherManager] _weatherlist.ini not found at {}", weatherListPath.string());
 		return;
 	}
 

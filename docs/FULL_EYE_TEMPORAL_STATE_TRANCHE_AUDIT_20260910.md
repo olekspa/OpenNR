@@ -2,7 +2,7 @@
 
 ## Scope
 
-Read-only audit of `C:\OpenNR_Captures_FullEyeTemporalStateTranche_20260910` after the first collection run. No capture data was moved, deleted, or modified.
+Read-only audit of `<DATA_ROOT>\OpenNR_Captures_FullEyeTemporalStateTranche_20260910` after the first collection run. No capture data was moved, deleted, or modified.
 
 ## Result
 
@@ -84,7 +84,7 @@ the renderer-conditioning acceptance gate.
 
 ## Additional folder rechecked 2026-09-12
 
-The separate folder `C:\OpenNR_Captures_LearnedResidualStudent_20260911`
+The separate folder `<DATA_ROOT>\OpenNR_Captures_LearnedResidualStudent_20260911`
 contains five more 16-frame sequences. The byte/PNG/raw validator reports 80
 complete frames and 1,280 complete artifacts, with zero missing files, partial
 or failed frames, duplicate IDs, duplicate hashes, all-zero RGB images, or hard
@@ -114,19 +114,19 @@ strict candidate manifest contains the four eligible sequences at
 
 The installed profile was corrected on 2026-09-12 after this recheck: renderer
 conditionings are enabled, the next output is isolated at
-`C:\OpenNR_Captures_FullEyeTemporalStateTranche_20260912`, and the speed-safe
+`<DATA_ROOT>\OpenNR_Captures_FullEyeTemporalStateTranche_20260912`, and the speed-safe
 16-frame/80-FPS/queue-32/no-preview settings remain unchanged. The profile
 backup and rollback are under
-`E:\MGO-RC3-fresh\_OpenNR_Pilot_Backups\pre-fast-full-eye-state-20260912`.
+`<MO2_INSTANCE>\_OpenNR_Pilot_Backups\pre-fast-full-eye-state-20260912`.
 
 ## Validators
 
 ```powershell
 python tools\\validate_temporal_capture.py `
-  C:\OpenNR_Captures_FullEyeTemporalStateTranche_20260910 `
+  <DATA_ROOT>\OpenNR_Captures_FullEyeTemporalStateTranche_20260910 `
   --mode master `
   --expected-pass-count 1
 
 python tools\\validate_capture.py `
-  C:\OpenNR_Captures_FullEyeTemporalStateTranche_20260910
+  <DATA_ROOT>\OpenNR_Captures_FullEyeTemporalStateTranche_20260910
 ```

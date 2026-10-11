@@ -13,13 +13,13 @@ GUIDE_HEIGHT = 1792
 WORK_WIDTH = 1622
 WORK_HEIGHT = 1747
 CAPTURE = Path(
-    r"C:\OpenNR_Captures_FullEyeTemporalStateTranche_20260910"
+    r"<DATA_ROOT>\OpenNR_Captures_FullEyeTemporalStateTranche_20260910"
     r"\seq-1789063628889-1\frames\frame_00000001"
 )
-SOURCE = Path(r"C:\OpenNR\NativeResolutionStudy65_20260912")
-ROOT = Path(r"C:\OpenNR\Native65IntensityResetSweep_20260912")
+SOURCE = Path(r"<OPENNR_DATA>\NativeResolutionStudy65_20260912")
+ROOT = Path(r"<OPENNR_DATA>\Native65IntensityResetSweep_20260912")
 DLL = Path(
-    r"E:\MGO-RC3-fresh\mods\Open Shaders DLSSNR VR 0.5.7 OpenNR"
+    r"<MO2_INSTANCE>\mods\Open Shaders DLSSNR VR 0.5.7 OpenNR"
     r"\Shaders\Upscaling\Streamline\nvngx_dlssnr.dll"
 )
 CORE_ROOT = Path(r"C:\Windows\System32\DriverStore\FileRepository")

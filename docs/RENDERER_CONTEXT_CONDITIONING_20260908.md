@@ -12,7 +12,7 @@ The safe next research direction is new, broader paired renderer-conditioned dat
 
 ## Current multi-layer endpoint
 
-Run: `E:\OpenNR_Training\stable_unet_joint_teacher_multilayer6000_20260908`
+Run: `<DATA_ROOT>\OpenNR_Training\stable_unet_joint_teacher_multilayer6000_20260908`
 
 The 6,000-step arm retained the 38M stable U-Net and added zero-initialized scale/bias controls after 51 GroupNorm layers. It used the verified broad step-5,600 warm start, frozen parent, seed 359, cohort probabilities `30/18/12/20/20`, eight-frame windows with two burn-in frames, BF16, fresh AdamW at `1e-4`, and the existing L1 + pooled-RGB + temporal-error objective. The renderer cache was retained as metadata/data provenance but was not consumed as U-Net input in this arm.
 
@@ -30,7 +30,7 @@ The response diagnostic found no tanh saturation and only approximately `5e-5` p
 
 ## Next controlled experiment: renderer features at the stem
 
-Run: `E:\OpenNR_Training\stable_unet_renderer_conditioned1200_20260908_retry2`
+Run: `<DATA_ROOT>\OpenNR_Training\stable_unet_renderer_conditioned1200_20260908_retry2`
 
 This was the smallest direct test of the missing renderer-context hypothesis:
 
@@ -39,7 +39,7 @@ This was the smallest direct test of the missing renderer-context hypothesis:
 - The 17 new stem-weight slices are zero-initialized and the original 19 slices are copied bit-for-bit.
 - The added branch contributes only 2,448 convolution weights; the final teacher-mode head contains 38,479,948 parameters.
 - Legacy cohorts receive explicit zero renderer channels; the fresh and two-pass caches use their hash-verified `conditioning.npy` data.
-- The parent, cohort membership, validation holdouts, seed, cohort probabilities, loss, window, burn-in, BF16 path, learning rate and AdamW initialization are matched to the fresh 1,200-step control at `E:\OpenNR_Training\stable_unet_joint_teacher_20260907`.
+- The parent, cohort membership, validation holdouts, seed, cohort probabilities, loss, window, burn-in, BF16 path, learning rate and AdamW initialization are matched to the fresh 1,200-step control at `<DATA_ROOT>\OpenNR_Training\stable_unet_joint_teacher_20260907`.
 - The sample schedule hash is identical: `14e00f179d446ba8df21fb4213830906b7338b69667dab030aad7966f157c520`.
 
 The direct functional smoke test gave zero max/mean difference between the original and expanded head when the 17 added inputs were zero. The full BF16 step-zero streaming replay differed from the matched control by at most `6.35e-7` in the recorded MAE/PSNR/temporal fields, below the declared `5e-6` replay gate.
@@ -63,7 +63,7 @@ The branch therefore improved only the high-effect MAE cohort, while its tempora
 - Final checkpoint replay: all five validation cohorts passed with zero recorded reproduction differences. Final checkpoint SHA-256: `337f7e83fa8a2730f2de6e772934a1f90e09ee2d792555f08fb671710cd75c56`.
 - Training-fit replay: prior `0.0183137361`, high-effect `0.0172967046`, renderer pilot `0.0146692882`, fresh one-pass `0.0212567621`, two-pass `0.0438968340`. This is diagnostic only and does not use the frozen test.
 - Utilization probe: learned renderer-stem weight L2 `0.3855278790`, maximum absolute weight `0.0268677063`, nonzero fraction `1.0`; on two sampled validation streams per renderer-bearing cohort, actual-versus-zero-conditioning output MAE was `0.0010084041` for fresh one-pass and `0.0007561681` for two-pass. The branch is not inert, but the response does not improve broad held-out teacher match.
-- Fixed galleries: [final gallery index](<E:/OpenNR_Training/stable_unet_renderer_conditioned1200_20260908_retry2/final_gallery/index.html>) and [prior face sheet](<E:/OpenNR_Training/stable_unet_renderer_conditioned1200_20260908_retry2/final_gallery/prior-seq-1788671399304-47-eye0.png>). The renderer-conditioned student remains visually close to the warm U-Net rather than moving convincingly toward the teacher; the fresh skin/face sheet remains too dark and the two-pass sheet remains under-matched in color and fine appearance.
+- Fixed galleries: [final gallery index](<<DATA_ROOT>/OpenNR_Training/stable_unet_renderer_conditioned1200_20260908_retry2/final_gallery/index.html>) and [prior face sheet](<<DATA_ROOT>/OpenNR_Training/stable_unet_renderer_conditioned1200_20260908_retry2/final_gallery/prior-seq-1788671399304-47-eye0.png>). The renderer-conditioned student remains visually close to the warm U-Net rather than moving convincingly toward the teacher; the fresh skin/face sheet remains too dark and the two-pass sheet remains under-matched in color and fine appearance.
 
 ## Latest public DLSS 5 / distillation findings
 
@@ -79,15 +79,15 @@ Live Runpod checks found no pods, network volumes or endpoints. The billing quer
 
 ## Reproducibility pointers
 
-- [Renderer-conditioned implementation](<D:/.CODEX_Projects/OpenNR-VR/tools/renderer_conditioned_stable.py>)
-- [Controlled trainer](<D:/.CODEX_Projects/OpenNR-VR/tools/train_renderer_conditioned_stable.py>)
-- [Independent verifier](<D:/.CODEX_Projects/OpenNR-VR/tools/verify_renderer_conditioned.py>)
-- [Training-fit replay](<D:/.CODEX_Projects/OpenNR-VR/tools/evaluate_renderer_conditioned_training_fit.py>)
-- [Conditioning utilization probe](<D:/.CODEX_Projects/OpenNR-VR/tools/diagnose_renderer_conditioning.py>)
-- [Endpoint validation JSON](<E:/OpenNR_Training/stable_unet_renderer_conditioned1200_20260908_retry2/final_checkpoint_verification.json>)
-- [Step-zero replay JSON](<E:/OpenNR_Training/stable_unet_renderer_conditioned1200_20260908_retry2/step_zero_replay.json>)
-- [Utilization JSON](<E:/OpenNR_Training/stable_unet_renderer_conditioned1200_20260908_retry2/conditioning_response_v2/result.json>)
-- [Training-fit JSON](<E:/OpenNR_Training/stable_unet_renderer_conditioned1200_20260908_retry2/training_fit/result.json>)
+- [Renderer-conditioned implementation](<<REPO>/tools/renderer_conditioned_stable.py>)
+- [Controlled trainer](<<REPO>/tools/train_renderer_conditioned_stable.py>)
+- [Independent verifier](<<REPO>/tools/verify_renderer_conditioned.py>)
+- [Training-fit replay](<<REPO>/tools/evaluate_renderer_conditioned_training_fit.py>)
+- [Conditioning utilization probe](<<REPO>/tools/diagnose_renderer_conditioning.py>)
+- [Endpoint validation JSON](<<DATA_ROOT>/OpenNR_Training/stable_unet_renderer_conditioned1200_20260908_retry2/final_checkpoint_verification.json>)
+- [Step-zero replay JSON](<<DATA_ROOT>/OpenNR_Training/stable_unet_renderer_conditioned1200_20260908_retry2/step_zero_replay.json>)
+- [Utilization JSON](<<DATA_ROOT>/OpenNR_Training/stable_unet_renderer_conditioned1200_20260908_retry2/conditioning_response_v2/result.json>)
+- [Training-fit JSON](<<DATA_ROOT>/OpenNR_Training/stable_unet_renderer_conditioned1200_20260908_retry2/training_fit/result.json>)
 
 No production model, native Feature 18 resource, active MGO profile, public package, or runtime DLL was changed.
 

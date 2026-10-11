@@ -13,8 +13,8 @@
 | Tests | `tests`, `tools/test_*.py`, `runtime/open-shaders/tests` | Fixtures plus native/controller tests |
 | Build and package | `tools/Build-OpenNR.ps1` and runtime CMake targets | E: output; no auto-deployment |
 | Historical research and sibling source | `experiments`, dated `docs` | Evidence and reproduction status, not automatic promotion |
-| External dependencies | `C:/OpenNR/Dependencies/runtime-2.15.0` | Verified snapshot manifest; private inputs outside Git |
-| Recovery and machine inventory | `C:/OpenNR/ConsolidationBackups/20260913` | SHA-256 copies, bundles, patches, SQLite inventory and logs |
+| External dependencies | `<OPENNR_DATA>/Dependencies/runtime-2.15.0` | Verified snapshot manifest; private inputs outside Git |
+| Recovery and machine inventory | `<OPENNR_DATA>/ConsolidationBackups/20260913` | SHA-256 copies, bundles, patches, SQLite inventory and logs |
 
 Runtime history is imported through a two-parent merge, not flattened into an unrelated copy. The pre-consolidation research history remains an ancestor. `refs/archive/legacy/*` preserves reconciled sibling histories. Historical source checkouts remain available for recovery; maintained commands do not require their paths.
 

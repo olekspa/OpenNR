@@ -6,7 +6,7 @@ Selection is deterministic from the completed training-only error report: upper-
 
 Fixed recipe: seed354,600 steps, all existing weights train, round-robin cohort sampling with random clip/eye/window, window8 burn-in2, AdamW1e-5 with no weight decay, pure L1, no augmentation or EMA. Full causal training-subset evaluations at0/200/400/600. This changes several optimization conditions together to test fitting ability, not causally identify any single cause. Failure is not proof of a capacity ceiling; success is not generalization evidence.
 
-Output E:/OpenNR_Training/retention_six_clip_fit_probe_20260907. Script tools/train_retention_fit_probe.py. Live execution session47618; poll without restarting. The final checkpoint is explicitly diagnostic_only.pt, not a production candidate. Original models, all captures, and all split identities remain unchanged. No Runpod or runtime/public-build modifications.
+Output <DATA_ROOT>/OpenNR_Training/retention_six_clip_fit_probe_20260907. Script tools/train_retention_fit_probe.py. Live execution session47618; poll without restarting. The final checkpoint is explicitly diagnostic_only.pt, not a production candidate. Original models, all captures, and all split identities remain unchanged. No Runpod or runtime/public-build modifications.
 
 ## Completed result
 

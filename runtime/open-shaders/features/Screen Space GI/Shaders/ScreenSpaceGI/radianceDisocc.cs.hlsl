@@ -109,9 +109,11 @@ void readHistory(
 		outRadianceDisocc[pixCoord] = half3(0, 0, 0);
 #endif
 		outAccumFrames[pixCoord] = 1.0 / 255.0;
+		outRemappedAo[pixCoord] = 0;
 #ifdef GI
 		outRemappedIlY[pixCoord] = half4(0, 0, 0, 0);
 		outRemappedIlCoCg[pixCoord] = half2(0, 0);
+		outRemappedPrevGISpecular[pixCoord] = half4(0, 0, 0, 0);
 #endif
 		return;
 	}

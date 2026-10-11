@@ -54,15 +54,17 @@ ScopedGpuPass::ScopedGpuPass(const tracy::SourceLocationData* srcloc, std::strin
 {
 	auto* profiler = globals::profiler;
 	auto* state = globals::state;
+	const bool profilingEnabled = profiler && profiler->IsEnabled();
 
 	// BeginPass returns false at capacity; EndPass below must not fire for a
 	// pass that never opened.
 	if (profiler)
 		profilerActive = profiler->BeginPass(name, false);
 
-	cpuZone.emplace(srcloc, -1, true);
+	if (profilingEnabled)
+		cpuZone.emplace(srcloc, -1, true);
 
-	if (state && state->tracyCtx) {
+	if (profilingEnabled && state && state->tracyCtx) {
 		gpuZone.emplace(state->tracyCtx, srcloc, true);
 	}
 
@@ -86,6 +88,8 @@ ScopedGpuPass::ScopedGpuPass(std::string_view name)
 		profilerActive = profiler->BeginPass(name, false);
 
 #ifdef TRACY_ENABLE
+	const bool profilingEnabled = profiler && profiler->IsEnabled();
+	if (profilingEnabled) {
 	// Each call allocates its own one-shot srcloc buffer; do not cache and reuse it
 	// across calls, Tracy frees it after this zone is serialized.
 	cpuZone.emplace(
@@ -102,6 +106,7 @@ ScopedGpuPass::ScopedGpuPass(std::string_view name)
 			"ScopedGpuPass", sizeof("ScopedGpuPass") - 1,
 			name.data(), name.size(),
 			0, true);
+	}
 	}
 #endif
 

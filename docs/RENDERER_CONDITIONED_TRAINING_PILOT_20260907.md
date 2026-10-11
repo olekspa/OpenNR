@@ -7,7 +7,7 @@ User authorized validation and training using the newly collected samples, witho
 ## Preregistered experiment
 
 - Source: twelve new 64-frame sequences, `seq-1788803746547-1` through `seq-1788803895392-12`, subject to exhaustive file/temporal validation and content audit. Failed sequences remain on disk and are explicitly excluded.
-- Parent: `E:\OpenNR_Training\runpod_latest_cache_width_ablation_0.5.5_20260907\arm_C\best_mae.pt`. All parent weights are frozen. Parent predictions use complete causal streams with independent eye/sequence resets. Refiner output is never fed back into parent state.
+- Parent: `<DATA_ROOT>\OpenNR_Training\runpod_latest_cache_width_ablation_0.5.5_20260907\arm_C\best_mae.pt`. All parent weights are frozen. Parent predictions use complete causal streams with independent eye/sequence resets. Refiner output is never fed back into parent state.
 - Cache: separate schema `opennr-aligned-renderer-pilot-v1`. RGB/teacher retain original 512x512 color data; depth, exact Feature-18 motion vectors, and all renderer features are mapped from native crop coordinates into the teacher region. Native guide validity masks are propagated during interpolation. Existing caches are unchanged.
 - Features: 17 components from six buffers: albedo RGB; decoded signed normal XYZ and roughness; masks RGB; masks2 R; specular RGB; reflectance RGB. Packed alpha is omitted. HDR/mask float features use fixed `x/(1+x)`, without fitting any validation/test distribution. Normals are decoded before resampling. Guides/conditioning use 128x128 feature maps; context uses 96x96.
 - Split: deterministic chronological whole-sequence holdouts. With all twelve accepted: seven training, two validation, three frozen test. Both eyes and all frames remain together. Exact duplicate input/teacher pairs crossing holdouts fail cache creation. Near-duplicate scenes can still cross splits; these are same-session pilot results, not independent-scene generalization.
@@ -64,8 +64,8 @@ The validation gallery and fixed-frame-32 test galleries show input, teacher, pa
 
 ## Artifacts and state at handoff
 
-- Cache: `E:\OpenNR_TrainingInputs\RendererConditioningPilotAligned_20260907` (1,408 eye rows; all four array SHA-256 values committed in `complete.json`; zero invalid native depth or motion pixels).
-- Run: `E:\OpenNR_Training\renderer_conditioned_refiner_pilot_20260907`.
+- Cache: `<DATA_ROOT>\OpenNR_TrainingInputs\RendererConditioningPilotAligned_20260907` (1,408 eye rows; all four array SHA-256 values committed in `complete.json`; zero invalid native depth or motion pixels).
+- Run: `<DATA_ROOT>\OpenNR_Training\renderer_conditioned_refiner_pilot_20260907`.
 - Selected control adapter: `control\best.pt`, SHA-256 `d041966aaa3c55204697ad214f1536766fd1ce4eb6c88d723fa937cb76a70521`.
 - Selected conditioned adapter: `conditioned\best.pt`, SHA-256 `204773f14e5a44efb5cb200aed7a711f10b82c2184b0cdcd4256c7109bcd8a37`.
 - Required frozen parent: SHA-256 `d644d8fe04efe78df37da46451ae3d665fa96707755131fe999419628bb7cf51`. Adapter checkpoints are not standalone parent replacements.

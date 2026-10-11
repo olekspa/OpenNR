@@ -323,7 +323,10 @@ bool Effect::Apply()
 		if (!filePresent) {
 			// A missing optional effect is normal, a missing required one means there is no preset
 			if (IsRequired()) {
-				logger::error("[EFFECTS11] Required effect file not found: '{}'", GetFilePath().string());
+				if (!std::filesystem::exists(GetFilePath().parent_path()))
+					logger::info("[EFFECTS11] No ENB preset directory; required effect '{}' is absent", GetFilePath().string());
+				else
+					logger::error("[EFFECTS11] Required effect file not found: '{}'", GetFilePath().string());
 				return false;
 			}
 			logger::info("[EFFECTS11] Effect file not found, skipping: '{}'", GetFilePath().string());

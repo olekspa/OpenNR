@@ -3,7 +3,7 @@ param(
     [ValidateSet('baseline','neural','custom')][string]$Label = 'custom',
     [int]$DurationSeconds = 30,
     [int]$IntervalMilliseconds = 500,
-    [string]$ProjectRoot = 'D:\.CODEX_Projects\DLSS_5_SKYRIM'
+    [string]$ProjectRoot = '<LEGACY_REPO>'
 )
 
 $ErrorActionPreference = 'Stop'

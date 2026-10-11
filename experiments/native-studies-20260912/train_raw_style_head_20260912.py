@@ -14,7 +14,7 @@ import torch.nn.functional as F
 from PIL import Image, ImageDraw
 from torch import nn
 
-TOOLS = Path(r"D:\.CODEX_Projects\OpenNR-VR\tools")
+TOOLS = Path(r"<REPO>\tools")
 if str(TOOLS) not in sys.path:
     sys.path.insert(0, str(TOOLS))
 
@@ -26,10 +26,10 @@ from evaluate_fast_student_trt_full_eye import (  # noqa: E402
 )
 
 
-DATA_ROOT = Path(r"C:\OpenNR\NativeReplays50_20260912")
+DATA_ROOT = Path(r"<OPENNR_DATA>\NativeReplays50_20260912")
 TEST_NAME = "seq-1789064397821-5_f1-16"
 VALID_NAME = "seq-1789064544626-6_f1-16"
-OUTPUT = Path(r"C:\OpenNR\OpenNR_RawStyleHeadPilot_20260912")
+OUTPUT = Path(r"<OPENNR_DATA>\OpenNR_RawStyleHeadPilot_20260912")
 FACE_CROP = (1480, 700, 1980, 1300)
 
 

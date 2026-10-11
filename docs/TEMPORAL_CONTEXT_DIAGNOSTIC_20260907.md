@@ -6,7 +6,7 @@ Use verified seed352 retained step400 checkpoint, all207 training sequences and 
 
 This fixed block-offset diagnostic samples but does not exhaust random training-window starts. It measures inference-context sensitivity, not gradient truncation, training trajectory, or proof that longer training windows help. No optimization, validation selection, frozen tests, or runtime changes. Original artifacts remain unchanged.
 
-Script tools/diagnose_temporal_context.py. Output E:/OpenNR_Training/temporal_context_diagnostic_20260907. Live session32141; poll without restarting. Progress includes completed eye-stream counts so long evaluation is observable.
+Script tools/diagnose_temporal_context.py. Output <DATA_ROOT>/OpenNR_Training/temporal_context_diagnostic_20260907. Live session32141; poll without restarting. Progress includes completed eye-stream counts so long evaluation is observable.
 
 ## Completed paired replay
 

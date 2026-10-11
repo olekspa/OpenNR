@@ -1,10 +1,12 @@
 #include "State.h"
+#include "SettingsDefaultPolicy.h"
 
 #include <codecvt>
 
 #include <pystring/pystring.h>
 
 #include "Deferred.h"
+#include "FrameAnnotations.h"
 #include "FeatureIssues.h"
 #include "Features/CSEditor.h"
 #include "Features/CSUtility.h"
@@ -360,6 +362,7 @@ void State::Reset()
 
 	// Cache menu open states once per frame to avoid repeated IsMenuOpen calls
 	// (each call constructs a BSFixedString, which is expensive at scale).
+	const bool previousMapMenuOpen = isMapMenuOpen;
 	if (auto ui = globals::game::ui) {
 		if (!ui->GameIsPaused())
 			timer += RE::GetSecondsSinceLastFrame();
@@ -373,6 +376,10 @@ void State::Reset()
 		isLoadingMenuOpen = false;
 		isMapMenuOpen = false;
 		isStatsMenuOpen = false;
+	}
+	if (previousMapMenuOpen != isMapMenuOpen) {
+		FrameAnnotations::OnMapMenuState(isMapMenuOpen, frameCount);
+		globals::features::upscaling.perfMode.OnMapMenuStateChanged(isMapMenuOpen);
 	}
 
 	lastModifiedPixelDescriptor = 0;
@@ -404,8 +411,15 @@ void State::Reset()
 	activeReflections = false;
 }
 
-void State::Setup()
+void State::Setup(const char* a_caller, const char* a_reinitReason)
 {
+	logger::info("[RendererSetup] entry thread={} caller={} device=0x{:x} renderer=0x{:x} reinitReason={}",
+		GetCurrentThreadId(),
+		a_caller ? a_caller : "unknown",
+		reinterpret_cast<std::uintptr_t>(globals::d3d::device),
+		reinterpret_cast<std::uintptr_t>(globals::game::renderer),
+		a_reinitReason ? a_reinitReason : "unknown");
+
 	// Detect Moon and Stars mod for compatibility adjustments
 	moonAndStarsLoaded = GetModuleHandle(L"po3_MoonMod.dll") != nullptr;
 	if (moonAndStarsLoaded)
@@ -527,6 +541,13 @@ void State::Load(ConfigMode a_configMode, bool a_allowReload)
 			logger::error("Error opening newly created default config file ({})\n", defaultConfigFilePath);
 			return;
 		}
+	}
+	// SettingsDefault.json may live in a user's overwrite folder and can outlive
+	// multiple releases. A stale base layer silently overrides current C++ defaults
+	// for every feature key absent from SettingsUser.json. Ignore it in memory;
+	// never rewrite or delete the user's file. User settings still merge below.
+	if (const auto staleVersion = SettingsDefaultPolicy::ApplyVersionGate(settings, Plugin::VERSION.string())) {
+		logger::warn("Ignoring stale SettingsDefault.json version {}; using current code defaults", *staleVersion);
 	}
 
 	// Step 2: Apply user settings on top of defaults (user preferences)
@@ -1085,7 +1106,7 @@ void State::CheckTypedUAVLoadSupport()
 		{ DXGI_FORMAT_R10G10B10A2_UNORM, "R10G10B10A2_UNORM", "VR Stereo Reprojection G-buffer fill (NormalRoughness, Albedo)" },
 		{ DXGI_FORMAT_R16_UNORM, "R16_UNORM", "VR Stereo Reprojection G-buffer fill (Masks2)" },
 		{ DXGI_FORMAT_R8G8B8A8_UNORM, "R8G8B8A8_UNORM", "HDR Display UI brightness (uiTexture)" },
-		{ DXGI_FORMAT_R8_UINT, "R8_UINT", "Skylighting accumulation frames (outAccumFramesArray)" },
+		{ DXGI_FORMAT_R16_UINT, "R16_UINT", "Skylighting accumulation frames and shadow-history cursor (outAccumFramesArray)" },
 		{ DXGI_FORMAT_R16_FLOAT, "R16_FLOAT", "Vanilla volumetric lighting density (DensityRW)" },
 	};
 
@@ -1462,6 +1483,13 @@ void State::UpdateSharedData([[maybe_unused]] bool a_inWorld, [[maybe_unused]] b
 			}
 		} else {
 			data.MipBias = 0;
+		}
+		lastGameMipBias = data.MipBias;
+		lastMapMipBiasOffsetApplied = 0.0f;
+		if (PerfModePolicy::ShouldApplyMapMipBias(globals::game::isVR, isMapMenuOpen)) {
+			lastMapMipBiasOffsetApplied = PerfModePolicy::ClampMapMipBiasOffset(upscaling.settings.vrMapMipBiasOffset);
+			data.MipBias = PerfModePolicy::ApplyMapMipBiasOffset(data.MipBias,
+				lastMapMipBiasOffsetApplied, globals::game::isVR, isMapMenuOpen);
 		}
 
 		if (auto sky = globals::game::sky) {

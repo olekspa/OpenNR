@@ -11,7 +11,7 @@ roots.
 Both arms started from the rebalanced hard-cohort checkpoint at absolute step
 3,200:
 
-`C:/OpenNR/Training/semantic_mixture_rebalanced_pair_20260908/continuation_3200_rebalanced/last.pt`
+`<OPENNR_DATA>/Training/semantic_mixture_rebalanced_pair_20260908/continuation_3200_rebalanced/last.pt`
 
 Its SHA-256 is
 `76624869c6fd7c746ff730da4e1ed85a95414a0f568a2ff9fb5f9c5dc89fddf2`.
@@ -22,7 +22,7 @@ test rows, and sampled the six cohorts with probabilities
 
 The control kept the temporal-delta weight at `0.12`; the intervention doubled
 it to `0.24`. The complete paired record is under
-`C:/OpenNR/Training/semantic_mixture_temporal_delta_pair_20260908_resume`.
+`<OPENNR_DATA>/Training/semantic_mixture_temporal_delta_pair_20260908_resume`.
 
 ## Endpoint result
 

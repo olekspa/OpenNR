@@ -27,7 +27,7 @@ cbuffer TemporalReuseParams : register(b0)
 	uint gUseDepth;
 	uint gUseColor;
 	uint gPadding0;
-	uint gPadding1;
+	uint gUsePeripheryCoarseFallback;
 };
 
 Texture2D<float4> gColor0 : register(t0);
@@ -38,6 +38,7 @@ Texture2D<float> gPreviousDepth : register(t4);
 Texture2D<float4> gPreviousResidual : register(t5);
 Texture2D<float2> gCurrentMotion : register(t6);
 Texture2D<float2> gPreviousAccumulatedMotion : register(t7);
+Texture2D<float4> gPreviousPeripheryCoarseEffect : register(t8);
 
 RWTexture2D<float4> gBaseTarget : register(u0);
 RWTexture2D<float4> gResidualTarget : register(u1);
@@ -79,6 +80,38 @@ void Snapshot(uint3 dispatchThreadID : SV_DispatchThreadID)
 	const float4 teacherColor = gColor1.Load(int3(pixel, 0));
 	gBaseTarget[pixel] = inputColor;
 	gResidualTarget[pixel] = float4(teacherColor.rgb - inputColor.rgb, 0.0);
+}
+
+// Save only a native Feature 18 anchor's low-resolution residual as the
+// periphery stagger fallback. The target is 1/8 of the eye resolution; each
+// target texel receives an area-weighted box reduction of the model-resolution
+// effect so non-integral model scales remain correctly normalized.
+[numthreads(8, 8, 1)]
+void SnapshotPeripheryCoarse(uint3 dispatchThreadID : SV_DispatchThreadID)
+{
+	if (dispatchThreadID.x >= gGuideWidth || dispatchThreadID.y >= gGuideHeight)
+		return;
+
+	const float2 sourceSize = float2(max(gColorWidth, 1u), max(gColorHeight, 1u));
+	const float2 targetSize = float2(max(gGuideWidth, 1u), max(gGuideHeight, 1u));
+	const float2 begin = float2(dispatchThreadID.xy) * sourceSize / targetSize;
+	const float2 end = float2(dispatchThreadID.xy + 1u) * sourceSize / targetSize;
+	const int2 first = int2(floor(begin));
+	const int2 last = int2(ceil(end));
+	float3 sum = 0.0.xxx;
+	float totalWeight = 0.0;
+	for (int y = first.y; y < last.y; ++y) {
+		for (int x = first.x; x < last.x; ++x) {
+			const float2 overlap = max(0.0.xx, min(end, float2(x + 1, y + 1)) - max(begin, float2(x, y)));
+			const float weight = overlap.x * overlap.y;
+			const uint2 sourcePixel = uint2(clamp(int2(x, y), 0, int2(gColorWidth, gColorHeight) - 1));
+			const float3 inputColor = gColor0.Load(int3(sourcePixel, 0)).rgb;
+			const float3 featureOutput = gColor1.Load(int3(sourcePixel, 0)).rgb;
+			sum += (featureOutput - inputColor) * weight;
+			totalWeight += weight;
+		}
+	}
+	gBaseTarget[dispatchThreadID.xy] = float4(sum / max(totalWeight, 1e-6), 0.0);
 }
 
 [numthreads(8, 8, 1)]
@@ -149,5 +182,12 @@ void Reproject(uint3 dispatchThreadID : SV_DispatchThreadID)
 	float3 result = currentColor.rgb;
 	if (accepted)
 		result += gPreviousResidual.SampleLevel(gLinear, ColorUV(previousPosition), 0).rgb;
+	else if (gUsePeripheryCoarseFallback != 0u)
+	{
+		// A rejected periphery warp must keep the lighting/colour band alive
+		// without reintroducing stale high-frequency residual detail. This coarse
+		// history is sampled at the current pixel, not at the rejected location.
+		result += gPreviousPeripheryCoarseEffect.SampleLevel(gLinear, ColorUV(float2(pixel)), 0).rgb;
+	}
 	gOutput[pixel] = float4(max(result, 0.0.xxx), currentColor.a);
 }

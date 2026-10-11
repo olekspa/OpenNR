@@ -15,7 +15,7 @@ only one full-eye anchor at sample 64.
 The rejected output root is retained and must not be mixed into an accepted
 temporal cache:
 
-`C:\OpenNR_Captures_FullEyeStateProbe_EveryFrame_20260909`
+`<DATA_ROOT>\OpenNR_Captures_FullEyeStateProbe_EveryFrame_20260909`
 
 The 18-sequence crop-temporal cache, all other raw capture roots, and every
 checkpoint remain untouched controls.
@@ -24,15 +24,15 @@ checkpoint remain untouched controls.
 
 Active settings file:
 
-`E:\MGO-RC3-fresh\overwrite\SKSE\Plugins\CommunityShaders\SettingsUser.json`
+`<MO2_INSTANCE>\overwrite\SKSE\Plugins\CommunityShaders\SettingsUser.json`
 
 Fresh empty output root:
 
-`C:\OpenNR_Captures_FullEyeStateProbe_EveryFrame_20260909`
+`<DATA_ROOT>\OpenNR_Captures_FullEyeStateProbe_EveryFrame_20260909`
 
 Pre-edit backup and rollback:
 
-`E:\MGO-RC3-fresh\_OpenNR_Pilot_Backups\pre-full-eye-state-probe-20260909-215939`
+`<MO2_INSTANCE>\_OpenNR_Pilot_Backups\pre-full-eye-state-probe-20260909-215939`
 
 The backup `SettingsUser.before.json` SHA-256 is
 `6E770B9B9A193BD959B7BC404E4583DDD1472EDE7C9DD00C1034CE3F97193C6D`.
@@ -153,11 +153,11 @@ headroom is sufficient for the bounded 8-sequence target.
 Run the strict full-frame audit before decoding or training:
 
 ```powershell
-python D:\.CODEX_Projects\OpenNR-VR\tools\validate_temporal_capture.py `
-  C:\OpenNR_Captures_FullEyeStateProbe_EveryFrame_20260909 `
+python <REPO>\tools\validate_temporal_capture.py `
+  <DATA_ROOT>\OpenNR_Captures_FullEyeStateProbe_EveryFrame_20260909 `
   --mode master `
   --expected-pass-count 1 `
-  --output C:\OpenNR\Training\full_eye_state_probe_temporal_audit_20260909.json
+  --output <OPENNR_DATA>\Training\full_eye_state_probe_temporal_audit_20260909.json
 ```
 
 Then run the exhaustive artifact validator and renderer-content/conditioning

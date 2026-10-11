@@ -735,7 +735,7 @@ void GrassOptimizations::ClearShaderCache()
 {
 	cullCS.Reset();
 	layoutSignature.Reset();
-	inputLayouts.clear();
+	inputLayouts.Clear();
 	hiZ.ClearShaderCache();
 	bucketStore.ClearShaderCache();
 }
@@ -745,12 +745,15 @@ void GrassOptimizations::ClearShaderCache()
 // for that descriptor (a descriptor-agnostic layout silently drops them, leaving VR grass invisible).
 ID3D11InputLayout* GrassOptimizations::GetOptimizedInputLayout(uint64_t a_descVal)
 {
-	if (auto it = inputLayouts.find(a_descVal); it != inputLayouts.end())
-		return it->second.get();
+	if (auto* cached = inputLayouts.Find(a_descVal))
+		return cached->get(); // An empty resource is a negative-cache hit.
 
 	ID3DBlob* signature = layoutSignature.Get(L"Data\\Shaders\\GrassOptimizations\\GrassInstanceSignatureVS.hlsl", {}, "vs_5_0");
-	if (!signature)
+	if (!signature) {
+		inputLayouts.CacheFailure(a_descVal);
+		logger::error("[GRASS OPTIMIZATIONS] input layout signature unavailable for desc {:X}; failure cached", a_descVal);
 		return nullptr;
+	}
 
 	uint64_t storage = a_descVal;
 	auto& vdesc = *reinterpret_cast<RE::BSGraphics::VertexDesc*>(&storage);
@@ -770,12 +773,16 @@ ID3D11InputLayout* GrassOptimizations::GetOptimizedInputLayout(uint64_t a_descVa
 	const HRESULT hr = globals::d3d::device->CreateInputLayout(elements.data(), count,
 		signature->GetBufferPointer(), signature->GetBufferSize(), layout.put());
 	if (FAILED(hr) || !layout) {
-		logger::error("[GRASS OPTIMIZATIONS] input layout creation failed for desc {:X} hr={:08X}", a_descVal, (uint32_t)hr);
+		// Store a null com_ptr as a negative-cache entry. Grass may issue thousands of draws with
+		// the same descriptor each frame; retrying CreateInputLayout on each one turns one bad
+		// descriptor/signature pair into sustained CPU overhead and log spam.
+		inputLayouts.CacheFailure(a_descVal);
+		logger::error("[GRASS OPTIMIZATIONS] input layout creation failed for desc {:X} hr={:08X}; failure cached", a_descVal, (uint32_t)hr);
 		return nullptr;
 	}
 	Util::SetResourceName(layout.get(), "GrassOptimizations::InputLayout");
 	auto* raw = layout.get();
-	inputLayouts.emplace(a_descVal, std::move(layout));
+	inputLayouts.CacheSuccess(a_descVal, std::move(layout));
 	return raw;
 }
 

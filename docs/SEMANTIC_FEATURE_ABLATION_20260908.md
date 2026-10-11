@@ -4,7 +4,7 @@ The native-pixel residual400-step pilot regressed against its affine control on 
 
 ## External basis and local boundary
 
-The [official DINOv2 project](https://github.com/facebookresearch/dinov2) provides a21M-parameter ViT-S/14 visual encoder pretrained without labels. Its general feature utility motivates a hypothesis, not a claim about Skyrim teacher matching. This experiment uses the existing local source at `C:/Users/oleks/.cache/torch/hub/facebookresearch_dinov2_main` and existing `dinov2_vits14_pretrain.pth` weights. No download, rental, or runtime installation is necessary. Local Python source hashes and weight SHA256 are recorded per run; the source is loaded locally and weights are loaded strictly.
+The [official DINOv2 project](https://github.com/facebookresearch/dinov2) provides a21M-parameter ViT-S/14 visual encoder pretrained without labels. Its general feature utility motivates a hypothesis, not a claim about Skyrim teacher matching. This experiment uses the existing local source at `<USER_HOME>/.cache/torch/hub/facebookresearch_dinov2_main` and existing `dinov2_vits14_pretrain.pth` weights. No download, rental, or runtime installation is necessary. Local Python source hashes and weight SHA256 are recorded per run; the source is loaded locally and weights are loaded strictly.
 
 ## Mechanism
 
@@ -20,7 +20,7 @@ Use the same six ordinary1x cohorts, probabilities0.40/0.15/0.10/0.15/0.10/0.10,
 
 Require exact step-zero six-cohort agreement, matching sample hashes and draw counts, and separate comparisons against common start and random control. Promotion still requires broad ordinary-cohort improvement, temporal stability, independent checkpoint replay, convincing color/visual match and the MAE target. A useful learned semantic response alone is insufficient.
 
-Outputs: `C:/OpenNR/Training/semantic_random_control400_20260908` and `C:/OpenNR/Training/semantic_pretrained_arm400_20260908`. Do not extend this pilot automatically if its measured evidence is negative.
+Outputs: `<OPENNR_DATA>/Training/semantic_random_control400_20260908` and `<OPENNR_DATA>/Training/semantic_pretrained_arm400_20260908`. Do not extend this pilot automatically if its measured evidence is negative.
 
 ## Control completed; pretrained arm started
 
@@ -53,7 +53,7 @@ Independent endpoint replay and the registered training-subset branch-response p
 
 The saved pretrained step400 checkpoint independently reproduced all six full validation-cohort metrics exactly. Checkpoint SHA256: `f5a339770261cd3c35187d10708a3ec4d01568c9580f78525269b980887bb040`. All175 encoder tensors remain exactly equal to the official pretrained weights; the learned projection has nonzero weight norm0.392899. The encoder stayed frozen as intended.
 
-The replay also rendered48 fixed input/student/teacher/difference comparisons, with signed RGB/luminance diagnostics, under `C:/OpenNR/Training/semantic_pretrained_arm400_20260908/independent_replay/index.html`. In the new outdoor cohort, local brightening, shadow treatment and ground/stone color still visibly differ from the teacher. Exact replay verifies the reported endpoint, not teacher resemblance or runtime acceptance.
+The replay also rendered48 fixed input/student/teacher/difference comparisons, with signed RGB/luminance diagnostics, under `<OPENNR_DATA>/Training/semantic_pretrained_arm400_20260908/independent_replay/index.html`. In the new outdoor cohort, local brightening, shadow treatment and ground/stone color still visibly differ from the teacher. Exact replay verifies the reported endpoint, not teacher resemblance or runtime acceptance.
 
 ## Registered training-subset probe completed
 
@@ -68,13 +68,13 @@ All12 selected training sequences were evaluated in four modes, totaling1,536 ey
 | Renderer-state |0.018483222|0.018751872|0.018035443|0.018527749|
 | New19 |0.021801474|0.021843213|0.020549135|0.021670022|
 
-Temporal error still trades off, especially on prior/fresh/new19. This bounded fit probe does not establish generalization. Artifact: `C:/OpenNR/Training/semantic_training_fit_probe_20260908/result.json`.
+Temporal error still trades off, especially on prior/fresh/new19. This bounded fit probe does not establish generalization. Artifact: `<OPENNR_DATA>/Training/semantic_training_fit_probe_20260908/result.json`.
 
 ## Next registered experiment: projection-only adaptation
 
 Freeze the complete verified warm U-Net, causal parent and encoder. Train only the24,640-parameter semantic projection, contrasting random and pretrained encoders under the same recipe and deterministic sample schedule. Keep LR1e-4, seed367, six cohort probabilities and objective unchanged. Run1,200 updates with full validation at0/400/800/1200, registering this duration before either arm begins. Compare every checkpoint with common start and the matched control; do not relax temporal, visual/color or0.011 acceptance. This tests whether useful conditioning can be learned while avoiding whole-U-Net drift. It does not assume freezing will fix the validation regression.
 
-Tool: `tools/train_semantic_projection_ablation.py`. Outputs: `C:/OpenNR/Training/semantic_projection_random1200_20260908` and `C:/OpenNR/Training/semantic_projection_pretrained1200_20260908`. This is a fresh experiment from the verified warm head, not an optimizer resume of the earlier400-step endpoints.
+Tool: `tools/train_semantic_projection_ablation.py`. Outputs: `<OPENNR_DATA>/Training/semantic_projection_random1200_20260908` and `<OPENNR_DATA>/Training/semantic_projection_pretrained1200_20260908`. This is a fresh experiment from the verified warm head, not an optimizer resume of the earlier400-step endpoints.
 
 The projection-only control's full six-cohort step0 MAE and temporal scores exactly match the earlier common baseline. An independent tensor check is prepared in `tools/verify_semantic_projection_freeze.py` to verify that all warm U-Net and encoder tensors remain unchanged after training.
 
@@ -93,7 +93,7 @@ The pretrained arm completed 1,200 updates in 810.30 seconds. All registered sam
 | Renderer-state |0.020117967|0.020090584|0.020504198|+0.000009499|
 | New19 |0.029031637|0.026193330|0.024892730|+0.000069017|
 
-Pretrained conditioning improves five MAEs against both references, including a 14.3% newest-cohort gain from start. However, renderer-state MAE regresses and temporal-delta error worsens on all six cohorts against both references. This is useful representation evidence, not temporal stability or promotion. The registered queue is independently replaying/rendering the endpoint before launching the joint-parent alternative. Exact numerical comparison: `C:/OpenNR/Training/semantic_projection_pretrained1200_20260908/endpoint_comparison.json`.
+Pretrained conditioning improves five MAEs against both references, including a 14.3% newest-cohort gain from start. However, renderer-state MAE regresses and temporal-delta error worsens on all six cohorts against both references. This is useful representation evidence, not temporal stability or promotion. The registered queue is independently replaying/rendering the endpoint before launching the joint-parent alternative. Exact numerical comparison: `<OPENNR_DATA>/Training/semantic_projection_pretrained1200_20260908/endpoint_comparison.json`.
 
 The full endpoint replay subsequently completed with exact six-cohort scores. The joint-parent alternative has started; results are pending.
 
@@ -105,7 +105,7 @@ History contains only the student's own frozen-encoder features and source-RGB t
 
 Tools: `tools/semantic_feature_history.py` and `tools/probe_semantic_feature_history.py`. CPU checks pass exact zero/reset identity, valid blending, invalid-MV and photometric rejection, positive one-feature-pixel motion and border rejection. GPU effects remain unmeasured. This diagnostic addresses stability of the newly useful representation; it does not presume the 0.011 or color target is solved.
 
-The GPU probe subsequently completed on all 12 selected training sequences. Zero-history scores exactly reproduce the bare endpoint; first-frame errors remain identical under 25% history. MAE decreases on all six subsets by approximately 0.0000005–0.0000232, and temporal error decreases by 0.0000147–0.0000555. These are small training-subset effects, not validated temporal acceptance or a reason to promote the projection endpoint. Results: `C:/OpenNR/Training/semantic_feature_history_probe_20260908/result.json`. The larger next experiment remains [paired joint-parent replication](SEMANTIC_PARENT_REPLICATION_20260908.md).
+The GPU probe subsequently completed on all 12 selected training sequences. Zero-history scores exactly reproduce the bare endpoint; first-frame errors remain identical under 25% history. MAE decreases on all six subsets by approximately 0.0000005–0.0000232, and temporal error decreases by 0.0000147–0.0000555. These are small training-subset effects, not validated temporal acceptance or a reason to promote the projection endpoint. Results: `<OPENNR_DATA>/Training/semantic_feature_history_probe_20260908/result.json`. The larger next experiment remains [paired joint-parent replication](SEMANTIC_PARENT_REPLICATION_20260908.md).
 
 ## Fixed-sample tone error remains material
 

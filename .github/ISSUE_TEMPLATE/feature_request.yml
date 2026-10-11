@@ -1,0 +1,30 @@
+name: Feature request
+description: Suggest an improvement or a new setting
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: What problem would this solve?
+      description: Describe what you see or want in the headset, not only the implementation.
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Suggested behaviour
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives or related work
+      description: Links to similar features in Open Shaders, Community Shaders or other mods are welcome.
+    validations:
+      required: false
+  - type: input
+    id: hardware
+    attributes:
+      label: Headset and GPU (if relevant)
+    validations:
+      required: false

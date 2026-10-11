@@ -44,7 +44,7 @@ run used 128x128 model inputs, batch size 32, 600 optimizer steps per model,
 learning rate 0.001, seed 42, PyTorch 2.7.1+cu128, and an RTX 5070 Ti.
 
 Generated artifacts are under
-`D:\.CODEX_Projects\OpenNR-VR\out\opennr_poc`:
+`<REPO>\out\opennr_poc`:
 
 - `dataset_audit.json`, `split_manifest.json`, and `run_config.json`
 - `metrics.json` and `training_history.json`

@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Documentation and README
+    url: https://github.com/olekspa/OpenNR#readme
+    about: Install steps, requirements, settings guide and troubleshooting.
+  - name: Upstream Open Shaders issues
+    url: https://github.com/alandtse/open-shaders/issues
+    about: Problems that also happen with plain Open Shaders (no Neural Rendering) are best reported upstream.

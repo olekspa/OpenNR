@@ -1,4 +1,4 @@
-param([string]$Dependencies='C:\OpenNR\Dependencies\runtime-2.15.0')
+param([string]$Dependencies='<OPENNR_DATA>\Dependencies\runtime-2.15.0')
 $ErrorActionPreference='Stop'
 $workspace=Split-Path (Split-Path $PSScriptRoot -Parent) -Parent
 $vendor=Join-Path $workspace 'runtime\open-shaders'

@@ -10,7 +10,7 @@ unproven. No further runtime repair is justified by these samples alone.
 
 ## Evidence
 
-Source: `C:\OpenNR_Captures_RendererConditioningPilot_0.5.5_20260907`.
+Source: `<DATA_ROOT>\OpenNR_Captures_RendererConditioningPilot_0.5.5_20260907`.
 Sequences: `seq-1788801555035-1`, `seq-1788801563400-2`,
 `seq-1788801571220-3`, `seq-1788801582791-4`.
 

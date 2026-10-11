@@ -1,16 +1,16 @@
 # OpenNR-VR project report — 2026-09-06 (historical)
 
-> Latest completed full-model result: corrected native-guide training versus matched legacy-guide control, 1,200 local steps each. Corrected validation MAE prior/high-effect/latest: 0.019734763 / 0.017683441 / 0.015286623. New-cohort gains do not yet preserve the original parent on prior data, so no promotion or MAE 0.011 claim. See [completed alignment comparison](D:/.CODEX_Projects/OpenNR-VR/docs/ALIGNED_GUIDE_MULTICOHORT_TRAINING_20260907.md). No additional capture is needed to finish this comparison.
+> Latest completed full-model result: corrected native-guide training versus matched legacy-guide control, 1,200 local steps each. Corrected validation MAE prior/high-effect/latest: 0.019734763 / 0.017683441 / 0.015286623. New-cohort gains do not yet preserve the original parent on prior data, so no promotion or MAE 0.011 claim. See [completed alignment comparison](<REPO>/docs/ALIGNED_GUIDE_MULTICOHORT_TRAINING_20260907.md). No additional capture is needed to finish this comparison.
 
-> Latest September 7 afternoon result: fresh renderer-conditioning captures were validated and used in a completed local refiner/control experiment. Eleven accepted 64-frame clips; one GPU-query-failed clip excluded and preserved. Control test MAE 0.018983047 versus parent 0.021267248 and conditioned 0.021005986. No production promotion. See [renderer-conditioned pilot results](D:/.CODEX_Projects/OpenNR-VR/docs/RENDERER_CONDITIONED_TRAINING_PILOT_20260907.md).
+> Latest September 7 afternoon result: fresh renderer-conditioning captures were validated and used in a completed local refiner/control experiment. Eleven accepted 64-frame clips; one GPU-query-failed clip excluded and preserved. Control test MAE 0.018983047 versus parent 0.021267248 and conditioned 0.021005986. No production promotion. See [renderer-conditioned pilot results](<REPO>/docs/RENDERER_CONDITIONED_TRAINING_PILOT_20260907.md).
 
 > Superseding status: the current 2026-09-07 capture, cache merge, storage
 > organization, and v72 training result are recorded in
-> [FRESH_CAPTURE_AUDIT_AND_MODEL_ITERATION_0.5.5_20260907.md](D:/.CODEX_Projects/OpenNR-VR/docs/FRESH_CAPTURE_AUDIT_AND_MODEL_ITERATION_0.5.5_20260907.md).
+> [FRESH_CAPTURE_AUDIT_AND_MODEL_ITERATION_0.5.5_20260907.md](<REPO>/docs/FRESH_CAPTURE_AUDIT_AND_MODEL_ITERATION_0.5.5_20260907.md).
 > The capture, runtime and v8 sections below are the earlier
 > project-state record. The current fresh-capture audit and model lineage
 > supersede the v45-v48/v47 wording below and are documented in
-> [FRESH_CAPTURE_AUDIT_AND_MODEL_ITERATION_0.5.5_20260906.md](D:/.CODEX_Projects/OpenNR-VR/docs/FRESH_CAPTURE_AUDIT_AND_MODEL_ITERATION_0.5.5_20260906.md).
+> [FRESH_CAPTURE_AUDIT_AND_MODEL_ITERATION_0.5.5_20260906.md](<REPO>/docs/FRESH_CAPTURE_AUDIT_AND_MODEL_ITERATION_0.5.5_20260906.md).
 
 ## Latest next-grid training update — 2026-09-06
 
@@ -21,7 +21,7 @@ cache, and the 92 clean rows were merged with the accepted historical and
 prior-fresh cohorts into one 291-sequence strict cache. Full details,
 validator paths, crop exclusions, cache hashes, visual samples, and training
 results are in
-[NEXT_GRID_TRAINING_RESULT_0.5.5_20260906.md](D:/.CODEX_Projects/OpenNR-VR/docs/NEXT_GRID_TRAINING_RESULT_0.5.5_20260906.md).
+[NEXT_GRID_TRAINING_RESULT_0.5.5_20260906.md](<REPO>/docs/NEXT_GRID_TRAINING_RESULT_0.5.5_20260906.md).
 
 Controlled v68/v68b/v69 continuation probes regressed or stayed flat at their
 first checkpoints; the width-160 v70 arm reached the local GPU memory/cost
@@ -46,7 +46,7 @@ It is not a live runtime or headset acceptance result and remains above the
 
 The v65 all-non-test offline research candidate is:
 
-- Checkpoint: `E:\OpenNR_Training\fullres_aux_oversample_v65_probe_0.5.5_20260906\best_mae.pt`
+- Checkpoint: `<DATA_ROOT>\OpenNR_Training\fullres_aux_oversample_v65_probe_0.5.5_20260906\best_mae.pt`
 - Fresh held-out MAE: `0.014935002` over 3,328 frames
 - Historical held-out MAE: `0.025628855` over 1,920 frames
 - Frame-weighted two-cohort MAE: `0.018847388`
@@ -62,13 +62,13 @@ has been installed into the active SkyrimVR/MO2 runtime.
 
 The active local OpenNR profile is now prepared for a new environment- and
 motion-diverse capture pass. Future captures write to
-`C:\OpenNR_Captures_VariedHighEffect_0.5.5_20260907`. The existing both-eye,
+`<DATA_ROOT>\OpenNR_Captures_VariedHighEffect_0.5.5_20260907`. The existing both-eye,
 pre/post-NR, raw-teacher, native-depth, native-MV, four-crop, 64-frame Feature
 18 contract is unchanged; the future output path is on the fast C: NVMe and
 the bounded writer queue remains 64. The pre-edit settings backup is on G:.
 The exact collection protocol and the source
 audit of renderer-derived conditioning availability are in
-[NEXT_CAPTURE_SETUP_G_VARIATION_0.5.5_20260906.md](D:/.CODEX_Projects/OpenNR-VR/docs/NEXT_CAPTURE_SETUP_G_VARIATION_0.5.5_20260906.md).
+[NEXT_CAPTURE_SETUP_G_VARIATION_0.5.5_20260906.md](<REPO>/docs/NEXT_CAPTURE_SETUP_G_VARIATION_0.5.5_20260906.md).
 
 The current capture still cannot provide albedo, normals, illumination,
 semantic/material buffers, the teacher's internal mask texture, or the exact
@@ -84,13 +84,13 @@ data. The active strict capture, self-contained combined cache, final spatial
 cache, training runs, and checkpoints remain on their fast paths. Exact source
 and destination paths, byte counts, SHA-256 reports, and final free-space
 readings are recorded in
-[STORAGE_RELOCATION_20260906.md](D:/.CODEX_Projects/OpenNR-VR/docs/STORAGE_RELOCATION_20260906.md).
+[STORAGE_RELOCATION_20260906.md](<REPO>/docs/STORAGE_RELOCATION_20260906.md).
 
 ## Earlier baseline state (superseded)
 
-The active SkyrimVR installation is running the capture-reset build of Open Shaders DLSSNR VR 0.5.5 OpenNR. The installed CommunityShaders.dll is version 0.5.5.0, 43,745,792 bytes, SHA-256 751401C26DF6B9FCD7F6F3DD906EE6D57ED69D6F3C6EE6305D1C445C49E3FFD4. The source change is vendor commit 40631c3c and requests neural history reset before each OpenNR sequence. The previous active DLL is preserved in E:\MGO-RC3-fresh\_OpenNR_Pilot_Backups\pre-capture-reset-0.5.5-20260906_002040.
+The active SkyrimVR installation is running the capture-reset build of Open Shaders DLSSNR VR 0.5.5 OpenNR. The installed CommunityShaders.dll is version 0.5.5.0, 43,745,792 bytes, SHA-256 751401C26DF6B9FCD7F6F3DD906EE6D57ED69D6F3C6EE6305D1C445C49E3FFD4. The source change is vendor commit 40631c3c and requests neural history reset before each OpenNR sequence. The previous active DLL is preserved in <MO2_INSTANCE>\_OpenNR_Pilot_Backups\pre-capture-reset-0.5.5-20260906_002040.
 
-The latest capture root is E:\OpenNR_Captures_StrictTemporal_0.5.5_20260906. Skyrim exited cleanly after the root stopped growing.
+The latest capture root is <DATA_ROOT>\OpenNR_Captures_StrictTemporal_0.5.5_20260906. Skyrim exited cleanly after the root stopped growing.
 
 ## Capture findings
 
@@ -116,16 +116,16 @@ The four full-length sequences with eye-specific all-zero motion vectors are:
 
 The raw data remains immutable. The authority files are:
 
-- D:\.CODEX_Projects\OpenNR-VR\out\strict_final_temporal_audit_0.5.5_20260906.json
-- D:\.CODEX_Projects\OpenNR-VR\out\strict_final_byte_audit_0.5.5_20260906.json
-- D:\.CODEX_Projects\OpenNR-VR\out\strict_training_manifest_0.5.5_20260906.json
-- D:\.CODEX_Projects\OpenNR-VR\out\strict_temporal_candidate_manifest_0.5.5_20260906.json
+- <REPO>\out\strict_final_temporal_audit_0.5.5_20260906.json
+- <REPO>\out\strict_final_byte_audit_0.5.5_20260906.json
+- <REPO>\out\strict_training_manifest_0.5.5_20260906.json
+- <REPO>\out\strict_temporal_candidate_manifest_0.5.5_20260906.json
 
 ## Training cache
 
 The accepted temporal candidate consists of 73 exact 64-frame sequences and 4,672 frames. Four anomalous sequences remain available for possible spatial-only use after a separate investigation; the incomplete sequence is not used for training.
 
-The raw crop cache is E:\OpenNR_RawCropCache_StrictTemporal_0.5.5_20260906. It contains 9,344 stereo eye rows, 9,344 patches, and about 16.4 GB of cache arrays. The chronological sequence split is 46 train sequences, 12 validation sequences, and 15 held-out test sequences. The cache has strict_initial_reset true, zero invalid depth values, and 2,682,921 native motion values masked by the cache converter because they were nonfinite or outside the supported motion range. Cache helper tests pass.
+The raw crop cache is <DATA_ROOT>\OpenNR_RawCropCache_StrictTemporal_0.5.5_20260906. It contains 9,344 stereo eye rows, 9,344 patches, and about 16.4 GB of cache arrays. The chronological sequence split is 46 train sequences, 12 validation sequences, and 15 held-out test sequences. The cache has strict_initial_reset true, zero invalid depth values, and 2,682,921 native motion values masked by the cache converter because they were nonfinite or outside the supported motion range. Cache helper tests pass.
 
 ## Model and runtime work
 
@@ -137,9 +137,9 @@ The FP8 experiment remains research-only. Full Conv and MatMul FP8 built an engi
 
 The run in progress is:
 
-- Output: E:\OpenNR_Training\context_strict_temporal_v8_0.5.5_20260906
+- Output: <DATA_ROOT>\OpenNR_Training\context_strict_temporal_v8_0.5.5_20260906
 - Initialization: context_merged_style_v7_newcapture_0.5.5_20260906 best_feature.pt
-- Dataset: E:\OpenNR_RawCropCache_StrictTemporal_0.5.5_20260906
+- Dataset: <DATA_ROOT>\OpenNR_RawCropCache_StrictTemporal_0.5.5_20260906
 - Steps: 16,000
 - Batch: 4
 - Learning rate: 2e-6 cosine schedule
