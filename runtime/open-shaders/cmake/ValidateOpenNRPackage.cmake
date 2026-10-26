@@ -186,6 +186,9 @@ if(_plugin_size LESS 1048576)
     )
 endif()
 
+# Only the default-name runtime (any accepted 310.8.x / 310.9.x build) is required. The version is
+# enforced by the plugin at run time, no hash is pinned here, and optional variants such as
+# nvngx_dlssnr_<version>.dll next to it are user-supplied extras that are never required.
 file(SIZE "${PACKAGE_ROOT}/Shaders/Upscaling/Streamline/nvngx_dlssnr.dll" _dlssnr_size)
 if(_dlssnr_size LESS 1048576)
     message(FATAL_ERROR

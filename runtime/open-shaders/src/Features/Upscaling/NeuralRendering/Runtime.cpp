@@ -1,14 +1,27 @@
 #include "Runtime.h"
 
+#include "Globals.h"
 #include "Util.h"
 
 #include <Windows.h>
 #include <Psapi.h>
+#include <softpub.h>
+#include <wincrypt.h>
+#include <wintrust.h>
+#include <d3d11.h>
 #include <d3d12.h>
+#include <dxgi.h>
 #include <nvsdk_ngx.h>
 
+#include <algorithm>
 #include <array>
+#include <atomic>
 #include <chrono>
+#include <future>
+#include <map>
+#include <optional>
+#include <set>
+#include <thread>
 #include <cstring>
 #include <format>
 #include <condition_variable>
@@ -16,6 +29,9 @@
 #include <vector>
 
 #include <nvsdk_ngx_helpers.h>
+
+#pragma comment(lib, "wintrust.lib")
+#pragma comment(lib, "crypt32.lib")
 
 namespace NeuralRendering
 {
@@ -248,22 +264,386 @@ namespace NeuralRendering
 			bool installed_ = false;
 		};
 
-		std::filesystem::path ResolveRuntimePath(const std::filesystem::path& explicitPath)
+		using RuntimeSelection::SignatureStatus;
+
+		struct RuntimeFile
 		{
-			if (!explicitPath.empty())
-				return std::filesystem::is_directory(explicitPath) ? explicitPath / kRuntimeName : explicitPath;
-			const auto dataPath = Util::PathHelpers::GetDataPath();
-			const std::array candidates{
-				dataPath / L"Shaders/Upscaling/Streamline" / kRuntimeName,
-				dataPath / L"Shaders/Upscaling/StreamlineDX12" / kRuntimeName,
-			};
-			for (const auto& candidate : candidates) {
-				std::error_code error;
-				if (std::filesystem::is_regular_file(candidate, error))
-					return candidate;
+			std::filesystem::path path;
+			std::string file;  // UTF-8 file name (no directory)
+			std::uintmax_t size = 0;
+			std::int64_t modified = 0;
+
+			static std::string Utf8(const std::filesystem::path& value)
+			{
+				const auto text = value.u8string();
+				return std::string(reinterpret_cast<const char*>(text.data()), text.size());
 			}
-			return {};
+
+			[[nodiscard]] std::string Key() const
+			{
+				return RuntimeSelection::ToLowerAscii(Utf8(path)) + "|" + std::to_string(size) + "|" + std::to_string(modified);
+			}
+		};
+
+		std::optional<RuntimeFile> DescribeRuntimeFile(const std::filesystem::path& path)
+		{
+			std::error_code error;
+			if (!std::filesystem::is_regular_file(path, error))
+				return std::nullopt;
+			RuntimeFile file;
+			file.path = path;
+			file.file = RuntimeFile::Utf8(path.filename());
+			file.size = std::filesystem::file_size(path, error);
+			if (error)
+				file.size = 0;
+			error.clear();
+			file.modified = static_cast<std::int64_t>(std::filesystem::last_write_time(path, error).time_since_epoch().count());
+			return file;
 		}
+
+		/** @brief nvngx_dlssnr*.dll directly inside Streamline/ then StreamlineDX12/; the first directory wins per file name. */
+		std::vector<RuntimeFile> EnumerateRuntimeFiles()
+		{
+			std::vector<RuntimeFile> result;
+			std::set<std::string> seen;
+			const auto dataPath = Util::PathHelpers::GetDataPath();
+			for (const auto* directoryName : { L"Shaders/Upscaling/Streamline", L"Shaders/Upscaling/StreamlineDX12" }) {
+				std::vector<RuntimeFile> local;
+				std::error_code error;
+				for (std::filesystem::directory_iterator it(dataPath / directoryName, error), end; !error && it != end; it.increment(error)) {
+					std::error_code entryError;
+					if (!it->is_regular_file(entryError))
+						continue;
+					const auto name = RuntimeFile::Utf8(it->path().filename());
+					if (!RuntimeSelection::IsRuntimeFileName(name) || seen.contains(RuntimeSelection::ToLowerAscii(name)))
+						continue;
+					if (auto file = DescribeRuntimeFile(it->path()))
+						local.push_back(std::move(*file));
+				}
+				std::sort(local.begin(), local.end(), [](const RuntimeFile& a, const RuntimeFile& b) {
+					return RuntimeSelection::ToLowerAscii(a.file) < RuntimeSelection::ToLowerAscii(b.file);
+				});
+				for (auto& file : local) {
+					seen.insert(RuntimeSelection::ToLowerAscii(file.file));
+					result.push_back(std::move(file));
+				}
+			}
+			return result;
+		}
+
+		std::optional<RuntimeSelection::Version> ReadVersionString(const std::wstring& path)
+		{
+			DWORD handle = 0;
+			const DWORD size = GetFileVersionInfoSizeW(path.c_str(), &handle);
+			if (size == 0)
+				return std::nullopt;
+			std::vector<BYTE> buffer(size);
+			if (!GetFileVersionInfoW(path.c_str(), 0, size, buffer.data()))
+				return std::nullopt;
+			struct Translation
+			{
+				WORD language;
+				WORD codePage;
+			};
+			Translation* translations = nullptr;
+			UINT translationBytes = 0;
+			std::vector<Translation> tries;
+			if (VerQueryValueW(buffer.data(), L"\\VarFileInfo\\Translation", reinterpret_cast<void**>(&translations), &translationBytes) &&
+				translations)
+				for (UINT i = 0; i < translationBytes / sizeof(Translation); ++i)
+					tries.push_back(translations[i]);
+			tries.push_back({ 0x0409, 0x04B0 });
+			tries.push_back({ 0x0409, 0x04E4 });
+			for (const auto& t : tries) {
+				const auto query = std::format(L"\\StringFileInfo\\{:04x}{:04x}\\FileVersion", t.language, t.codePage);
+				wchar_t* value = nullptr;
+				UINT length = 0;
+				if (VerQueryValueW(buffer.data(), query.c_str(), reinterpret_cast<void**>(&value), &length) && value && length) {
+					std::string narrow;
+					for (const wchar_t* c = value; *c && narrow.size() < 64; ++c)
+						narrow.push_back(*c < 128 ? static_cast<char>(*c) : '?');
+					if (auto parsed = RuntimeSelection::ParseVersion(narrow))
+						return parsed;
+				}
+			}
+			return std::nullopt;
+		}
+
+		std::optional<RuntimeSelection::Version> ReadRuntimeVersion(const std::filesystem::path& path)
+		{
+			if (const auto version = Util::GetDllVersion(path.wstring()))
+				return RuntimeSelection::Version{ version->major(), version->minor(), version->patch(), version->build() };
+			return ReadVersionString(path.wstring());
+		}
+
+		SignatureStatus VerifyRuntimeSignature(const std::filesystem::path& path)
+		{
+			WINTRUST_FILE_INFO fileInfo{};
+			fileInfo.cbStruct = sizeof(fileInfo);
+			fileInfo.pcwszFilePath = path.c_str();
+			WINTRUST_DATA data{};
+			data.cbStruct = sizeof(data);
+			data.dwUIChoice = WTD_UI_NONE;
+			data.fdwRevocationChecks = WTD_REVOKE_NONE;  // never touch the network
+			data.dwUnionChoice = WTD_CHOICE_FILE;
+			data.pFile = &fileInfo;
+			data.dwStateAction = WTD_STATEACTION_VERIFY;
+			data.dwProvFlags = WTD_REVOCATION_CHECK_NONE | WTD_CACHE_ONLY_URL_RETRIEVAL;
+			GUID action = WINTRUST_ACTION_GENERIC_VERIFY_V2;
+			const auto window = static_cast<HWND>(INVALID_HANDLE_VALUE);
+			const LONG result = WinVerifyTrust(window, &action, &data);
+			SignatureStatus status = SignatureStatus::Unknown;
+			if (result == ERROR_SUCCESS) {
+				status = SignatureStatus::SignedOther;
+				if (auto* provider = WTHelperProvDataFromStateData(data.hWVTStateData)) {
+					if (auto* signer = WTHelperGetProvSignerFromChain(provider, 0, FALSE, 0)) {
+						auto* certificate = WTHelperGetProvCertFromChain(signer, 0);
+						if (certificate && certificate->pCert) {
+							wchar_t subject[256]{};
+							CertGetNameStringW(certificate->pCert, CERT_NAME_SIMPLE_DISPLAY_TYPE, 0, nullptr, subject, 256);
+							if (std::wstring_view(subject) == L"NVIDIA Corporation")
+								status = SignatureStatus::SignedNvidia;
+						}
+					}
+				}
+			} else if (result == static_cast<LONG>(TRUST_E_NOSIGNATURE) || result == static_cast<LONG>(TRUST_E_PROVIDER_UNKNOWN) ||
+					   result == static_cast<LONG>(TRUST_E_SUBJECT_FORM_UNKNOWN)) {
+				status = SignatureStatus::Unsigned;
+			} else if (result == ERROR_FILE_NOT_FOUND || result == ERROR_PATH_NOT_FOUND || result == ERROR_ACCESS_DENIED ||
+					   result == ERROR_SHARING_VIOLATION) {
+				status = SignatureStatus::Unknown;  // could not even read the file: not a verdict on the signature
+			} else {
+				status = SignatureStatus::Invalid;
+			}
+			data.dwStateAction = WTD_STATEACTION_CLOSE;
+			WinVerifyTrust(window, &action, &data);
+			return status;
+		}
+
+		/** @brief Authenticode results cached per path+size+mtime; computed on worker threads, never inline on the render thread. */
+		struct SignatureCache
+		{
+			std::mutex mutex;
+			std::map<std::string, std::shared_future<SignatureStatus>> futures;
+		};
+
+		SignatureCache& SignatureCacheInstance()
+		{
+			static auto* cache = new SignatureCache();  // leaked on purpose: workers may outlive static destruction
+			return *cache;
+		}
+
+		std::shared_future<SignatureStatus> SignatureFuture(const RuntimeFile& file)
+		{
+			auto& cache = SignatureCacheInstance();
+			std::scoped_lock lock(cache.mutex);
+			const auto key = file.Key();
+			const auto found = cache.futures.find(key);
+			if (found != cache.futures.end()) {
+				const bool ready = found->second.wait_for(std::chrono::seconds(0)) == std::future_status::ready;
+				if (!ready || found->second.get() != SignatureStatus::Unknown)
+					return found->second;  // in flight or conclusive; a failed (unknown) check is retried
+			}
+			auto future = std::async(std::launch::async, [path = file.path] { return VerifyRuntimeSignature(path); }).share();
+			cache.futures[key] = future;
+			return future;
+		}
+
+		std::optional<SignatureStatus> PeekSignature(const RuntimeFile& file)
+		{
+			auto& cache = SignatureCacheInstance();
+			std::scoped_lock lock(cache.mutex);
+			const auto found = cache.futures.find(file.Key());
+			if (found == cache.futures.end() || found->second.wait_for(std::chrono::seconds(0)) != std::future_status::ready)
+				return std::nullopt;
+			return found->second.get();
+		}
+
+		struct Preference
+		{
+			std::string file;  // empty = Auto
+			bool requireSigned = true;
+		};
+
+		struct ActiveRuntime
+		{
+			bool valid = false;
+			RuntimeFile file;
+			std::string version;
+			std::string reason;
+		};
+
+		std::mutex g_selectionMutex;
+		Preference g_preference;
+		std::optional<Preference> g_latchedPreference;  // frozen at the first probe: the runtime library is pinned per process
+		ActiveRuntime g_active;
+
+		Preference CurrentPreference()
+		{
+			std::scoped_lock lock(g_selectionMutex);
+			return g_preference;
+		}
+
+		struct DiscoveredRuntimes
+		{
+			std::vector<RuntimeFile> files;
+			std::vector<RuntimeSelection::Candidate> candidates;
+		};
+
+		DiscoveredRuntimes DiscoverRuntimes(std::vector<RuntimeFile> files)
+		{
+			DiscoveredRuntimes result;
+			for (auto& file : files) {
+				RuntimeSelection::Candidate candidate;
+				candidate.file = file.file;
+				candidate.version = ReadRuntimeVersion(file.path);
+				result.candidates.push_back(std::move(candidate));
+			}
+			result.files = std::move(files);
+			return result;
+		}
+
+		std::string VersionText(const RuntimeSelection::Candidate& candidate)
+		{
+			return candidate.version ? RuntimeSelection::FormatVersion(*candidate.version) : std::string();
+		}
+
+		std::string CandidatesLogLine(const DiscoveredRuntimes& found, const RuntimeSelection::Selection& selection,
+			const Preference& preference)
+		{
+			std::string line = "[DLSSNR] runtime candidates:";
+			for (std::size_t i = 0; i < found.files.size(); ++i) {
+				auto candidate = found.candidates[i];
+				const auto peeked = PeekSignature(found.files[i]);
+				const bool known = peeked.has_value();
+				if (known)
+					candidate.signature = *peeked;
+				const auto verdict = selection.verdicts[i] ? *selection.verdicts[i] :
+				                                             RuntimeSelection::Evaluate(candidate, preference.requireSigned && known);
+				line += std::format(" [{} {} {} {}]", candidate.file, candidate.version ? VersionText(candidate) : "unknown",
+					known ? RuntimeSelection::SignatureText(candidate.signature) : "unchecked",
+					verdict == RuntimeSelection::Verdict::Accepted ? "yes" : "no");
+			}
+			if (found.files.empty())
+				line += " none";
+			line += std::format("; selected={} reason={}",
+				selection.index >= 0 ? found.candidates[static_cast<std::size_t>(selection.index)].file : std::string("none"),
+				RuntimeSelection::ReasonText(selection.reason));
+			return line;
+		}
+	}
+
+	std::string RuntimeGpuName()
+	{
+		static std::mutex mutex;
+		static std::string cached;
+		std::scoped_lock lock(mutex);
+		if (!cached.empty() || !globals::d3d::device)
+			return cached;
+		IDXGIDevice* dxgiDevice = nullptr;
+		if (SUCCEEDED(globals::d3d::device->QueryInterface(__uuidof(IDXGIDevice), reinterpret_cast<void**>(&dxgiDevice))) && dxgiDevice) {
+			IDXGIAdapter* adapter = nullptr;
+			if (SUCCEEDED(dxgiDevice->GetAdapter(&adapter)) && adapter) {
+				DXGI_ADAPTER_DESC desc{};
+				if (SUCCEEDED(adapter->GetDesc(&desc))) {
+					for (const wchar_t* c = desc.Description; *c && cached.size() < 128; ++c)
+						cached.push_back(*c < 128 ? static_cast<char>(*c) : '?');
+				}
+				adapter->Release();
+			}
+			dxgiDevice->Release();
+		}
+		return cached;
+	}
+
+	void SetRuntimeSelectionPreference(const std::string& file, bool requireSigned)
+	{
+		std::scoped_lock lock(g_selectionMutex);
+		g_preference = { file, requireSigned };
+	}
+
+	void WarmUpRuntimeSelection()
+	{
+		static std::atomic<bool> started{ false };
+		if (started.exchange(true))
+			return;
+		const auto preference = CurrentPreference();
+		try {
+			std::thread([preference] {
+				try {
+					auto found = DiscoverRuntimes(EnumerateRuntimeFiles());
+					const auto resolver = [&](std::size_t i) { return SignatureFuture(found.files[i]).get(); };
+					const auto selection = RuntimeSelection::Select(found.candidates, preference.file, preference.requireSigned, resolver);
+					if (selection.index >= 0)
+						resolver(static_cast<std::size_t>(selection.index));
+				} catch (...) {
+				}
+			}).detach();
+		} catch (...) {
+		}
+	}
+
+	void RequestRuntimeSignatureChecks()
+	{
+		try {
+			for (const auto& file : EnumerateRuntimeFiles())
+				SignatureFuture(file);
+		} catch (...) {
+		}
+	}
+
+	RuntimeSelectionView DescribeRuntimeCandidates(bool requireSigned)
+	{
+		static std::mutex mutex;
+		static std::vector<RuntimeFile> files;
+		static std::vector<std::string> versions;
+		static std::chrono::steady_clock::time_point stamp{};
+		std::scoped_lock lock(mutex);
+		const auto now = std::chrono::steady_clock::now();
+		if (stamp == std::chrono::steady_clock::time_point{} || now - stamp > std::chrono::seconds(2)) {
+			static std::map<std::string, std::string> versionCache;  // keyed by path+size+mtime
+			files = EnumerateRuntimeFiles();
+			versions.clear();
+			for (const auto& file : files) {
+				auto cached = versionCache.find(file.Key());
+				if (cached == versionCache.end()) {
+					const auto version = ReadRuntimeVersion(file.path);
+					cached = versionCache.emplace(file.Key(), version ? RuntimeSelection::FormatVersion(*version) : std::string()).first;
+				}
+				versions.push_back(cached->second);
+			}
+			stamp = now;
+		}
+		const auto describe = [&](const RuntimeFile& file, const std::string& versionText) {
+			RuntimeCandidateView view;
+			view.file = file.file;
+			view.version = versionText;
+			RuntimeSelection::Candidate candidate;
+			candidate.file = file.file;
+			candidate.version = RuntimeSelection::ParseVersion(versionText);
+			if (const auto peeked = PeekSignature(file)) {
+				view.signatureReady = true;
+				view.signature = *peeked;
+				candidate.signature = *peeked;
+			}
+			view.verdict = RuntimeSelection::Evaluate(candidate, requireSigned && view.signatureReady);
+			return view;
+		};
+		RuntimeSelectionView result;
+		for (std::size_t i = 0; i < files.size(); ++i)
+			result.candidates.push_back(describe(files[i], versions[i]));
+		std::scoped_lock selectionLock(g_selectionMutex);
+		if (g_active.valid) {
+			result.hasActive = true;
+			result.active = describe(g_active.file, g_active.version);
+			result.activeReason = g_active.reason;
+		}
+		if (g_latchedPreference) {
+			result.hasLatched = true;
+			result.latchedFile = g_latchedPreference->file;
+			result.latchedRequireSigned = g_latchedPreference->requireSigned;
+		}
+		return result;
 	}
 
 	Runtime& Runtime::Instance()
@@ -279,24 +659,69 @@ namespace NeuralRendering
 	bool Runtime::Probe(const std::filesystem::path& explicitPath)
 	{
 		Shutdown();
-		path_ = ResolveRuntimePath(explicitPath);
-		if (path_.empty()) {
-			status_ = RuntimeStatus::NotFound;
-			detail_ = "nvngx_dlssnr.dll was not found";
+		Preference preference;
+		{
+			std::scoped_lock lock(g_selectionMutex);
+			// The runtime library is pinned per process: the preference seen by the first probe stays in force.
+			if (!g_latchedPreference)
+				g_latchedPreference = g_preference;
+			preference = *g_latchedPreference;
+		}
+		std::vector<RuntimeFile> runtimeFiles;
+		if (!explicitPath.empty()) {
+			const auto resolved = std::filesystem::is_directory(explicitPath) ? explicitPath / kRuntimeName : explicitPath;
+			if (auto file = DescribeRuntimeFile(resolved))
+				runtimeFiles.push_back(std::move(*file));
+			preference.file.clear();
+		} else {
+			runtimeFiles = EnumerateRuntimeFiles();
+		}
+		const auto found = DiscoverRuntimes(std::move(runtimeFiles));
+		// Signatures are resolved lazily and only where the policy needs them; the warm-up started at
+		// plugin load normally has the answer cached already.
+		const auto resolver = [&found](std::size_t index) { return SignatureFuture(found.files[index]).get(); };
+		const auto selection = RuntimeSelection::Select(found.candidates, preference.file, preference.requireSigned, resolver);
+		if (selection.index >= 0 && !preference.requireSigned)
+			SignatureFuture(found.files[static_cast<std::size_t>(selection.index)]);  // informational, not awaited
+		{
+			static std::atomic<bool> loggedCandidates{ false };
+			static std::mutex refusedMutex;
+			static std::set<std::string> refusedLogged;
+			if (!loggedCandidates.exchange(true)) {
+				logger::info("{}", CandidatesLogLine(found, selection, preference));
+				if (selection.reason == RuntimeSelection::Reason::Fallback) {
+					logger::info("[DLSSNR] runtime selection: configured file '{}' {}; using Auto", preference.file,
+						selection.userFileMissing ? "was not found" :
+						selection.userFileVerdict ? RuntimeSelection::VerdictText(*selection.userFileVerdict) : "was not accepted");
+				}
+			}
+			std::scoped_lock lock(refusedMutex);
+			for (const auto index : selection.signatureRefused) {
+				const auto& name = found.candidates[static_cast<std::size_t>(index)].file;
+				if (refusedLogged.insert(name).second)
+					logger::warn("[DLSSNR] runtime refused: {} unsigned/invalid", name);
+			}
+		}
+		if (selection.index < 0) {
+			if (found.files.empty()) {
+				status_ = RuntimeStatus::NotFound;
+				detail_ = std::format("nvngx_dlssnr.dll was not found ({})", RuntimeSelection::DescribeNoneSelectable(found.candidates, selection));
+			} else if (!selection.signatureRefused.empty()) {
+				status_ = RuntimeStatus::SignatureRefused;
+				detail_ = RuntimeSelection::DescribeNoneSelectable(found.candidates, selection);
+			} else {
+				bool unsupported = false;
+				for (const auto& verdict : selection.verdicts)
+					unsupported = unsupported || (verdict && *verdict == RuntimeSelection::Verdict::UnsupportedVersion);
+				status_ = unsupported ? RuntimeStatus::UnsupportedVersion : RuntimeStatus::VersionUnavailable;
+				detail_ = unsupported ? RuntimeSelection::DescribeNoneSelectable(found.candidates, selection) :
+				                        std::string("DLL version resource is unavailable");
+			}
 			return false;
 		}
-		const auto version = Util::GetDllVersion(path_.wstring());
-		if (!version) {
-			status_ = RuntimeStatus::VersionUnavailable;
-			detail_ = "DLL version resource is unavailable";
-			return false;
-		}
-		version_ = Util::GetFormattedVersion(*version);
-		if (version->major() != 310 || version->minor() != 8) {
-			status_ = RuntimeStatus::UnsupportedVersion;
-			detail_ = std::format("expected DLSSNR 310.8.x, found {}", version_);
-			return false;
-		}
+		const auto selectedIndex = static_cast<std::size_t>(selection.index);
+		path_ = found.files[selectedIndex].path;
+		version_ = RuntimeSelection::FormatVersion(*found.candidates[selectedIndex].version);
 		module_ = LoadLibraryExW(path_.c_str(), nullptr, LOAD_LIBRARY_SEARCH_DLL_LOAD_DIR | LOAD_LIBRARY_SEARCH_DEFAULT_DIRS);
 		if (!module_) {
 			status_ = RuntimeStatus::LoadFailed;
@@ -334,6 +759,13 @@ namespace NeuralRendering
 		signedRuntimePath_ = (path_.parent_path() / L"nvngx.dll").wstring();
 		applicationId_ = g_runtimeExports.getApplicationId();
 		apiVersion_ = g_runtimeExports.getApiVersion();
+		{
+			std::scoped_lock lock(g_selectionMutex);
+			g_active.valid = true;
+			g_active.file = found.files[selectedIndex];
+			g_active.version = version_;
+			g_active.reason = RuntimeSelection::ReasonText(selection.reason);
+		}
 		status_ = RuntimeStatus::Ready;
 		return true;
 	}
@@ -420,7 +852,7 @@ namespace NeuralRendering
 	}
 
 	bool Runtime::EnsureFeature(ID3D12GraphicsCommandList* commandList, std::uint32_t slot,
-		const Feature18GuideContract& guide, bool* created)
+		const Feature18GuideContract& guide, const Tuning& tuning, bool* created)
 	{
 		if (created)
 			*created = false;
@@ -483,7 +915,12 @@ namespace NeuralRendering
 		parameters->Set("DLSSNR.Scale", static_cast<float>(outputWidth) / inputWidth);
 		parameters->Set("DLSSNR.Upscaling", 1u);
 		parameters->Set("DLSSNR.ScalingRatio", static_cast<float>(outputWidth) / inputWidth);
-		parameters->Set("DLSSNR.Hint.Render.Preset", 0u);
+		// 310.8 accepts only the legacy default hint (0). Runtime 310.9 adds two
+		// models selected at Feature creation: hint 1 preserves the 310.8 model,
+		// while hint 2 selects the newer, faster model. Keep Original as default.
+		const auto runtimeVersion = RuntimeSelection::ParseVersion(version_);
+		const auto renderPresetHint = runtimeVersion ? RuntimeSelection::RenderPresetHint(*runtimeVersion, tuning.modelPreset) : 0u;
+		parameters->Set("DLSSNR.Hint.Render.Preset", renderPresetHint);
 		NVSDK_NGX_Handle* handle = nullptr;
 		const auto createStart = std::chrono::steady_clock::now();
 		ngxResult_ = static_cast<std::uint32_t>(create(commandList, kFeatureDlssNr, parameters, &handle));
@@ -492,6 +929,20 @@ namespace NeuralRendering
 			slot, inputWidth, inputHeight, outputWidth, outputHeight,
 			guide.colorWidth, guide.colorHeight, guide.outputWidth, guide.outputHeight, createMs, ngxResult_);
 		if (ngxResult_ != NVSDK_NGX_Result_Success || !handle) {
+			static std::atomic<bool> loggedCreateFailure{ false };
+			if (!loggedCreateFailure.exchange(true)) {
+				std::string file = "unknown", version = version_, signature = "unknown";
+				{
+					std::scoped_lock lock(g_selectionMutex);
+					if (g_active.valid) {
+						file = g_active.file.file;
+						if (const auto peeked = PeekSignature(g_active.file))
+							signature = RuntimeSelection::SignatureText(*peeked);
+					}
+				}
+				logger::warn("[DLSSNR] feature creation failed with runtime {} {} {}; GPU={}", file, version, signature,
+					RuntimeGpuName().empty() ? std::string("unknown") : RuntimeGpuName());
+			}
 			detail_ = std::format("Feature 18 create failed slot={} result=0x{:08X} proxyHits={}", slot, ngxResult_, scope.Hits());
 			return false;
 		}
@@ -521,7 +972,7 @@ namespace NeuralRendering
 		if (!parameters || !evaluate)
 			return false;
 		bool created = false;
-		if (!EnsureFeature(commandList, slot, guide, &created))
+		if (!EnsureFeature(commandList, slot, guide, tuning, &created))
 			return false;
 		reset = reset || created;
 
@@ -593,9 +1044,9 @@ namespace NeuralRendering
 	}
 
 	bool Runtime::PrewarmFeature(ID3D12GraphicsCommandList* commandList, std::uint32_t slot,
-		const Feature18GuideContract& guide)
+		const Feature18GuideContract& guide, const Tuning& tuning)
 	{
-		return EnsureFeature(commandList, slot, guide);
+		return EnsureFeature(commandList, slot, guide, tuning);
 	}
 
 	bool Runtime::HasFeature(std::uint32_t slot) const
@@ -692,6 +1143,7 @@ namespace NeuralRendering
 		case RuntimeStatus::CoreUnavailable: return "core-unavailable";
 		case RuntimeStatus::ParameterAllocationFailed: return "parameter-allocation-failed";
 		case RuntimeStatus::Initialized: return "initialized";
+		case RuntimeStatus::SignatureRefused: return "signature-refused";
 		}
 		return "unknown";
 	}

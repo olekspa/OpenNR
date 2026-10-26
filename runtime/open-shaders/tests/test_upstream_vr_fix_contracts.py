@@ -29,3 +29,14 @@ def test_detour_attach_failures_abort_report_and_leave_thunk_disabled():
     assert "T::func = 0;" in thunk
     assert "SKSE::log::error" in thunk
     assert "Util::VTableHookFallback" in vfunc
+
+
+def test_vr_background_compile_hud_keeps_feature_and_effect_warnings_visible():
+    overlay = (SRC / "Menu/OverlayRenderer.cpp").read_text(encoding="utf-8")
+    compile_status = overlay.split("void OverlayRenderer::RenderShaderCompilationStatus", 1)[1]
+    exceptional_info = compile_status.split("const bool hasExceptionalInfo =", 1)[1].split(";", 1)[0]
+    assert "shaderCache->HasFeatureSetChanges()" in exceptional_info
+    assert "effectFailed" in exceptional_info
+    suppression = compile_status.index("if (hideRoutineHud && !hasExceptionalInfo)")
+    effects_warning = compile_status.index("DrawEffects11Errors(themeSettings);", suppression)
+    assert suppression < effects_warning

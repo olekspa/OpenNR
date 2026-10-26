@@ -18,7 +18,7 @@
   compression, then `7z t` is run. A MANIFEST.txt with SHA-256 per file is
   written into the archive. Existing outputs are never overwritten.
 
-.PARAMETER PackageDir  Verified package folder (default E:\OpenNR_Builds\2.22.2\verify).
+.PARAMETER PackageDir  Verified package folder (default E:\OpenNR_Builds\2.23.1\verify).
 .PARAMETER OutputDir   New/empty-of-collisions output folder.
 .PARAMETER Version     Version string for the archive name (default: taken from VERSION at the repo root).
 .PARAMETER NoticeDir   Folder holding LICENSE, EXCEPTIONS.md, NOTICE.md, THIRD_PARTY_NOTICES.md
@@ -30,8 +30,8 @@
 #>
 [CmdletBinding()]
 param(
-    [string]$PackageDir = 'E:\OpenNR_Builds\2.22.2\verify',
-    [string]$OutputDir = 'E:\OpenNR_Builds\2.22.2-public',
+    [string]$PackageDir = 'E:\OpenNR_Builds\2.23.1\verify',
+    [string]$OutputDir = 'E:\OpenNR_Builds\2.23.1-public',
     [string]$Version,
     [string]$NoticeDir,
     [string]$SevenZip,
@@ -76,6 +76,7 @@ function Test-LeanDenyList($Items) {
 function Invoke-DenySelfTest {
     $bad = @(
         'SKSE/Plugins/imgui-vr-helper.dll', 'Shaders/Upscaling/Streamline/nvngx_dlss.dll', 'Shaders/Upscaling/Streamline/nvngx_dlssnr.dll',
+        'Shaders/Upscaling/Streamline/nvngx_dlssnr_310_9_16.dll', 'Shaders/Upscaling/StreamlineDX12/nvngx_dlssnr_other.dll',
         'Shaders/Upscaling/Streamline/sl.interposer.dll', 'Shaders/Upscaling/FidelityFX/amd_fidelityfx_loader_dx12.dll',
         'Renderdoc/renderdoc.dll', 'SKSE/Plugins/CommunityShaders.pdb', 'tool.exe', 'TerrainHelper.esp', 'Shaders/Features/TerrainHelper.ini',
         'SKSE/Plugins/Other.dll', 'Shaders/Upscaling/StreamlineDX12/license.txt', 'model.onnx'
@@ -86,7 +87,7 @@ function Invoke-DenySelfTest {
     }
     $r = @(Test-LeanDenyList @([pscustomobject]@{ Rel = 'big/file.dds'; Length = ($maxBytes + 1) }))
     if ($r.Count -eq 0) { throw 'Deny-list self-test FAILED: oversize file not rejected' }
-    $good = @($pluginRel, 'Shaders/Common/Color.hlsli', 'Shaders/Features/Upscaling.ini', 'Shaders/Upscaling/RCAS/RCAS.hlsl', 'OPENNR-2.22.2-CHANGELOG.md', 'Interface/CommunityShaders/Fonts/Inter/OFL.txt')
+    $good = @($pluginRel, 'Shaders/Common/Color.hlsli', 'Shaders/Features/Upscaling.ini', 'Shaders/Upscaling/RCAS/RCAS.hlsl', 'OPENNR-2.23.1-CHANGELOG.md', 'Interface/CommunityShaders/Fonts/Inter/OFL.txt')
     foreach ($g in $good) {
         $r = @(Test-LeanDenyList @([pscustomobject]@{ Rel = $g; Length = 10 }))
         if ($r.Count -ne 0) { throw "Deny-list self-test FAILED: '$g' wrongly rejected: $($r -join '; ')" }

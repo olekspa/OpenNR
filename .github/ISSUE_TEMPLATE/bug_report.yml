@@ -51,7 +51,7 @@ body:
     id: nrdll
     attributes:
       label: Neural Rendering runtime version
-      description: File version of your nvngx_dlssnr.dll (expected 310.8.x), or "not installed"
+      description: File version of your nvngx_dlssnr.dll (expected 310.8.x or 310.9.x), or "not installed"
     validations:
       required: true
   - type: textarea

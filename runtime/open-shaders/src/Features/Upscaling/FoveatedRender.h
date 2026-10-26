@@ -251,10 +251,17 @@ struct FoveatedRender
 		bool neuralRenderingFlushAfterSignal = false;
 		// Pre-create the per-eye NGX features on a loading/menu render frame.
 		bool neuralRenderingPrewarm = true;
+		// NR runtime selection (nvngx_dlssnr*.dll). Empty file = Auto. The runtime is pinned per process,
+		// so changes apply after restarting the game.
+		std::string neuralRenderingRuntimeFile;
+		bool neuralRenderingRequireSignedRuntime = true;
+		// 310.9+ only: 0 keeps the original 310.8-compatible network; 1 selects the newer model.
+		uint neuralRenderingModelPreset = 0;
 	};
 
-	inline static constexpr Util::Settings::RestartTable<Settings, 1> kRestartFields{ {
+	inline static constexpr Util::Settings::RestartTable<Settings, 2> kRestartFields{ {
 		UTIL_RESTART_FIELD(Settings, enabled, "Foveated DLSS"),
+		UTIL_RESTART_FIELD(Settings, neuralRenderingModelPreset, "DLSS NR model network"),
 	} };
 	Util::Settings::BootSnapshot<Settings> bootSnapshot{ kRestartFields };
 

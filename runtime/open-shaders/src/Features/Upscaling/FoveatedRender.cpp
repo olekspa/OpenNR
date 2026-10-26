@@ -14,6 +14,7 @@
 #include "NeuralRendering/Integration.h"
 #include "NeuralRendering/FuturePipeline.h"
 #include "NeuralRendering/Renderer.h"
+#include "NeuralRendering/Runtime.h"
 #include "NeuralRendering/RuntimePolicy.h"
 
 #include <algorithm>
@@ -67,12 +68,25 @@ namespace
 		{ "nr_adaptive", "Adaptive", "", "Changes NR cost tiers over time when measured frame-time pressure persists." },
 		{ "nr_adaptive_unavailable", "Adaptive NR tiers and crop are unavailable in this full-resolution-only build.", "", "" },
 		{ "nr_diagnostics", "Diagnostics", "", "Shows route and runtime details to help explain behaviour." },
+		{ "nr_model_network", "NR network", "Original preserves the 310.8 network on 310.9+ runtimes and is the default. Newest selects the faster 310.9 network, which has a different image result. Applies after restarting the game. 310.8 runtimes always use their original network.", "" },
 		{ "nr_overlay", "Show foveated region overlay", "Tints the stretched foveated background so the upscaled region is easy to locate. Cost: low; it is a display overlay. Change it briefly when checking where foveated rendering runs.", "" },
 		{ "nr_mapprobe", "MapProbe diagnostics", "Logs map-menu render-target and draw details. Cost: low CPU and log I/O while enabled. Change it only when diagnosing map rendering, then turn it off.", "" },
 		{ "nr_adaptive_diagnostics", "Show adaptive handoff diagnostics", "Shows adaptive NR and crop transition state. Cost: low CPU and display work. Turn on only while diagnosing adaptive behaviour.", "" },
 		{ "nr_parallel_eye_queue", "Parallel eye compute queue", "Records eye 1 on an optional D3D12 compute queue. This changes scheduling only; measured gains are upstream reports and must be A/B tested on this system. Default off.", "" },
 		{ "nr_flush_after_signal", "Flush D3D11 after NR fence signal", "Submits the D3D11 signal immediately before the D3D12 wait. This scheduling experiment may reduce a hand-off bubble; measure it with the Settings Benchmark. Default off.", "" },
 		{ "nr_prewarm", "Prewarm neural rendering", "Creates the configured per-eye NGX features on a loading-screen or main-menu render frame so the first world frame can reuse them. Disable to compare cold-start timing; pair the one-time prewarm log with loading/menu timings. Default on.", "" },
+		{ "nr_runtime_section", "NR runtime", "Chooses which NVIDIA Neural Rendering runtime file (nvngx_dlssnr*.dll) is loaded. Version 310.8.x and 310.9.x are accepted. The runtime is loaded once when the game starts, so a change applies after restarting the game.", "Shows the loaded NR runtime and lets you choose between the files placed next to it." },
+		{ "nr_runtime_active_fmt", "Active: %s | %s | %s", "", "" },
+		{ "nr_runtime_pending_fmt", "Selected after restart: %s", "", "" },
+		{ "nr_runtime_none", "Active: none yet (the runtime is loaded when Neural Rendering starts)", "", "" },
+		{ "nr_runtime_checking", "checking signature...", "", "" },
+		{ "nr_runtime_unknown_version", "unknown version", "", "" },
+		{ "nr_runtime_file", "NR runtime file", "Auto uses nvngx_dlssnr.dll when it is accepted, otherwise the newest accepted file. Choose a specific file to pin it. Files that are refused (unsupported version, or not signed by NVIDIA Corporation while signing is required) are shown disabled with the reason. This applies after restarting the game: the runtime is loaded once per process.", "" },
+		{ "nr_runtime_auto", "Auto (recommended)", "", "" },
+		{ "nr_runtime_require_signed", "Require NVIDIA-signed runtime (recommended)", "Only loads a runtime whose Authenticode signature is valid and issued to NVIDIA Corporation. A modified or unsigned DLL claiming the same version could run arbitrary code inside the game process. This applies after restarting the game.\nTurn off only to use a modified runtime you supply and trust (for example one patched for RTX 20/30/40). Modified runtimes run inside the game process.", "" },
+		{ "nr_runtime_unsigned_warning", "Unsigned or modified runtimes can be loaded while this is off. Only do that with a file you fully trust.", "", "" },
+		{ "nr_runtime_gpu_hint", "NVIDIA's official runtime build targets RTX 50 (Blackwell). Older RTX cards may need a runtime you supply that was built for them.", "", "" },
+		{ "nr_runtime_restart_note", "Runtime changes apply after restarting the game.", "", "" },
 		{ "nr_model_preset", "Model preset", "Selects a shipped NR model tuning set. Cost: low; it changes model parameters but adds no separate pass. Change it to compare a named tuning profile.", "" },
 		{ "nr_intensity", "Intensity", "Scales the NR model correction. Cost: low; no extra rendering pass. Change it to make the model effect stronger or weaker.", "" },
 		{ "nr_local_tone", "Local tone", "Scales local contrast changes from NR. Cost: low. Change it when local contrast looks too strong or too flat.", "" },
@@ -344,7 +358,14 @@ namespace
 
 	void ApplyRecommendedSettings(FoveatedRender::Settings& settings, Upscaling::Settings& upscalingSettings)
 	{
+		const auto runtimeFile = settings.neuralRenderingRuntimeFile;
+		const bool requireSignedRuntime = settings.neuralRenderingRequireSignedRuntime;
+		const auto modelPreset = settings.neuralRenderingModelPreset;
 		settings = FoveatedRender::Settings{};
+		// Recommended tuning must not silently change which NVIDIA runtime file or trust policy is used.
+		settings.neuralRenderingRuntimeFile = runtimeFile;
+		settings.neuralRenderingRequireSignedRuntime = requireSignedRuntime;
+		settings.neuralRenderingModelPreset = modelPreset;
 		settings.neuralRenderingEnabled = true;
 		upscalingSettings.mapProbeDiagnostics = false;
 		upscalingSettings.streamlineLogLevel = 0;
@@ -492,7 +513,10 @@ namespace
 	X(neuralRenderingEyeTrackedQuantizationPixels) \
 	X(neuralRenderingParallelEyeQueue) \
 	X(neuralRenderingFlushAfterSignal) \
-	X(neuralRenderingPrewarm)
+	X(neuralRenderingPrewarm) \
+	X(neuralRenderingModelPreset) \
+	X(neuralRenderingRuntimeFile) \
+	X(neuralRenderingRequireSignedRuntime)
 
 template <typename BasicJsonType>
 void to_json(BasicJsonType& json, const FoveatedRender::Settings& settings)
@@ -524,6 +548,8 @@ void from_json(const BasicJsonType& json, FoveatedRender::Settings& settings)
 
 void FoveatedRender::PostPostLoad()
 {
+	NeuralRendering::SetRuntimeSelectionPreference(settings.neuralRenderingRuntimeFile, settings.neuralRenderingRequireSignedRuntime);
+	NeuralRendering::WarmUpRuntimeSelection();  // background Authenticode check; nothing blocks the render thread
 	bootSnapshot.LatchIfNeeded(settings);
 	adaptiveController.Reset();
 	adaptiveCropController.Reset();
@@ -592,6 +618,7 @@ void FoveatedRender::SaveSettings(json& o_json)
 void FoveatedRender::LoadSettings(const json& o_json)
 {
 	settings = o_json;
+	NeuralRendering::SetRuntimeSelectionPreference(settings.neuralRenderingRuntimeFile, settings.neuralRenderingRequireSignedRuntime);
 	// Util::Subrect::Controller::LoadSettings takes `const json&` (Subrect.h:68)
 	// so no const_cast is needed — keeping it would imply mutation that never
 	// happens.
@@ -1343,6 +1370,13 @@ void FoveatedRender::DrawDLSSModeControl()
 		bool showNeuralRenderingStatusButton)
 	{
 		ClampSettings();
+		{
+			static bool runtimeChecksRequested = false;
+			if (!runtimeChecksRequested) {
+				runtimeChecksRequested = true;
+				NeuralRendering::RequestRuntimeSignatureChecks();  // worker threads; cached per path+size+mtime
+			}
+		}
 		if (showNeuralRenderingStatusButton)
 			DrawNeuralRenderingStatusButton();
 		// Keep all Neural Rendering prose inside the shared, width-aware helper so
@@ -1504,6 +1538,70 @@ ImGui::Separator();
 					if (auto _tt = Util::HoverTooltipWrapper()) drawWrapped(SettingsTooltip("nr_right_y"));
 				}
 			}
+			{
+				ImGui::Separator();
+				ImGui::Text("%s", SettingsLabel("nr_runtime_section"));
+				if (auto _tt = Util::HoverTooltipWrapper()) drawWrapped(SettingsTooltip("nr_runtime_section"));
+				const auto runtimeView = NeuralRendering::DescribeRuntimeCandidates(settings.neuralRenderingRequireSignedRuntime);
+				const auto signatureText = [](const NeuralRendering::RuntimeCandidateView& candidate) -> std::string {
+					return candidate.signatureReady ? std::string(NeuralRendering::RuntimeSelection::SignatureDisplayText(candidate.signature)) :
+					                                  std::string(SettingsLabel("nr_runtime_checking"));
+				};
+				const auto versionText = [](const NeuralRendering::RuntimeCandidateView& candidate) -> std::string {
+					return candidate.version.empty() ? std::string(SettingsLabel("nr_runtime_unknown_version")) : candidate.version;
+				};
+				if (runtimeView.hasActive) {
+					ImGui::TextWrapped(SettingsLabel("nr_runtime_active_fmt"), runtimeView.active.file.c_str(),
+						versionText(runtimeView.active).c_str(), signatureText(runtimeView.active).c_str());
+				} else {
+					ImGui::TextDisabled("%s", SettingsLabel("nr_runtime_none"));
+				}
+				if (runtimeView.hasLatched &&
+					(!NeuralRendering::RuntimeSelection::EqualsNoCase(runtimeView.latchedFile, settings.neuralRenderingRuntimeFile) ||
+						runtimeView.latchedRequireSigned != settings.neuralRenderingRequireSignedRuntime)) {
+					const std::string pending = settings.neuralRenderingRuntimeFile.empty() ?
+						std::string(SettingsLabel("nr_runtime_auto")) : settings.neuralRenderingRuntimeFile;
+					ImGui::TextColored(ImVec4(0.88f, 0.58f, 0.18f, 1.0f), SettingsLabel("nr_runtime_pending_fmt"), pending.c_str());
+				}
+				std::string comboPreview = SettingsLabel("nr_runtime_auto");
+				if (!settings.neuralRenderingRuntimeFile.empty()) {
+					comboPreview = settings.neuralRenderingRuntimeFile;
+					for (const auto& candidate : runtimeView.candidates)
+						if (NeuralRendering::RuntimeSelection::EqualsNoCase(candidate.file, settings.neuralRenderingRuntimeFile))
+							comboPreview = std::format("{} - {} - {}", candidate.file, versionText(candidate), signatureText(candidate));
+				}
+				if (ImGui::BeginCombo(SettingsLabel("nr_runtime_file"), comboPreview.c_str())) {
+					const bool autoSelected = settings.neuralRenderingRuntimeFile.empty();
+					if (ImGui::Selectable(SettingsLabel("nr_runtime_auto"), autoSelected)) {
+						settings.neuralRenderingRuntimeFile.clear();
+						NeuralRendering::SetRuntimeSelectionPreference(settings.neuralRenderingRuntimeFile, settings.neuralRenderingRequireSignedRuntime);
+					}
+					for (const auto& candidate : runtimeView.candidates) {
+						const bool refused = candidate.verdict != NeuralRendering::RuntimeSelection::Verdict::Accepted;
+						std::string itemText = std::format("{} - {} - {}", candidate.file, versionText(candidate), signatureText(candidate));
+						if (refused)
+							itemText += std::format("  ({})", NeuralRendering::RuntimeSelection::RefusalText(candidate.verdict, candidate.signature));
+						itemText += "##nr_runtime_" + candidate.file;
+						const bool selected = NeuralRendering::RuntimeSelection::EqualsNoCase(candidate.file, settings.neuralRenderingRuntimeFile);
+						ImGui::BeginDisabled(refused);
+						if (ImGui::Selectable(itemText.c_str(), selected)) {
+							settings.neuralRenderingRuntimeFile = candidate.file;
+							NeuralRendering::SetRuntimeSelectionPreference(settings.neuralRenderingRuntimeFile, settings.neuralRenderingRequireSignedRuntime);
+						}
+						ImGui::EndDisabled();
+					}
+					ImGui::EndCombo();
+				}
+				if (auto _tt = Util::HoverTooltipWrapper()) drawWrapped(SettingsTooltip("nr_runtime_file"));
+				if (ImGui::Checkbox(SettingsLabel("nr_runtime_require_signed"), &settings.neuralRenderingRequireSignedRuntime))
+					NeuralRendering::SetRuntimeSelectionPreference(settings.neuralRenderingRuntimeFile, settings.neuralRenderingRequireSignedRuntime);
+				if (auto _tt = Util::HoverTooltipWrapper()) drawWrapped(SettingsTooltip("nr_runtime_require_signed"));
+				if (!settings.neuralRenderingRequireSignedRuntime)
+					drawWarningWrapped(SettingsLabel("nr_runtime_unsigned_warning"));
+				drawDisabledWrapped(SettingsLabel("nr_runtime_restart_note"));
+				if (!NeuralRendering::RuntimeSelection::IsBlackwellAdapterName(NeuralRendering::RuntimeGpuName()))
+					drawDisabledWrapped(SettingsLabel("nr_runtime_gpu_hint"));
+			}
 			if (ImGui::Button(SettingsLabel("nr_recommended"))) {
 				ApplyRecommendedSettings(settings, globals::features::upscaling.settings);
 				subrectController.ApplyPresetByName(kPresetFullEye);
@@ -1655,6 +1753,15 @@ ImGui::Separator();
 				ImGui::EndTable();
 			}
 			ImGui::TextDisabled("%s %s", T(TKEY("neural_rendering_active_style"), "Active style:"), styleLabels[activeStyle]);
+			const auto runtimeVersion = NeuralRendering::Runtime::Instance().Version();
+			const auto parsedRuntimeVersion = NeuralRendering::RuntimeSelection::ParseVersion(runtimeVersion);
+			if (parsedRuntimeVersion && parsedRuntimeVersion->major == 310 && parsedRuntimeVersion->minor == 9) {
+				static const char* networkPresets[] = { "Original (310.8 network)", "Newest (faster)" };
+				int networkPreset = static_cast<int>(std::min(settings.neuralRenderingModelPreset, 1u));
+				if (ImGui::Combo(SettingsLabel("nr_model_network"), &networkPreset, networkPresets, IM_ARRAYSIZE(networkPresets)))
+					settings.neuralRenderingModelPreset = static_cast<uint>(networkPreset);
+				if (auto _tt = Util::HoverTooltipWrapper()) drawWrapped(SettingsTooltip("nr_model_network"));
+			}
 
 			if constexpr (NeuralRendering::kFullResolutionNeuralRenderingOnly) {
 				ImGui::TextDisabled("%s", T(TKEY("neural_rendering_model_resolution_locked"),

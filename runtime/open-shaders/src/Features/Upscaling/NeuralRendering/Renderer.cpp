@@ -1419,7 +1419,7 @@ namespace NeuralRendering
 				return LatchFailure("BeginD3D12 stereo", interop.LastError());
 			}
 			ExecuteAdaptivePrewarm(commandList, adaptivePrewarm, stableGuideWidth, stableGuideHeight,
-				stableColorWidth, stableColorHeight);
+				stableColorWidth, stableColorHeight, tuning);
 
 			bool succeeded = true;
 			bool parallelQueueUsed = false;
@@ -1757,7 +1757,7 @@ namespace NeuralRendering
 					featureInputWidth, featureInputHeight, guideWidth, guideHeight,
 					modelWidth, modelHeight, featureInputWidth, featureInputHeight,
 					modelWidth, modelHeight, 1.0f, 1.0f);
-				if (!Runtime::Instance().HasFeature(slot) && !Runtime::Instance().PrewarmFeature(commandList, slot, guide)) {
+				if (!Runtime::Instance().HasFeature(slot) && !Runtime::Instance().PrewarmFeature(commandList, slot, guide, tuning)) {
 					logger::warn("[DLSSNR][PREWARM] Feature 18 create failed eye={} pass={} result=0x{:08X}; lazy path remains enabled",
 						eyeIndex, passIndex, Runtime::Instance().NgxResult());
 					succeeded = false;
@@ -3266,7 +3266,7 @@ namespace NeuralRendering
 
 		void ExecuteAdaptivePrewarm(ID3D12GraphicsCommandList* commandList, const AdaptivePrewarmWork& work,
 			std::uint32_t stableGuideWidth, std::uint32_t stableGuideHeight,
-			std::uint32_t stableColorWidth, std::uint32_t stableColorHeight)
+			std::uint32_t stableColorWidth, std::uint32_t stableColorHeight, const Tuning& tuning)
 		{
 			if (!work.valid || !commandList || work.tierIndex >= kResolutionTierCount || work.eyeIndex >= eyes.size())
 				return;
@@ -3292,7 +3292,7 @@ namespace NeuralRendering
 			const auto slot = FeatureSlot(work.eyeIndex, work.tierIndex, 0, peripheryFeatureContext);
 			bool succeeded = Runtime::Instance().HasFeature(slot);
 			if (!succeeded)
-				succeeded = Runtime::Instance().PrewarmFeature(commandList, slot, guide);
+				succeeded = Runtime::Instance().PrewarmFeature(commandList, slot, guide, tuning);
 			if (!succeeded) {
 				logger::warn("[DLSSNR] adaptive prewarm Feature 18 failed eye={} tier={} resolution={}%; continuing with on-demand creation result=0x{:08X}",
 					work.eyeIndex, work.tierIndex, resolution, Runtime::Instance().NgxResult());

@@ -88,6 +88,7 @@ add_executable(cpp_tests
     test_nr_integration_policy.cpp
     test_adaptive_nr_controller.cpp
     test_nr_runtime_policy.cpp
+    test_nr_runtime_selection_policy.cpp
     test_nr_benchmark_policy.cpp
     test_gaze_crop_policy.cpp
     test_grass_input_layout_cache.cpp

@@ -20,12 +20,18 @@ Destinations are relative to the mod root (the folder that contains `SKSE/` and
 | `nvngx_dlss.dll` (DLSS) | DLSS upscaling | NVIDIA DLSS SDK GitHub releases, <https://github.com/NVIDIA/DLSS/releases> (also bundled in the Streamline SDK below) | `Shaders/Upscaling/Streamline/` |
 | `sl.interposer.dll`, `sl.common.dll`, `sl.dlss.dll`, `sl.pcl.dll`, `sl.reflex.dll` (Streamline) | DLSS / Reflex plumbing | NVIDIA Streamline SDK GitHub releases, <https://github.com/NVIDIA-RTX/Streamline/releases> (tested with v2.14.1: `bin/x64/`) | `Shaders/Upscaling/Streamline/` |
 | `nvngx_dlssg.dll`, `sl.dlss_g.dll` (+ the Streamline files above) | DLSS Frame Generation (optional, DX12 path) | Streamline SDK, same release (`bin/x64/`) | `Shaders/Upscaling/StreamlineDX12/` |
-| `nvngx_dlssnr.dll` | DLSS Neural Rendering (Feature 18) | Supplied by the user (accepted 310.8.x build). OpenNR never commits, redistributes or links to a download for it. | `Shaders/Upscaling/Streamline/` |
+| `nvngx_dlssnr.dll` | DLSS Neural Rendering (Feature 18) | Supplied by the user (accepted 310.8.x or 310.9.x build; by default it must carry a valid NVIDIA Authenticode signature). OpenNR never commits, redistributes or links to a download for it. | `Shaders/Upscaling/Streamline/` |
 | `amd_fidelityfx_loader_dx12.dll`, `amd_fidelityfx_upscaler_dx12.dll` (and `amd_fidelityfx_framegeneration_dx12.dll` for frame generation) | FSR upscaling / frame generation | AMD FidelityFX SDK, <https://github.com/GPUOpen-LibrariesAndSDKs/FidelityFX-SDK/releases> | `Shaders/Upscaling/FidelityFX/` |
 | `imgui-vr-helper.dll` | VR overlay helper (the source build pins SHA-256 `bf2941d4...eba6`, the v1.7.0 build) | imgui-vr-helper upstream release, <https://github.com/alandtse/imgui-vr-helper/releases> | `SKSE/Plugins/` |
 | `renderdoc.dll` (optional) | RenderDoc capture feature | RenderDoc, <https://renderdoc.org/> (MIT) | `Renderdoc/` |
 | `fa-solid-900.ttf`, Crimson Pro, Roboto Slab fonts (optional) | UI icon font / extra font choices; excluded from the lean archive because no licence text ships with them | Font Awesome Free <https://fontawesome.com/download>, Google Fonts <https://fonts.google.com/> | `Interface/CommunityShaders/Fonts/` |
 | `TerrainHelper.esp` / `Shaders/Features/TerrainHelper.ini` (optional) | Terrain Helper feature; redistribution permission is not documented for this fork | Nexus Mods mod 143149 by hakaspl | game `Data/` as the mod instructs |
+
+### Several Neural Rendering runtimes
+
+Additional `nvngx_dlssnr` builds can be placed next to the default file in `Shaders/Upscaling/Streamline/` (or `StreamlineDX12/`) under the name `nvngx_dlssnr_<version>.dll`, for example `nvngx_dlssnr_310_9_16.dll`. They are optional, user-supplied, never part of any OpenNR package and never required by the package validators. Pick the active one in the Neural Rendering menu (**NR runtime file**); **Auto** uses `nvngx_dlssnr.dll` if it is accepted, otherwise the newest accepted file. The choice applies after restarting the game.
+
+Only 310.8.x and 310.9.x are accepted. With **Require NVIDIA-signed runtime** (default on) the plugin refuses any runtime whose Authenticode signature is missing, invalid or not issued to NVIDIA Corporation; the check runs offline and in the background. Turn the option off only for a file you built or verified yourself.
 
 Always check the licence that ships with each download. Versions other than
 those named here are untested.

@@ -3,6 +3,9 @@
 #include <cstdint>
 #include <filesystem>
 #include <string>
+#include <vector>
+
+#include "RuntimeSelectionPolicy.h"
 
 struct ID3D12Device;
 struct ID3D12GraphicsCommandList;
@@ -79,6 +82,9 @@ namespace NeuralRendering
 		bool parallelEyeQueue = false;
 		bool flushAfterSignal = false;
 		const char* parallelEyeQueueRoute = "primary";
+		// 0 = Original 310.8-compatible network (default); 1 = newer 310.9 network.
+		// Ignored by 310.8 runtimes.
+		std::uint32_t modelPreset = 0;
 	};
 
 	/**
@@ -154,8 +160,41 @@ namespace NeuralRendering
 	enum class RuntimeStatus
 	{
 		NotProbed, NotFound, VersionUnavailable, UnsupportedVersion, LoadFailed, MissingExport,
-		Ready, InitializationFailed, CoreUnavailable, ParameterAllocationFailed, Initialized,
+		Ready, InitializationFailed, CoreUnavailable, ParameterAllocationFailed, Initialized, SignatureRefused,
 	};
+
+	/** @brief One discovered nvngx_dlssnr*.dll as shown by the UI and the startup log. */
+	struct RuntimeCandidateView
+	{
+		std::string file;
+		std::string version;  // empty when the version resource is unreadable
+		RuntimeSelection::SignatureStatus signature = RuntimeSelection::SignatureStatus::Unknown;
+		bool signatureReady = false;  // false while the Authenticode check has not finished
+		RuntimeSelection::Verdict verdict = RuntimeSelection::Verdict::Accepted;  // signature only counts once ready
+	};
+
+	struct RuntimeSelectionView
+	{
+		std::vector<RuntimeCandidateView> candidates;
+		bool hasActive = false;
+		RuntimeCandidateView active;
+		std::string activeReason;  // auto | user | fallback
+		// Preference latched when the runtime was first probed in this process (empty file = Auto).
+		bool hasLatched = false;
+		std::string latchedFile;
+		bool latchedRequireSigned = true;
+	};
+
+	/** @brief Persisted preference (neuralRenderingRuntimeFile / neuralRenderingRequireSignedRuntime). */
+	void SetRuntimeSelectionPreference(const std::string& file, bool requireSigned);
+	/** @brief Starts background Authenticode checks for the likely choice (no render-thread work). */
+	void WarmUpRuntimeSelection();
+	/** @brief Starts background checks for every candidate; call when the Neural Rendering page is shown. */
+	void RequestRuntimeSignatureChecks();
+	/** @brief Adapter description of the rendering GPU (cached; empty when unknown). */
+	[[nodiscard]] std::string RuntimeGpuName();
+	/** @brief Cheap, non-blocking snapshot for the UI (directory scan cached for a couple of seconds). */
+	[[nodiscard]] RuntimeSelectionView DescribeRuntimeCandidates(bool requireSigned);
 
 	class Runtime
 	{
@@ -172,7 +211,7 @@ namespace NeuralRendering
 			const Feature18GuideContract& guide, const Tuning& tuning, bool reset);
 		/** @brief Creates the native handle without evaluating it, used to hide adjacent-tier transitions. */
 		bool PrewarmFeature(ID3D12GraphicsCommandList* commandList, std::uint32_t slot,
-			const Feature18GuideContract& guide);
+			const Feature18GuideContract& guide, const Tuning& tuning);
 		[[nodiscard]] bool HasFeature(std::uint32_t slot) const;
 		void ResetFeature(std::uint32_t slot);
 		/** @brief Detects a live feature that must be retired after the GPU completes its last use. */
@@ -201,7 +240,7 @@ namespace NeuralRendering
 		static constexpr std::uint32_t kFeatureSlotCount = 132;
 		Runtime() = default;
 		bool EnsureFeature(ID3D12GraphicsCommandList* commandList, std::uint32_t slot,
-			const Feature18GuideContract& guide, bool* created = nullptr);
+			const Feature18GuideContract& guide, const Tuning& tuning, bool* created = nullptr);
 		void* module_ = nullptr;
 		void* parameters_ = nullptr;
 		void* featureHandles_[kFeatureSlotCount]{};

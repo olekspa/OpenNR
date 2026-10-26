@@ -1,6 +1,6 @@
 # Changelog
 
-All notable changes to OpenNR, from 2.20.0 to 2.22.2. The format follows
+All notable changes to OpenNR, from 2.20.0 to 2.23.1. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Per-version detail for most releases lives in
 [runtime/open-shaders/docs/releases/](runtime/open-shaders/docs/releases/).
 
@@ -8,6 +8,26 @@ Nothing below has been verified in a headset unless it says so. "Not verified" m
 tests pass, but no in-headset check has been done. Versions marked *(summarised from commit history)* have no
 changelog file in the current tree; they were summarised from the repository history (commit subjects, the changelog
 text those commits carried at the time, and diffs) and are thinner than the others. Dates are commit dates.
+
+## [2.23.1] - 2026-10-25
+Follow-up to 2.23.0: select the 310.9+ Neural Rendering network and preserve exceptional overlay warnings.
+### Added
+- Neural Rendering network selector for 310.9+ runtimes. Original is the default; Newest opts into the faster model. 310.8 continues to use its original network.
+### Fixed
+- VR overlay suppression no longer hides shader feature-set changes or Effects 11 compilation failures.
+### Not verified
+- No in-game or headset validation was run; the Newest network's image quality has not been evaluated against OpenNR's V5/Turbo visual floor.
+
+## [2.23.0] - 2026-10-16
+Selectable Neural Rendering runtime with 310.9.x support, built on 2.22.2.
+### Added
+- NR runtime selection in the Neural Rendering menu (`neuralRenderingRuntimeFile`, Auto by default) over any `nvngx_dlssnr*.dll` next to the default file; accepted versions 310.8.x and 310.9.x.
+- `neuralRenderingRequireSignedRuntime` (default on): runtimes without a valid NVIDIA Corporation signature are refused; unsigned files are shown as "Unsigned (modified?)".
+- Runtime candidate, refusal and feature-creation-failure log lines; a read-only hint on non-RTX 50 GPUs.
+### Changed
+- Package validation no longer assumes a 310.8 hash or version.
+### Not verified
+- Nothing was run in the headset; 310.9.x behaviour in the game is unknown.
 
 ## [2.22.2] - 2026-10-09
 Map terrain quality test build on 2.22.1. Everything new is off or neutral by default.

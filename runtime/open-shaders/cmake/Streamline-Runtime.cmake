@@ -138,6 +138,9 @@ stage_streamline_runtime(nvngx_dlss.dll "${STREAMLINE_RUNTIME_DIRECTORY}" STREAM
 # its native carrier as an explicit, locally supplied package input so a
 # successful SDK download can never produce an apparently complete but
 # non-initializing OpenNR build.
+# Any runtime build the plugin accepts (DLSSNR 310.8.x or 310.9.x, see
+# NeuralRendering/RuntimeSelectionPolicy.h) may be supplied; no hash is pinned here. Only the
+# default file name is staged; extra nvngx_dlssnr_<version>.dll files are placed by the user.
 set(OPENNR_DLSSNR_RUNTIME_SOURCE
     "${CMAKE_SOURCE_DIR}/package/Shaders/Upscaling/Streamline/nvngx_dlssnr.dll"
     CACHE FILEPATH

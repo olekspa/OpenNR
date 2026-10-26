@@ -35,7 +35,7 @@ In short (the text of [EXCEPTIONS.md](EXCEPTIONS.md) is authoritative):
   [runtime/open-shaders/.github/assets/logo/LICENSE](runtime/open-shaders/.github/assets/logo/LICENSE).
 - **NVIDIA, AMD and other vendor binaries and SDKs** are governed by their vendors' licences, not by the GPL. Vendor
   licence texts that exist in this repository sit next to the files they cover (see
-  [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)). The NVIDIA DLSS Neural Rendering runtime (`nvngx_dlssnr.dll`)
+  [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)). The NVIDIA DLSS Neural Rendering runtime (`nvngx_dlssnr.dll`, 310.8.x or 310.9.x)
   is **not** distributed by this project.
 
 ## Lineage and non-affiliation

@@ -531,6 +531,7 @@ Tuning tuning{
 			};
 			tuning.parallelEyeQueue = settings.neuralRenderingParallelEyeQueue;
 			tuning.flushAfterSignal = settings.neuralRenderingFlushAfterSignal;
+			tuning.modelPreset = std::min(settings.neuralRenderingModelPreset, 1u);
 			if constexpr (kFullResolutionNeuralRenderingOnly) {
 				// Enforce the full-resolution contract at the runtime boundary too, so a
 				// remote/DevBench settings write cannot select a reduced NR model area.
